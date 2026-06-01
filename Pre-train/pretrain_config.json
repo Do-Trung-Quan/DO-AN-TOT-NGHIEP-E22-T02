@@ -1,0 +1,13 @@
+{
+  "img_size": 224,
+  "batch_size": 64,
+  "num_workers": 8,
+  "epochs": 60,
+  "lr": 0.0003,
+  "weight_decay": 1e-06,
+  "momentum_base": 0.996,
+  "max_images": null,
+  "save_every": 5,
+  "no_amp": false,
+  "smoke": false
+}

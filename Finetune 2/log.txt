@@ -1,0 +1,146 @@
+================================================================================
+FINE-TUNING RESNET18 — VERSION 3.0 (FINAL FIXED)
+================================================================================
+Device         : cpu
+Batch size     : 16
+LR head        : 0.0001
+LR backbone    : 1e-05
+Epochs         : 50
+Unfreeze epoch : 10
+
+[1/9] Loading Excel data...
+✓ Loaded 2129 rows
+
+[2/9] Encoding labels...
+Class distribution:
+bnn
+1    1267
+0     862
+Name: count, dtype: int64
+
+[3/9] Matching images...
+  Tổng ảnh tìm thấy trong tất cả subfolder: 2129
+✓ Matched 2129 / 2129 images
+  Không match được: 0
+Class distribution sau match:
+bnn
+1    1267
+0     862
+Name: count, dtype: int64
+
+[4/9] Splitting data...
+Train : 1470
+Val   : 320
+Test  : 339
+Train class distribution:
+bnn
+1    872
+0    598
+Name: count, dtype: int64
+✓ No data leakage
+
+[5/9] Setting up WeightedRandomSampler...
+Original counts : {0: np.int64(598), 1: np.int64(872)}
+Class weights   : [2.458194  1.6857798]
+✓ Sampler: 2940 samples/epoch
+
+[6/9] Setting up augmentation...
+✓ Augmentation configured (X-quang friendly)
+
+[7/9] Creating datasets and dataloaders...
+✓ Train batches : 183
+✓ Val batches   : 20
+✓ Test batches  : 22
+
+[8/9] Setting up model...
+✓ BYOL pretrained weights loaded
+✓ Stage 1: Backbone Frozen | Head Trainable
+
+[9/9] Setting up loss and optimizer...
+✓ Focal Loss  | weights: [2.46 1.69]
+✓ Adam        | lr=0.0001
+✓ ReduceLROnPlateau
+
+Starting training...
+================================================================================
+Epoch   1/50 [S1] | Train: 0.8292 | Val: 0.7531
+  ✅ Best model saved → best_model_v3.pth
+Epoch   2/50 [S1] | Train: 0.7441 | Val: 0.7548
+Epoch   3/50 [S1] | Train: 0.7105 | Val: 0.7105
+  ✅ Best model saved → best_model_v3.pth
+Epoch   4/50 [S1] | Train: 0.7182 | Val: 0.6948
+  ✅ Best model saved → best_model_v3.pth
+Epoch   5/50 [S1] | Train: 0.6873 | Val: 0.6714
+  ✅ Best model saved → best_model_v3.pth
+Epoch   6/50 [S1] | Train: 0.6945 | Val: 0.6698
+  ✅ Best model saved → best_model_v3.pth
+Epoch   7/50 [S1] | Train: 0.6725 | Val: 0.6672
+  ✅ Best model saved → best_model_v3.pth
+Epoch   8/50 [S1] | Train: 0.6767 | Val: 0.6579
+  ✅ Best model saved → best_model_v3.pth
+Epoch   9/50 [S1] | Train: 0.6671 | Val: 0.6711
+Epoch  10/50 [S1] | Train: 0.6682 | Val: 0.6614
+
+🔓 Epoch 11: Unfreeze backbone → Stage 2
+✓ Layerwise LR: layer1-2=1e-6, layer3=5e-6, layer4=1e-5, head=1e-4
+================================================================================
+Epoch  11/50 [S2] | Train: 0.6641 | Val: 0.6510
+  ✅ Best model saved → best_model_v3.pth
+Epoch  12/50 [S2] | Train: 0.6312 | Val: 0.6489
+  ✅ Best model saved → best_model_v3.pth
+Epoch  13/50 [S2] | Train: 0.6373 | Val: 0.6194
+  ✅ Best model saved → best_model_v3.pth
+Epoch  14/50 [S2] | Train: 0.6178 | Val: 0.6283
+Epoch  15/50 [S2] | Train: 0.5986 | Val: 0.6147
+  ✅ Best model saved → best_model_v3.pth
+Epoch  16/50 [S2] | Train: 0.6121 | Val: 0.6120
+  ✅ Best model saved → best_model_v3.pth
+Epoch  17/50 [S2] | Train: 0.5810 | Val: 0.6325
+Epoch  18/50 [S2] | Train: 0.5903 | Val: 0.6248
+Epoch  19/50 [S2] | Train: 0.5846 | Val: 0.6140
+Epoch  20/50 [S2] | Train: 0.5574 | Val: 0.6392
+Epoch  21/50 [S2] | Train: 0.5608 | Val: 0.5996
+  ✅ Best model saved → best_model_v3.pth
+Epoch  22/50 [S2] | Train: 0.5578 | Val: 0.6070
+Epoch  23/50 [S2] | Train: 0.5460 | Val: 0.5969
+  ✅ Best model saved → best_model_v3.pth
+Epoch  24/50 [S2] | Train: 0.5474 | Val: 0.5974
+Epoch  25/50 [S2] | Train: 0.5253 | Val: 0.6079
+Epoch  26/50 [S2] | Train: 0.5307 | Val: 0.6421
+Epoch  27/50 [S2] | Train: 0.5566 | Val: 0.6240
+Epoch  28/50 [S2] | Train: 0.5444 | Val: 0.6060
+Epoch  29/50 [S2] | Train: 0.5461 | Val: 0.5960
+  ✅ Best model saved → best_model_v3.pth
+Epoch  30/50 [S2] | Train: 0.5265 | Val: 0.5984
+Epoch  31/50 [S2] | Train: 0.5419 | Val: 0.5934
+  ✅ Best model saved → best_model_v3.pth
+Epoch  32/50 [S2] | Train: 0.5467 | Val: 0.5982
+Epoch  33/50 [S2] | Train: 0.5042 | Val: 0.6062
+Epoch  34/50 [S2] | Train: 0.5401 | Val: 0.6033
+Epoch  35/50 [S2] | Train: 0.5138 | Val: 0.6160
+Epoch  36/50 [S2] | Train: 0.5251 | Val: 0.6049
+Epoch  37/50 [S2] | Train: 0.5304 | Val: 0.5960
+Epoch  38/50 [S2] | Train: 0.5118 | Val: 0.5993
+
+⏹️  Early stopping at epoch 38
+
+Loading best model...
+
+================================================================================
+TESTING WITH THRESHOLD OPTIMIZATION
+================================================================================
+
+ METRICS:
+  ROC AUC           : 0.8324
+  Optimal Threshold : 0.35
+  Max F1            : 0.8119
+
+ CLASSIFICATION REPORT:
+                     precision    recall  f1-score   support
+
+   Khong (0)       0.76      0.58      0.66       137
+      Co (1)          0.76      0.88      0.81       202
+
+    accuracy                                   0.76       339
+   macro avg       0.76      0.73       0.74       339
+weighted avg      0.76      0.76      0.75       339

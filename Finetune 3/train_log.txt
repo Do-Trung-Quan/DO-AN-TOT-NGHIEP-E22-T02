@@ -1,0 +1,117 @@
+================================================================================
+FINE-TUNING DENSENET121 — CheXNet pretrained
+================================================================================
+Device         : cuda
+Backbone       : DenseNet121 (CheXNet)
+Batch size     : 16 | Epochs: 50 | Unfreeze: 10
+
+[1/9] Loading Excel...
+✓ Loaded 2129 rows
+
+[2/9] Encoding labels...
+bnn
+1    1267
+0     862
+Name: count, dtype: int64
+
+[3/9] Matching images...
+  Tong anh tim thay: 2129
+✓ Matched 2129 / 2129
+
+[4/9] Splitting (group by patient)...
+Train: 1470 | Val: 320 | Test: 339
+✓ No data leakage
+
+[5/9] WeightedRandomSampler...
+Counts: {0: np.int64(598), 1: np.int64(872)} | Weights: [2.46 1.69]
+
+[6/9] Augmentation (ImageNet norm)...
+
+[7/9] Datasets & loaders...
+
+[8/9] Building model (DenseNet121 + CheXNet)...
+✓ CheXNet loaded | unexpected=0 | missing(real)=0
+✓ Stage 1: Features frozen | Classifier trainable
+
+[9/9] Loss & optimizer...
+✓ Focal Loss | Adam lr=0.0001 | ReduceLROnPlateau
+
+Starting training...
+================================================================================
+Epoch   1/50 [S1] | Train: 0.7845 | Val: 0.6811
+  ✅ Best model saved → best_model_chexnet.pth
+Epoch   2/50 [S1] | Train: 0.6704 | Val: 0.6811
+Epoch   3/50 [S1] | Train: 0.6395 | Val: 0.6217
+  ✅ Best model saved → best_model_chexnet.pth
+Epoch   4/50 [S1] | Train: 0.6524 | Val: 0.6151
+  ✅ Best model saved → best_model_chexnet.pth
+Epoch   5/50 [S1] | Train: 0.6262 | Val: 0.6602
+Epoch   6/50 [S1] | Train: 0.6309 | Val: 0.6114
+  ✅ Best model saved → best_model_chexnet.pth
+Epoch   7/50 [S1] | Train: 0.6225 | Val: 0.6172
+Epoch   8/50 [S1] | Train: 0.6336 | Val: 0.6316
+Epoch   9/50 [S1] | Train: 0.6115 | Val: 0.6418
+Epoch  10/50 [S1] | Train: 0.6211 | Val: 0.6948
+
+🔓 Epoch 11: Unfreeze features → Stage 2
+✓ Layerwise LR: block1-2=1e-6, block3=5e-6, block4=1e-5, head=1e-4
+================================================================================
+Epoch  11/50 [S2] | Train: 0.6118 | Val: 0.6595
+Epoch  12/50 [S2] | Train: 0.6176 | Val: 0.5815
+  ✅ Best model saved → best_model_chexnet.pth
+Epoch  13/50 [S2] | Train: 0.6062 | Val: 0.5767
+  ✅ Best model saved → best_model_chexnet.pth
+Epoch  14/50 [S2] | Train: 0.5858 | Val: 0.5768
+Epoch  15/50 [S2] | Train: 0.5858 | Val: 0.6486
+Epoch  16/50 [S2] | Train: 0.5585 | Val: 0.6339
+Epoch  17/50 [S2] | Train: 0.5639 | Val: 0.5900
+Epoch  18/50 [S2] | Train: 0.5570 | Val: 0.6298
+Epoch  19/50 [S2] | Train: 0.5623 | Val: 0.5688
+  ✅ Best model saved → best_model_chexnet.pth
+Epoch  20/50 [S2] | Train: 0.5585 | Val: 0.5897
+Epoch  21/50 [S2] | Train: 0.5498 | Val: 0.5982
+Epoch  22/50 [S2] | Train: 0.5220 | Val: 0.5980
+Epoch  23/50 [S2] | Train: 0.5217 | Val: 0.6118
+Epoch  24/50 [S2] | Train: 0.5273 | Val: 0.5657
+  ✅ Best model saved → best_model_chexnet.pth
+Epoch  25/50 [S2] | Train: 0.5223 | Val: 0.6005
+Epoch  26/50 [S2] | Train: 0.5352 | Val: 0.6417
+Epoch  27/50 [S2] | Train: 0.5087 | Val: 0.6117
+Epoch  28/50 [S2] | Train: 0.5307 | Val: 0.6122
+Epoch  29/50 [S2] | Train: 0.5367 | Val: 0.5765
+Epoch  30/50 [S2] | Train: 0.5164 | Val: 0.6074
+Epoch  31/50 [S2] | Train: 0.5134 | Val: 0.6060
+
+⏹️  Early stopping at epoch 31
+
+Loading best model...
+
+================================================================================
+TESTING (Youden's J threshold)
+================================================================================
+
+📊 METRICS:
+  ROC AUC            : 0.8466
+  Optimal Threshold  : 0.38  (Youden's J)
+  Sensitivity (Co)   : 0.782
+  Specificity (Khong): 0.810
+  F1 tai threshold   : 0.8187
+
+📋 CLASSIFICATION REPORT:
+              precision    recall  f1-score   support
+
+   Khong (0)       0.72      0.81      0.76       137
+      Co (1)       0.86      0.78      0.82       202
+
+    accuracy                           0.79       339
+   macro avg       0.79      0.80      0.79       339
+weighted avg       0.80      0.79      0.80       339
+
+
+✓ Saved: e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\Finetune 3\evaluation_chexnet.png
+✓ Saved: e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\Finetune 3\confusion_matrix_chexnet.csv
+
+================================================================================
+✅ DONE — CheXNet fine-tune
+  ROC AUC = 0.8466 | Sensitivity = 0.782 | Specificity = 0.810
+================================================================================
