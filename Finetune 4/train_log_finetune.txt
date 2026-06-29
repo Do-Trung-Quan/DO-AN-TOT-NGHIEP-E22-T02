@@ -1,0 +1,75 @@
+================================================================================
+FINE-TUNE BioViL-T — set_A  [Finetune 4]  
+================================================================================
+Backbone: e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\Pre-train BioViL-T\biovil_t_image_model_proj_size_128.pt
+Device=cuda | AMP=True | Batch=8 | Epochs=30 | Unfreeze@6
+
+[1] Excel + match + split...
+  Train 1470 | Val 320 | Test 339
+  Counts {0: np.int64(598), 1: np.int64(872)} | class weights [2.46 1.69]
+
+[2] Building BioViL-T model...
+  Load backbone LOCAL: e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\Pre-train BioViL-T\biovil_t_image_model_proj_size_128.pt
+  feature_size = 512
+  Stage 1: backbone FROZEN | head trainable
+
+[3] Training...
+================================================================================
+Epoch   1/30 [S1] | Train 0.7485 | Val 0.6877
+  -> best saved
+Epoch   2/30 [S1] | Train 0.6862 | Val 0.6578
+  -> best saved
+Epoch   3/30 [S1] | Train 0.6405 | Val 0.6320
+  -> best saved
+Epoch   4/30 [S1] | Train 0.6380 | Val 0.6263
+  -> best saved
+Epoch   5/30 [S1] | Train 0.6295 | Val 0.5998
+  -> best saved
+Epoch   6/30 [S1] | Train 0.6278 | Val 0.6060
+
+[UNFREEZE] Epoch 7: mo bang backbone -> Stage 2
+Epoch   7/30 [S2] | Train 0.5435 | Val 0.4653
+  -> best saved
+Epoch   8/30 [S2] | Train 0.4611 | Val 0.4789
+Epoch   9/30 [S2] | Train 0.4200 | Val 0.4771
+Epoch  10/30 [S2] | Train 0.3955 | Val 0.4846
+Epoch  11/30 [S2] | Train 0.3629 | Val 0.4520
+  -> best saved
+Epoch  12/30 [S2] | Train 0.3539 | Val 0.4731
+Epoch  13/30 [S2] | Train 0.3114 | Val 0.4598
+Epoch  14/30 [S2] | Train 0.2542 | Val 0.5100
+Epoch  15/30 [S2] | Train 0.2488 | Val 0.5055
+Epoch  16/30 [S2] | Train 0.1951 | Val 0.5433
+Epoch  17/30 [S2] | Train 0.1896 | Val 0.5853
+Epoch  18/30 [S2] | Train 0.2054 | Val 0.6103
+
+[EARLY STOP] epoch 18
+
+Load best model...
+
+================================================================================
+TEST (Youden's J)
+================================================================================
+  ROC AUC            : 0.9020
+  Accuracy           : 0.8555
+  Optimal Threshold  : 0.403
+  Sensitivity (Co)   : 0.906
+  Specificity (Khong): 0.781
+  F1 (Co)            : 0.8819
+
+              precision    recall  f1-score   support
+
+   Khong (0)       0.85      0.78      0.81       137
+      Co (1)       0.86      0.91      0.88       202
+
+    accuracy                           0.86       339
+   macro avg       0.85      0.84      0.85       339
+weighted avg       0.86      0.86      0.85       339
+
+
+Saved -> e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\Finetune 4\evaluation_biovilt_finetune.png
+Saved -> confusion_matrix_biovilt_finetune.csv
+
+================================================================================
+DONE — BioViL-T fine-tune | AUC=0.9020 | Sens=0.906 | Spec=0.781
+================================================================================
