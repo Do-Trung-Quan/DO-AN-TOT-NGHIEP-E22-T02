@@ -1,2 +1,3 @@
 best_model_biovilt_finetuned.pth filter=lfs diff=lfs merge=lfs -text
 biovil_t_image_model_proj_size_128.pt filter=lfs diff=lfs merge=lfs -text
+*.pth filter=lfs diff=lfs merge=lfs -text

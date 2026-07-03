@@ -1,0 +1,49 @@
+================================================================================
+ABLATION LOSS #2 — BioViL-T + Weighted CrossEntropy  [SMOKE]
+================================================================================
+LOSS = nn.CrossEntropyLoss(weight=class_weights)  (CE + trong so lop)
+Device=cuda | AMP=True | Batch=8 | Epochs=2 | Unfreeze@1
+
+[1] Excel + match + split...
+  Train 80 | Val 40 | Test 40
+  Counts {0: np.int64(36), 1: np.int64(44)} | class weights [2.22 1.82]
+
+[2] Building BioViL-T model...
+  Load backbone LOCAL: e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\Pre-train BioViL-T\biovil_t_image_model_proj_size_128.pt
+  feature_size = 512
+  Stage 1: backbone FROZEN | head trainable
+
+[3] Training...
+================================================================================
+Epoch   1/2 [S1] | Train 0.6936 | Val 0.6833
+  -> best saved
+
+[UNFREEZE] Epoch 2: mo bang backbone -> Stage 2
+Epoch   2/2 [S2] | Train 0.6791 | Val 0.6675
+  -> best saved
+
+Load best model...
+
+================================================================================
+TEST (Youden's J) — LOSS = Weighted CrossEntropy
+================================================================================
+  ROC AUC            : 0.7867
+  Accuracy           : 0.7000
+  Optimal Threshold  : 0.540
+  Sensitivity (Co)   : 0.560
+  Specificity (Khong): 0.933
+  F1 (Co)            : 0.7000
+
+              precision    recall  f1-score   support
+
+   Khong (0)       0.56      0.93      0.70        15
+      Co (1)       0.93      0.56      0.70        25
+
+    accuracy                           0.70        40
+   macro avg       0.75      0.75      0.70        40
+weighted avg       0.79      0.70      0.70        40
+
+
+================================================================================
+DONE — BioViL-T + Weighted CE | AUC=0.7867 | Sens=0.560 | Spec=0.933
+================================================================================
