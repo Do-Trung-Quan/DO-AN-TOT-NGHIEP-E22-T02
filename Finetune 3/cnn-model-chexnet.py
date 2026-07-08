@@ -12,12 +12,13 @@ Khac biet so voi cnn-model.py:
   - Normalization: ImageNet (CheXNet train voi ImageNet norm) thay 0.5/0.5
   - Head: model.classifier (1024->2) thay model.fc
 
-Output (vao Finetune 3/):
+Output (thu muc hien tai):
   - best_model_chexnet.pth
   - evaluation_chexnet.png
+  - confusion_matrix_chexnet.csv
 
 CHAY:
-  python "Finetune 3/cnn-model-chexnet.py"
+  python cnn-model-chexnet.py
 ================================================================================
 """
 import os
@@ -46,9 +47,7 @@ try:
 except Exception:
     pass
 
-# ---- Luu TOAN BO output ra log file trong Finetune 3 ----
-OUTPUT_DIR = r"e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\Finetune 3"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+
 
 class _Tee:
     """Ghi dong thoi ra console + file log."""
@@ -62,8 +61,6 @@ class _Tee:
         for s in self.streams:
             s.flush()
 
-_logfile = open(os.path.join(OUTPUT_DIR, "train_log.txt"), "w", encoding="utf-8")
-sys.stdout = _Tee(sys.stdout, _logfile)
 
 print("=" * 80)
 print("FINE-TUNING DENSENET121 — CheXNet pretrained")
@@ -72,10 +69,9 @@ print("=" * 80)
 # ================================================================================
 # CONFIG
 # ================================================================================
-EXCEL_PATH    = r"e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\Finetune 2\SetA_Labels.xlsx"
-IMAGE_DIR     = r"e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\Finetune\images_256\train"
-CHEXNET_PATH  = r"e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\Pre-train CheXNET\model.pth"
-OUTPUT_DIR    = r"e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\Finetune 3"
+EXCEL_PATH    = r"C:\Users\ASUS\PycharmProjects\JupyterProject\SetA_Labels.xlsx"
+IMAGE_DIR     = r"C:\Users\ASUS\Downloads\Silicodata_Updated_Feb2025\set_A_folder\train_images_256"
+CHEXNET_PATH  = r"C:\Users\ASUS\AndroidStudioProjects\cgv1\New folder (2)\DO-AN-TOT-NGHIEP-E22-T02\Pre-train CheXNET\model.pth"
 IMAGE_COLUMN  = 'file_name'
 LABEL_COLUMN  = 'bnn'
 
@@ -87,7 +83,6 @@ UNFREEZE_EPOCH = 10
 IMAGE_SIZE     = 224
 PATIENCE       = 7
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f"Device         : {DEVICE}")
 print(f"Backbone       : DenseNet121 (CheXNet)")
@@ -348,7 +343,7 @@ for epoch in range(EPOCHS):
     if avg_val < best_val_loss:
         best_val_loss = avg_val
         patience_counter = 0
-        torch.save(model.state_dict(), os.path.join(OUTPUT_DIR, 'best_model_chexnet.pth'))
+        torch.save(model.state_dict(), 'best_model_chexnet.pth')
         print("  ✅ Best model saved → best_model_chexnet.pth")
     else:
         patience_counter += 1
@@ -361,7 +356,7 @@ for epoch in range(EPOCHS):
 # EVALUATE
 # ================================================================================
 print("\nLoading best model...")
-model.load_state_dict(torch.load(os.path.join(OUTPUT_DIR, 'best_model_chexnet.pth'), map_location=DEVICE))
+model.load_state_dict(torch.load('best_model_chexnet.pth', map_location=DEVICE))
 model.eval()
 
 print("\n" + "=" * 80)
@@ -426,13 +421,13 @@ sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=axes[1,1],
 axes[1,1].set_title('Confusion Matrix'); axes[1,1].set_ylabel('True'); axes[1,1].set_xlabel('Predicted')
 
 plt.tight_layout()
-out_png = os.path.join(OUTPUT_DIR, 'evaluation_chexnet.png')
+out_png = 'evaluation_chexnet.png'
 plt.savefig(out_png, dpi=150, bbox_inches='tight')
 print(f"\n✓ Saved: {out_png}")
 
-# Luu confusion matrix ra CSV (vao Finetune 3)
+# Luu confusion matrix ra CSV
 import csv as _csv
-cm_path = os.path.join(OUTPUT_DIR, 'confusion_matrix_chexnet.csv')
+cm_path = 'confusion_matrix_chexnet.csv'
 with open(cm_path, 'w', newline='', encoding='utf-8') as f:
     w = _csv.writer(f)
     w.writerow(['', 'pred_Khong', 'pred_Co'])
@@ -445,6 +440,4 @@ print("✅ DONE — CheXNet fine-tune")
 print(f"  ROC AUC = {roc_auc:.4f} | Sensitivity = {sensitivity:.3f} | Specificity = {specificity:.3f}")
 print("=" * 80)
 
-# Dong log file
 sys.stdout.flush()
-_logfile.close()

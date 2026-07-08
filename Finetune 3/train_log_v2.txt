@@ -1,0 +1,110 @@
+================================================================================
+FINE-TUNING DENSENET121 (CheXNet) — V2 CAI TIEN
+================================================================================
+Device=cuda | Batch=16 | Epochs=50 | Unfreeze@10
+weight_decay=0.0001 | dropout=0.3 | focal_gamma=2.0
+
+[1/8] Loading Excel...
+  2129 rows | {1: np.int64(1267), 0: np.int64(862)}
+
+[2/8] Matching images...
+  Tong anh tim thay: 2129 | Matched 2129/2129
+
+[3/8] Splitting (group by patient)...
+  Train 1470 | Val 320 | Test 339
+
+[4/8] Class weights + sampler...
+  Counts {0: np.int64(598), 1: np.int64(872)} | class weights [2.46 1.69]
+
+[5/8] Augmentation...
+
+[6/8] Datasets & loaders...
+
+[7/8] Building model (DenseNet121 + CheXNet)...
+  CheXNet loaded | unexpected=0 | missing(real)=0
+  Stage 1: Features frozen | Classifier trainable | dropout=0.3
+
+[8/8] Training...
+================================================================================
+Epoch   1/50 [S1] | Train 0.7392 | Val 0.6479 | ValAUC 0.7802
+  ✅ Best saved (ValAUC=0.7802)
+Epoch   2/50 [S1] | Train 0.6444 | Val 0.6516 | ValAUC 0.8021
+  ✅ Best saved (ValAUC=0.8021)
+Epoch   3/50 [S1] | Train 0.6665 | Val 0.6182 | ValAUC 0.8080
+  ✅ Best saved (ValAUC=0.8080)
+Epoch   4/50 [S1] | Train 0.6535 | Val 0.6128 | ValAUC 0.8065
+Epoch   5/50 [S1] | Train 0.6325 | Val 0.6344 | ValAUC 0.8065
+Epoch   6/50 [S1] | Train 0.6236 | Val 0.6804 | ValAUC 0.8074
+Epoch   7/50 [S1] | Train 0.6284 | Val 0.6292 | ValAUC 0.8111
+  ✅ Best saved (ValAUC=0.8111)
+Epoch   8/50 [S1] | Train 0.6317 | Val 0.6272 | ValAUC 0.8132
+  ✅ Best saved (ValAUC=0.8132)
+Epoch   9/50 [S1] | Train 0.6386 | Val 0.6370 | ValAUC 0.8154
+  ✅ Best saved (ValAUC=0.8154)
+Epoch  10/50 [S1] | Train 0.6279 | Val 0.6222 | ValAUC 0.8182
+  ✅ Best saved (ValAUC=0.8182)
+
+🔓 Epoch 11: Unfreeze features → Stage 2 (layerwise LR)
+Epoch  11/50 [S2] | Train 0.6170 | Val 0.6456 | ValAUC 0.8189
+  ✅ Best saved (ValAUC=0.8189)
+Epoch  12/50 [S2] | Train 0.6008 | Val 0.5917 | ValAUC 0.8220
+  ✅ Best saved (ValAUC=0.8220)
+Epoch  13/50 [S2] | Train 0.6006 | Val 0.6211 | ValAUC 0.8239
+  ✅ Best saved (ValAUC=0.8239)
+Epoch  14/50 [S2] | Train 0.5990 | Val 0.6226 | ValAUC 0.8219
+Epoch  15/50 [S2] | Train 0.6024 | Val 0.6651 | ValAUC 0.8344
+  ✅ Best saved (ValAUC=0.8344)
+Epoch  16/50 [S2] | Train 0.5888 | Val 0.6490 | ValAUC 0.8331
+Epoch  17/50 [S2] | Train 0.5967 | Val 0.6366 | ValAUC 0.8347
+  ✅ Best saved (ValAUC=0.8347)
+Epoch  18/50 [S2] | Train 0.5599 | Val 0.6247 | ValAUC 0.8372
+  ✅ Best saved (ValAUC=0.8372)
+Epoch  19/50 [S2] | Train 0.5744 | Val 0.6299 | ValAUC 0.8381
+  ✅ Best saved (ValAUC=0.8381)
+Epoch  20/50 [S2] | Train 0.5627 | Val 0.6026 | ValAUC 0.8422
+  ✅ Best saved (ValAUC=0.8422)
+Epoch  21/50 [S2] | Train 0.5673 | Val 0.5792 | ValAUC 0.8439
+  ✅ Best saved (ValAUC=0.8439)
+Epoch  22/50 [S2] | Train 0.5739 | Val 0.5971 | ValAUC 0.8450
+  ✅ Best saved (ValAUC=0.8450)
+Epoch  23/50 [S2] | Train 0.5672 | Val 0.5696 | ValAUC 0.8444
+Epoch  24/50 [S2] | Train 0.5703 | Val 0.5933 | ValAUC 0.8456
+  ✅ Best saved (ValAUC=0.8456)
+Epoch  25/50 [S2] | Train 0.5582 | Val 0.5977 | ValAUC 0.8439
+Epoch  26/50 [S2] | Train 0.5733 | Val 0.6254 | ValAUC 0.8428
+Epoch  27/50 [S2] | Train 0.5567 | Val 0.5935 | ValAUC 0.8455
+Epoch  28/50 [S2] | Train 0.5689 | Val 0.6004 | ValAUC 0.8433
+Epoch  29/50 [S2] | Train 0.5476 | Val 0.5760 | ValAUC 0.8445
+Epoch  30/50 [S2] | Train 0.5406 | Val 0.5754 | ValAUC 0.8447
+Epoch  31/50 [S2] | Train 0.5773 | Val 0.5933 | ValAUC 0.8445
+
+⏹️  Early stopping at epoch 31
+
+Loading best model...
+  TTA (test-time flip): True
+
+================================================================================
+TESTING (Youden's J threshold)
+================================================================================
+  ROC AUC            : 0.8462
+  Optimal Threshold  : 0.389  (Youden's J)
+  Sensitivity (Co)   : 0.757
+  Specificity (Khong): 0.839
+  F1 tai threshold   : 0.8117
+
+              precision    recall  f1-score   support
+
+   Khong (0)       0.70      0.84      0.76       137
+      Co (1)       0.87      0.76      0.81       202
+
+    accuracy                           0.79       339
+   macro avg       0.79      0.80      0.79       339
+weighted avg       0.80      0.79      0.79       339
+
+
+✓ Saved: C:\Users\ASUS\AndroidStudioProjects\cgv1\New folder (2)\DO-AN-TOT-NGHIEP-E22-T02\Finetune 3\evaluation_chexnet_v2.png
+✓ Saved: C:\Users\ASUS\AndroidStudioProjects\cgv1\New folder (2)\DO-AN-TOT-NGHIEP-E22-T02\Finetune 3\confusion_matrix_chexnet_v2.csv
+
+================================================================================
+✅ DONE — CheXNet V2 | AUC=0.8462 | Sens=0.757 | Spec=0.839
+================================================================================
