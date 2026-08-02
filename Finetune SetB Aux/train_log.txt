@@ -1,0 +1,73 @@
+================================================================================
+CACH 1 - BUOC 2: BioViL-T (hoc dau hieu set_B) + CE tren set_A  
+================================================================================
+Backbone (finding-aware): e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\SetB Findings\biovilt_setb_findings_backbone.pth
+Device=cuda | AMP=True | Batch=8 | Epochs=30
+
+[1] Excel + match + split...
+  Train 1470 | Val 320 | Test 339
+
+[2] Building BioViL-T (nap backbone finding-aware)...
+  Nap finding-aware backbone OK | missing=0 unexpected=0
+  feature_size = 512
+
+[3] Training...
+================================================================================
+Epoch   1/30 [S1] | Train 0.6615 | Val 0.6337
+  -> best saved
+Epoch   2/30 [S1] | Train 0.6371 | Val 0.6262
+  -> best saved
+Epoch   3/30 [S1] | Train 0.6210 | Val 0.6140
+  -> best saved
+Epoch   4/30 [S1] | Train 0.6110 | Val 0.6198
+Epoch   5/30 [S1] | Train 0.6040 | Val 0.6264
+Epoch   6/30 [S1] | Train 0.6030 | Val 0.6163
+
+[UNFREEZE] Epoch 7: mo bang backbone -> Stage 2
+Epoch   7/30 [S2] | Train 0.5185 | Val 0.4912
+  -> best saved
+Epoch   8/30 [S2] | Train 0.4354 | Val 0.4343
+  -> best saved
+Epoch   9/30 [S2] | Train 0.4032 | Val 0.4598
+Epoch  10/30 [S2] | Train 0.3574 | Val 0.4245
+  -> best saved
+Epoch  11/30 [S2] | Train 0.3354 | Val 0.4253
+Epoch  12/30 [S2] | Train 0.2990 | Val 0.4218
+  -> best saved
+Epoch  13/30 [S2] | Train 0.2552 | Val 0.4716
+Epoch  14/30 [S2] | Train 0.2359 | Val 0.4916
+Epoch  15/30 [S2] | Train 0.2356 | Val 0.5416
+Epoch  16/30 [S2] | Train 0.2121 | Val 0.4968
+Epoch  17/30 [S2] | Train 0.1888 | Val 0.5141
+Epoch  18/30 [S2] | Train 0.1699 | Val 0.5222
+Epoch  19/30 [S2] | Train 0.1526 | Val 0.5407
+
+[EARLY STOP] epoch 19
+
+Load best + test...
+
+================================================================================
+TEST (Youden's J) — BioViL-T finding-aware + CE
+================================================================================
+  ROC AUC            : 0.8874
+  Accuracy           : 0.8260
+  Sensitivity (Co)   : 0.802
+  Specificity (Khong): 0.861
+  F1 (Co)            : 0.8460
+
+              precision    recall  f1-score   support
+
+   Khong (0)       0.75      0.86      0.80       137
+      Co (1)       0.90      0.80      0.85       202
+
+    accuracy                           0.83       339
+   macro avg       0.82      0.83      0.82       339
+weighted avg       0.84      0.83      0.83       339
+
+
+Saved -> e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\Finetune SetB Aux\evaluation_findingaware.png
+Saved -> confusion_matrix_findingaware.csv
+
+================================================================================
+DONE — finding-aware + CE | AUC=0.8874 | Sens=0.802 | Spec=0.861
+================================================================================
