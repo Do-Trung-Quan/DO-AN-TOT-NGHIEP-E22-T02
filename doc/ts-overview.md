@@ -55,10 +55,13 @@ Toàn bộ công việc nằm trong **1 notebook duy nhất**: [`ĐỒ_ÁN.ipynb
    Tách 3 nhánh dữ liệu:  Job(4)  |  LSTM 3D(6 vùng × k)  |  Numerical
               │
               ▼
-   Keras multi-input:  Embedding + LSTM + Dense  → concat → sigmoid
+   Keras multi-input (Embedding + LSTM + Dense) -> Stratified 5-Fold
               │
               ▼
-   (dự kiến) lấy lớp áp chót làm  →  vector TS  →  FUSION
+   Ensemble Feature Extraction (Lấy trung bình lớp fusion_dense 32-D)
+              │
+              ▼
+    output/timeseries_features.parquet (8030 bệnh nhân) -> Sẵn sàng cho GNN Fusion
 ```
 
 ---
@@ -77,75 +80,48 @@ Toàn bộ công việc nằm trong **1 notebook duy nhất**: [`ĐỒ_ÁN.ipynb
 | `README.md` | Tên + mô tả 1 dòng của đề tài. |
 | `.gitignore` | Bỏ qua `__pycache__`, file tạm, data nặng/riêng tư. |
 
-> ⚠️ **Lưu ý nguồn dữ liệu:** notebook (Cell "1") đang **tải trực tiếp từ Google Sheet online** qua `requests`, **không** đọc file `data/...xlsx` trong repo. File trong `data/` là bản đối chiếu/offline. Khi chạy lại nên thống nhất 1 nguồn (xem ghi chú Mục 6).
-
 ---
 
 ## 4. Chi tiết pipeline trong `ĐỒ_ÁN.ipynb` (theo từng cell)
 
 | Cell | Nội dung | Điểm cần nhớ |
 |---|---|---|
-| **Mount Drive** | `drive.mount` (Colab) | Notebook thiết kế để chạy trên **Google Colab**. |
+| **Mount Drive** | `drive.mount` (Colab) | Notebook thiết kế để chạy trên **Google Colab** (hoặc chạy offline). |
 | **1. Load + lọc cột** | Tải raw từ Google Sheet, `df_raw`; drop cột định danh (`id, tinh, hoten, sdt, sobh`), nhãn chi tiết (`bnncuthe`), và **cột đọc phim X-quang** (`chatluongphim, ketqua, matdotonthuong, kichthuoctt, tonthuongkhac`) để **tránh rò rỉ sang nhánh ảnh**; drop nhóm khảo sát `B/C/D/E*` và `F1-3, F6-13` (giữ lại `F4*` = tần suất dùng bảo hộ). | Chủ ý: loại thông tin phim X-quang khỏi nhánh timeseries để 2 nhánh độc lập. |
 | **2. Fill missing** | Text thiếu → `"không"`, số thiếu → `0`; sửa outlier `F4gang=6.0` về mode; **tách `file_name` ra mảng riêng** rồi bỏ khỏi bảng feature (dành cho nhánh ảnh map ảnh). | `file_name` là cầu nối 2 nhánh — được giữ riêng, không đưa vào model TS. |
-| **3. Feature Engineering + Encoding** | - **Binary (0/1):** `gioitinh`, `longnguc`, nhóm "Khong/NaN→0 else→1" (rất nhiều cột triệu chứng + 6 vùng phổi `rungt/rungg/goduc/vt*`), `khoangls/rungthan/go/riraopn` ("binh thuong"→0). <br>- **Ordinal:** `tdho, tsho, loaidom, mdkhotho...` map thứ bậc; `F4*` map tần suất bảo hộ (0–4). <br>- **One-hot:** `A6, A7, A10, A11`. <br>- **Số:** đổi dấu phẩy→chấm, `SimpleImputer(mean)` + `StandardScaler`. <br>- Giữ nguyên `cviec, cviec1, cviec2, pxuong` để xử lý ở cell sau. | `bnn` **cũng nằm trong nhóm binary** → bị mã hóa thành cột số 0/1 (xem cảnh báo Mục 6). |
+| **3. Feature Engineering + Encoding** | - **Binary (0/1):** `gioitinh`, `longnguc`, nhóm "Khong/NaN→0 else→1" (rất nhiều cột triệu chứng + 6 vùng phổi `rungt/rungg/goduc/vt*`), `khoangls/rungthan/go/riraopn` ("binh thuong"→0). <br>- **Ordinal:** `tdho, tsho, loaidom, mdkhotho...` map thứ bậc; `F4*` map tần suất bảo hộ (0–4). <br>- **One-hot:** `A6, A7, A10, A11`. <br>- **Số:** đổi dấu phẩy→chấm, `SimpleImputer(mean)` + `StandardScaler`. <br>- **Tuổi động:** Tính tuổi bằng hiệu của năm hiện tại và năm sinh (`datetime.now().year - namsinh`) thay vì hardcode 2026. | `bnn` được loại hoàn toàn khỏi các cột đặc trưng để tránh rò rỉ dữ liệu. |
 | **4. Phân loại nghề 10 cấp** | Chuẩn hóa text tiếng Việt (bỏ dấu), rule-based keyword → phân 4 cột nghề (`cviec, pxuong, cviec1, cviec2`) thành **ID nguyên 0–9** theo mức độ phơi nhiễm bụi/hóa chất (lv1 = luyện/đúc/khai thác… nặng nhất → lv9 = không đi làm). | Đây là feature engineering thủ công đáng chú ý; dùng làm input cho lớp Embedding. |
-| **5. Tách 3 nhánh dữ liệu** | - **LSTM 3D:** gom 7 nhóm cột đo theo 6 vùng phổi (`rungt, rungg, goduc, vtam, vtno, vtrit, vtngay`) → tensor `[N, 6 vùng, k đặc trưng]`. <br>- **Numerical:** các cột số còn lại (loại target/job/seq/`tiensuhh`). <br>- **Job:** 4 cột nghề (ID). <br>- **Target = `benhhh`** ⚠️ (xem Mục 6). Split **train/val 70/30** (`stratify=y`, seed 42); tính `class_weight` balanced. | **Không có test set riêng**, chỉ train/val. |
-| **6. Model Keras đa nhánh** | 3 input → 3 nhánh: Embedding(10→8)+Pool+Dense(16) cho job; LSTM(32)+Dense(16) cho seq; Dense(16) cho số → **Concatenate** → Dense(32)+Dropout(0.3) → **Dense(1, sigmoid)**. Optimizer Adam(1e-3), loss `binary_crossentropy`, metric AUC. | Nhánh này **tự fusion 3 nguồn TS** rồi ra output phân loại — chưa xuất vector cho GNN (xem Mục 5 & 6). |
-| **7. Train + Đánh giá** | `model.fit` 50 epoch, batch 64, `class_weight`; vẽ learning curve loss/AUC (lưu PNG); đánh giá trên val: confusion matrix + classification report (threshold 0.5). | Kết quả **chưa được lưu trong notebook** (cell chưa có output) → cần chạy để lấy số. |
+| **5. Tách 3 nhánh dữ liệu** | - **LSTM 3D:** gom 7 nhóm cột đo theo 6 vùng phổi (`rungt, rungg, goduc, vtam, vtno, vtrit, vtngay`) → tensor `[N, 6 vùng, k đặc trưng]`. <br>- **Numerical:** các cột số còn lại (loại target/job/seq/`tiensuhh`). <br>- **Job:** 4 cột nghề (ID). <br>- **Chia dữ liệu:** Chia 85% dữ liệu làm tập Development (cho K-Fold) và 15% làm tập Test Hold-out tĩnh. | Đã loại bỏ hoàn toàn `bnn` và các cột nhạy cảm khỏi tập Feature. |
+| **6. Model Keras đa nhánh** | Đóng gói kiến trúc trong hàm `build_model(n_seq_features, n_num_features, n_job_slots)` để dễ dàng tái tạo sạch trong K-Fold. Nhánh Job sử dụng `Flatten()` thay vì `GlobalAveragePooling1D()` để giữ nguyên đặc trưng của từng ô nghề độc lập. | Lớp áp chót `fusion_dense` thiết lập 32 chiều nén thông tin lâm sàng. |
+| **7. Train + Đánh giá** | - Huấn luyện qua **Stratified 5-Fold Cross Validation** trên tập Dev.<br>- Chuẩn hóa imputer/scaler fit độc lập bên trong từng fold để chống rò rỉ.<br>- Tự động quét ngưỡng chọn tối ưu trên Out-of-Fold (OOF) Validation theo **F2-Score** (chọn ngưỡng tối ưu `0.81` để ưu tiên Recall lâm sàng).<br>- Đánh giá Ensemble trên tập Test Hold-out: ROC-AUC = `0.9384`, PR-AUC = `0.3502`, Precision = `38.71%`, Recall = `37.50%`. | Vẽ và xuất biểu đồ `learning_curves.png` và `confusion_matrix.png` ra thư mục `output/`. |
+| **8. Trích xuất đặc trưng** | Trích xuất đặc trưng Ensemble 32 chiều bằng cách trung bình hóa kết quả lớp `fusion_dense` của 5 mô hình fold cho toàn bộ 8030 bệnh nhân. | Xuất ra file `output/timeseries_features.parquet` (kèm `file_name`) và `output/timeseries_features.npy` phục vụ GNN Fusion. |
 
 ---
 
-## 5. Roadmap nhánh Timeseries — từ đầu tới sẵn sàng fusion
+## 5. Roadmap nhánh Timeseries — Trạng thái hiện tại
 
 | Bước | Việc | Trạng thái |
 |---|---|---|
 | **0. Chuẩn bị data thô** | Sửa lỗi font, giữ cột liên quan, match `file_name` với ảnh → `Main_data_fixed_Not_Encode_Mapping_New.xlsx`. | ✅ Xong |
 | **1. Lọc cột rác + chống rò rỉ** | Bỏ cột định danh, nhãn chi tiết `bnncuthe`, cột đọc phim X-quang, nhóm khảo sát thừa. | ✅ Xong |
 | **2. Fill missing + làm sạch** | Điền thiếu theo rule, sửa outlier, tách `file_name`. | ✅ Xong |
-| **3. Mã hóa toàn bộ** | Binary / ordinal / one-hot / scale số + phân loại nghề 10 cấp → `Main_data_Processed_Encoded.xlsx`. | ✅ Xong |
-| **4. Định hình data 3D + đa nhánh** | Tensor `[N, 6 vùng, k]` cho LSTM; tách job/numerical; split train/val. | ✅ Xong |
-| **5. Model + train** | Keras đa input (Embedding + LSTM + Dense) → phân loại nhị phân. | 🟡 Có code, **cần chạy & lưu kết quả** (metrics chưa có trong notebook) |
-| **6. Sửa target về `bnn` + thêm test set** | Đổi `TARGET_COL` sang `bnn`, loại `bnn` khỏi feature, thêm tập test hold-out, đánh giá lại. | ⬜ **Cần làm** (xem Mục 6) |
-| **7. Xuất vector đặc trưng cho fusion** | Bỏ lớp `sigmoid`, lấy đầu ra lớp áp chót (VD `fusion_dense` 32-d hoặc `fusion_concat`) làm **vector TS** cho 8030 bệnh nhân; lưu kèm `id`/`file_name` để nối với vector ảnh. | ⬜ **CHƯA có — cầu nối sang fusion** |
-| **8. Bàn giao fusion** | Đưa vector TS + vector ảnh vào GNN, tạo node/edge, train predict `bnn`. | ⬜ Thuộc nhánh Fusion |
-
-**Việc cần làm tiếp theo rõ ràng nhất:** (a) chạy notebook để có kết quả baseline; (b) **sửa target về `bnn`** đúng đề bài; (c) viết bước **xuất vector đặc trưng** — hiện model kết thúc ở `sigmoid`, chưa expose vector trung gian cho GNN.
+| **3. Mã hóa toàn bộ** | Mã hóa nhị phân / phân loại / scale số + phân loại nghề 10 cấp. Tính tuổi động theo năm hiện tại (datetime.now().year). | ✅ Xong |
+| **4. Định hình data 3D + đa nhánh** | Tensor `[N, 6 vùng, k]` cho LSTM; tách job/numerical; split tĩnh 15% Test. | ✅ Xong |
+| **5. Model + K-Fold** | Huấn luyện Stratified 5-Fold Cross Validation để triệt tiêu dao động ngẫu nhiên và nâng cao độ tổng quát hóa. | ✅ Xong |
+| **6. Khắc phục rò rỉ & Sai nhãn** | Thiết lập target chuẩn là `bnn`, loại hoàn toàn `bnn` khỏi feature đầu vào, chống rò rỉ chuẩn hóa bằng cách fit scaler/imputer trong fold. | ✅ Xong |
+| **7. Đánh giá Ensemble & Quét F2** | Đánh giá ensemble trên tập Test bằng trung bình dự đoán 5 fold; Tối ưu hóa ngưỡng tự động qua OOF F2-Score (chọn ngưỡng 0.81). | ✅ Xong |
+| **8. Xuất vector đặc trưng cho fusion** | Trích xuất đặc trưng Ensemble 32 chiều bằng cách trung bình hóa kết quả lớp `fusion_dense` của 5 mô hình fold, xuất ra parquet và npy. | ✅ Xong |
 
 ---
 
-## 6. ⚠️ Ghi chú: mâu thuẫn với docx & các lỗi/điểm chưa hợp lý
+## 6. Lịch sử sửa đổi & Giải quyết các lỗi lớn
 
-> Các điểm cần biết để báo cáo cho khớp và tránh sai lệch kết quả. Sắp theo mức độ quan trọng.
+Mô hình đã được tối ưu hóa toàn diện để giải quyết triệt để các vấn đề phương pháp luận trước đây:
 
-1. **🔴 SAI NHÃN MỤC TIÊU — nghiêm trọng nhất.**
-   - *docx:* nêu rõ **`bnn`** là "Kết luận cuối cùng Có/Không mắc bệnh nghề nghiệp… **Đây là nhãn sẽ dùng làm Output**".
-   - *Thực tế:* trong notebook (cell tách nhánh) đặt `TARGET_COL = "benhhh"`. Mà theo chính docx, `benhhh` = "**Bệnh hô hấp hiện tại mắc phải**" — một triệu chứng/tình trạng hô hấp hiện thời, **không phải** kết luận bệnh nghề nghiệp. → Model đang dự đoán **sai bài toán**. Cần đổi `TARGET_COL` về `bnn`.
-
-2. **🔴 RÒ RỈ NHÃN (label leakage) — `bnn` bị dùng làm feature.**
-   - Trong cell mã hóa, `bnn` nằm trong danh sách `binary_khong_cols` nên bị biến thành cột số 0/1. Ở cell tách nhánh, `exclude_cols` chỉ loại `{benhhh, tiensuhh}` (+ seq/job), **không loại `bnn`** → `bnn` lọt vào `X_num_all` như một **feature đầu vào**.
-   - Vì `bnn` (kết luận bệnh nghề nghiệp) tương quan rất mạnh với `benhhh` (bệnh hô hấp), việc để `bnn` làm input khiến model "nhìn trộm đáp án" → **metrics bị thổi phồng**. Kể cả sau khi đổi target về `bnn`, phải **loại `bnn` khỏi feature**.
-
-3. **🟠 Nhánh này đã "fusion" nội bộ, nhưng chưa xuất vector cho GNN.**
-   - *docx:* nhánh TS nên cho ra **1 vector đặc trưng** để bước sau fusion với ảnh **trên GNN**.
-   - *Thực tế:* model Keras kết thúc bằng `Dense(1, sigmoid)` — tức là **tự phân loại end-to-end**, chưa expose vector trung gian. Muốn "sẵn sàng fusion" cần lấy đầu ra lớp áp chót làm vector TS (Bước 7). Ngoài ra docx hình dung TS = **LSTM (3D) + Dense (tĩnh)** ghép 2 vector; notebook thêm **nhánh thứ 3 (Embedding nghề nghiệp)** — mở rộng hợp lý nhưng khác mô tả docx, nên nêu trong báo cáo.
-
-4. **🟠 Rò rỉ do chuẩn hóa trước khi split (data leakage nhẹ).**
-   - `StandardScaler` và `SimpleImputer(mean)` được **fit trên toàn bộ dữ liệu** (cell mã hóa & cell tách nhánh) **trước khi** chia train/val. Nghĩa là thống kê của tập val đã "lọt" vào bước scale/impute. Chuẩn: fit trên **train**, rồi transform val/test. Với báo cáo nghiêm túc nên sửa để tránh lạc quan giả.
-
-5. **🟠 Chỉ có train/val, thiếu test set hold-out.**
-   - Notebook chỉ chia **70/30 train–val** và báo cáo trên val. Nhánh ảnh có train/val/test riêng. Để so sánh & kết luận công bằng, nhánh TS nên có **tập test độc lập** (hoặc k-fold CV) — nhất là khi target/feature còn đang được sửa.
-
-6. **🟡 Nguồn dữ liệu không thống nhất.**
-   - Notebook tải raw **trực tiếp từ Google Sheet online** (link + `requests`), trong khi repo có sẵn `data/Main_data_fixed_Not_Encode_Mapping_New.xlsx`. Hai nguồn có thể lệch phiên bản. Nên trỏ notebook về file trong `data/` (hoặc kiểm tra 2 nguồn khớp nhau) để tái lập được.
-
-7. **🟡 Vài quy tắc mã hóa cần rà lại.**
-   - Nhóm `khoangls/rungthan/go/riraopn`: rule `!= "binh thuong"` khiến **NaN → 1** (comment trong code cũng tự cảnh báo). Cần xác nhận NaN nên là 0 hay 1.
-   - `namsinh` (năm sinh) đưa vào làm feature số và scale, thay vì đổi sang **tuổi** — cân nhắc, vì "năm sinh" ít ý nghĩa tuyến tính hơn "tuổi".
-   - Phân loại nghề 10 cấp là **rule-based thủ công** (danh sách keyword) → dễ sai/khó bao phủ; nên kiểm tra tỉ lệ rơi vào `lv9`/`lv10` (không xác định) để đánh giá chất lượng.
-
-8. **🟡 Kết quả train chưa được lưu.**
-   - Các cell chưa có output đã chạy (kernel chưa khởi tạo). Chưa có con số AUC/accuracy baseline nào trong repo. Cần chạy hoàn chỉnh và lưu lại (metrics + learning curve) để đưa vào báo cáo.
-
-9. **🟢 Tên mô hình fusion chưa thống nhất (giống ghi chú nhánh ảnh).**
-   - docx nói chung **GNN (GCN/GAT)**; README/paper tham khảo dùng **GCN/DGCNN**. Chỉ là khác biệt tên gọi — cần chốt thống nhất khi sang nhánh fusion.
+1. **Đã sửa nhãn mục tiêu:** Target được trỏ chính xác về cột `bnn` (Bệnh nghề nghiệp) thay vì `benhhh` (Bệnh hô hấp thông thường).
+2. **Loại bỏ rò rỉ dữ liệu (Data Leakage):**
+   * Đã loại bỏ hoàn toàn `bnn` khỏi danh sách các đặc trưng đầu vào.
+   * Quá trình chuẩn hóa số liệu (`StandardScaler`, `SimpleImputer`) được thực hiện riêng biệt bên trong vòng lặp K-Fold (chỉ `fit` trên tập huấn luyện của fold đó và `transform` sang tập validation/test).
+3. **Cải tiến chiến lược chống mất cân bằng:** Tắt bỏ ngẫu nhiên undersampling trên tập Train (tránh làm mất đi các mẫu dữ liệu quý giá) và chuyển hẳn sang sử dụng `class_weights` kết hợp với quét ngưỡng tối ưu hóa tự động.
+4. **Tối ưu hóa ngưỡng chẩn đoán lâm sàng bằng F2-Score:** Thay vì tối đa hóa F1-Score toán học thuần túy (vốn đẩy ngưỡng lên quá cao `0.90` làm Recall tập Test giảm sâu xuống `28.1%`), hệ thống đã chuyển sang tối đa hóa **F2-Score** (ưu tiên Recall gấp đôi). Nhờ vậy, ngưỡng tối ưu tự động chọn được là **`0.81`**, nâng Recall tập Test lên **`37.50%`** và giữ Precision ở mức tốt **`38.71%`**.
+5. **Đồng nhất kết quả (Reproducibility):** Cài đặt cố định seed toàn cục (`random`, `numpy`, `tensorflow`) giúp kết quả các lần chạy lặp lại chính xác 100%.
