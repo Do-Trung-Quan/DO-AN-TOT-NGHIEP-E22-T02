@@ -1,5 +1,0 @@
-,pred_STB,pred_TB,pred_normal,pred_silicosis
-true_STB,144,26,3,54
-true_TB,54,79,43,49
-true_normal,1,22,74,47
-true_silicosis,47,32,23,217
