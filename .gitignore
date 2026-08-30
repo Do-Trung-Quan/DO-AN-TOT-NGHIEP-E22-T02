@@ -216,3 +216,24 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ==============================================================================
+# PII — DU LIEU BENH NHAN. KHONG BAO GIO COMMIT.
+# ==============================================================================
+# info.csv chua ho ten (hoten), nam sinh (namsinh) VA SO DIEN THOAI (sdt)
+# cua 1835 nguoi. Nghiem trong hon meta CSV nhieu.
+timeseriesDATA/info.csv
+
+# meta CSV cua nhanh anh: cot `fname` chua ho ten day du benh nhan
+FinetuneNewData/vectors/*meta*.csv
+
+# bang anh xa nguoc img_id -> ten file goc, chi duoc ton tai o local
+imagefeat/output/LOCAL_ONLY_*
+
+# Cac file DUOC PHEP commit trong imagefeat/output/ (khoa la img_id, khong co ten):
+#   image_index.parquet, image_features.parquet, image_features_control.parquet,
+#   image_features_manifest.json, image_features_qc.md
+#
+# LUU Y: cac duong dan tren da tung duoc commit truoc day. Them vao .gitignore
+# CHI chan cac commit moi — lich su git van con du lieu. Can `git filter-repo`
+# de don triet de, phai thong nhat ca nhom truoc khi force-push.
