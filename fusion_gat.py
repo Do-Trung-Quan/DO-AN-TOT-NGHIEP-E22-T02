@@ -10,6 +10,7 @@ vectors are represented by zeros plus an explicit availability mask.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 from pathlib import Path
 
@@ -201,9 +202,26 @@ def main() -> None:
     with torch.no_grad():
         probabilities = model(*tensors, edges).softmax(1)[:, 1].cpu().numpy()
     predictions = (probabilities[test_idx] >= 0.5).astype(int)
-    print("test_f1=", round(f1_score(labels[test_idx], predictions, zero_division=0), 4))
-    print("test_balanced_accuracy=", round(balanced_accuracy_score(labels[test_idx], predictions), 4))
-    print("test_auc=", round(roc_auc_score(labels[test_idx], probabilities[test_idx]), 4))
+    metrics = {
+        "model": "static-kNN-GAT-fusion",
+        "epochs": args.epochs,
+        "k": args.k,
+        "seed": args.seed,
+        "samples": int(len(labels)),
+        "timeseries_dim": int(ts.shape[1]),
+        "image_dim": int(image.shape[1]),
+        "image_coverage": int(image_mask.sum().item()),
+        "test_samples": int(len(test_idx)),
+        "test_f1": round(float(f1_score(labels[test_idx], predictions, zero_division=0)), 4),
+        "test_balanced_accuracy": round(float(balanced_accuracy_score(labels[test_idx], predictions)), 4),
+        "test_auc": round(float(roc_auc_score(labels[test_idx], probabilities[test_idx])), 4),
+    }
+    result_path = root / "fusion_gat_results.json"
+    result_path.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+    print("test_f1=", metrics["test_f1"])
+    print("test_balanced_accuracy=", metrics["test_balanced_accuracy"])
+    print("test_auc=", metrics["test_auc"])
+    print("results_saved=", result_path)
 
 
 if __name__ == "__main__":

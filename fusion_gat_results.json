@@ -1,0 +1,14 @@
+{
+  "model": "static-kNN-GAT-fusion",
+  "epochs": 150,
+  "k": 8,
+  "seed": 42,
+  "samples": 1475,
+  "timeseries_dim": 32,
+  "image_dim": 512,
+  "image_coverage": 1475,
+  "test_samples": 295,
+  "test_f1": 0.407,
+  "test_balanced_accuracy": 0.594,
+  "test_auc": 0.6013
+}
