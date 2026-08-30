@@ -104,6 +104,8 @@ def scan_images(images_root: Path) -> pd.DataFrame:
     """
     rows = []
     for path in sorted(images_root.rglob("*")):
+        if any(part.startswith("_cache") or part.startswith(".") for part in path.parts):
+            continue
         if path.suffix.lower() in IMG_EXT:
             rows.append({"image_path": str(path), "fname": path.name})
     if not rows:

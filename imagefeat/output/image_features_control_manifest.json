@@ -1,0 +1,16 @@
+{
+  "created_utc": "2026-08-30T12:43:23.849907+00:00",
+  "script": "imagefeat/extract_image_features.py",
+  "role": "BO DOI CHUNG — khong cross-fit, dung de kiem chung ket qua fusion",
+  "checkpoint": "C:\\Users\\ASUS\\AndroidStudioProjects\\cgv1\\New folder (2)\\DO-AN-TOT-NGHIEP-E22-T02\\Finetune CrossEntropy\\best_model_ce.pth",
+  "checkpoint_sha256": "1671811ad12dd1e13a147594dc38d443edef5709002c368d804e76bec6bb4775",
+  "train_label_of_checkpoint": "bnn (nhanh SetA, GroupShuffleSplit seed 42)",
+  "leakage_claim": "SetA va NEW DATA gia dinh khong giao nhau — CHUA kiem chung bang so",
+  "transform": "Resize(512) -> CenterCrop(448) -> ToTensor -> ExpandChannels",
+  "extraction_precision": "float32 (autocast TAT)",
+  "feature_dim_raw": 512,
+  "feature_dim_kept": 256,
+  "dead_dims_in_raw": 256,
+  "samples": 1835,
+  "torch": "2.6.0+cu124"
+}

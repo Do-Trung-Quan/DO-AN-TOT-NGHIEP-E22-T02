@@ -1,0 +1,12 @@
+Bạn có thể giải thích nó theo kiểu “đọc dữ liệu → chuẩn bị dữ liệu → train model → đánh giá” như sau:
+
+Đầu tiên, file đọc dữ liệu từ Excel và chuyển nhãn “Khong/Co” thành 0/1.
+Sau đó, nó quét thư mục ảnh để tìm đúng file ảnh tương ứng với từng dòng trong Excel.
+Tiếp theo, nó nối từng ảnh với nhãn và chia dữ liệu thành train, validation, test theo nhóm bệnh nhân để tránh rò rỉ dữ liệu.
+Sau đó, nó tạo Dataset và DataLoader để PyTorch có thể đọc dữ liệu từng batch.
+Model sử dụng backbone BioViL-T, nhưng trước khi train, nó load một backbone đã được pretrain hoặc đã học trước từ bước trước.
+Trong quá trình train, đầu tiên chỉ train lớp head, sau đó mới mở khóa backbone để fine-tune thêm.
+Cuối cùng, nó đánh giá kết quả trên tập test bằng các chỉ số như ROC AUC, accuracy, sensitivity, specificity và vẽ confusion matrix.
+Nếu muốn nói ngắn gọn hơn cho bảo vệ hoặc báo cáo, bạn có thể dùng câu này:
+
+“File này thực hiện fine-tuning mô hình BioViL-T trên tập ảnh X-ray Set A bằng cách đọc label từ Excel, nối ảnh với nhãn, chia dữ liệu theo nhóm bệnh nhân, sau đó huấn luyện mô hình với backbone đã được tiền huấn luyện và đánh giá hiệu suất trên tập test.”
