@@ -1,0 +1,58 @@
+{
+  "model": "pairwise-global-graph-transformer-fusion",
+  "epochs": 150,
+  "seed": 42,
+  "threshold_selection": "fixed",
+  "best_threshold": 0.5,
+  "valid_f1_at_best_threshold": 0.5128,
+  "test_positive_rate": 0.2508,
+  "test_predicted_positive_rate": 0.278,
+  "test_confusion_matrix": [
+    [
+      180,
+      41
+    ],
+    [
+      33,
+      41
+    ]
+  ],
+  "test_classification_report": {
+    "0": {
+      "precision": 0.8450704225352113,
+      "recall": 0.8144796380090498,
+      "f1-score": 0.8294930875576036,
+      "support": 221.0
+    },
+    "1": {
+      "precision": 0.5,
+      "recall": 0.5540540540540541,
+      "f1-score": 0.5256410256410257,
+      "support": 74.0
+    },
+    "accuracy": 0.7491525423728813,
+    "macro avg": {
+      "precision": 0.6725352112676056,
+      "recall": 0.684266846031552,
+      "f1-score": 0.6775670565993146,
+      "support": 295.0
+    },
+    "weighted avg": {
+      "precision": 0.758510384339938,
+      "recall": 0.7491525423728813,
+      "f1-score": 0.7532725703310722,
+      "support": 295.0
+    }
+  },
+  "attention_scope": "two_nodes_within_each_sample",
+  "samples": 1475,
+  "timeseries_dim": 32,
+  "image_dim": 512,
+  "image_coverage": 1475,
+  "train_samples": 944,
+  "valid_samples": 236,
+  "test_samples": 295,
+  "test_f1": 0.5256,
+  "test_balanced_accuracy": 0.6843,
+  "test_auc": 0.7658
+}

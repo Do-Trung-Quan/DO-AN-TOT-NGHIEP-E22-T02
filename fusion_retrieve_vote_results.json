@@ -1,0 +1,20 @@
+{
+  "model": "retrieve-and-vote-fusion",
+  "k": 8,
+  "cca_dim": 16,
+  "seed": 42,
+  "samples": 1475,
+  "timeseries_dim": 32,
+  "image_dim": 512,
+  "image_coverage": 1475,
+  "test_samples": 295,
+  "per_stream_test_f1": {
+    "ts_to_ts": 0.1833,
+    "img_to_img": 0.6463,
+    "ts_to_img": 0.3609,
+    "img_to_ts": 0.2617
+  },
+  "test_f1": 0.2921,
+  "test_balanced_accuracy": 0.5833,
+  "test_auc": 0.773
+}

@@ -1,0 +1,15 @@
+{
+  "model": "global-graph-transformer-fusion",
+  "epochs": 150,
+  "seed": 42,
+  "threshold": 0.5,
+  "attention": "all_nodes",
+  "samples": 1475,
+  "timeseries_dim": 32,
+  "image_dim": 512,
+  "image_coverage": 1475,
+  "test_samples": 295,
+  "test_f1": 0.5904,
+  "test_balanced_accuracy": 0.7338,
+  "test_auc": 0.7923
+}
