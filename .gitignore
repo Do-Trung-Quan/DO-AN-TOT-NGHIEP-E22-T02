@@ -217,11 +217,44 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Datasets and confidential data files
+# ==============================================================================
+# DU LIEU & ARTIFACT
+# ==============================================================================
+# Du lieu tho: chan tuyet doi — chua ho ten, so dien thoai, nam sinh benh nhan
 data/
-output/
 *.xlsx
+
+# Artifact: chan mac dinh
 *.csv
-*.parquet
 *.npy
+*.parquet
+
+# output/: chan tat, MO RIENG cac artifact ban giao.
+# Luu y: phai dung `output/*` chu khong phai `output/` — git khong cho mo lai
+# mot file nam trong thu muc da bi loai.
+output/*
+!output/timeseries_features.parquet
+!output/timeseries_features.npy
+!output/fusion_node_meta.parquet
+!output/*.png
+
+# fusion/output/: cho ket qua nhe, chan file nang (fusion_dataset_*.pt sinh lai duoc)
+fusion/output/*
+!fusion/output/*.json
+!fusion/output/*.md
+!fusion/output/*.png
+!fusion/output/*.parquet
+
+# imagefeat/output/: artifact khoa theo img_id, khong chua ten
+!imagefeat/output/*.parquet
+!imagefeat/output/*.json
+!imagefeat/output/*.md
+
+# ==============================================================================
+# PII — KHONG BAO GIO COMMIT  (dat cuoi de thang moi rule tren)
+# ==============================================================================
+data/info.csv
+timeseriesDATA/info.csv
+imagefeat/output/LOCAL_ONLY_*
+FinetuneNewData/vectors/*meta*.csv
 
