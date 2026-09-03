@@ -58,58 +58,90 @@ Nhánh Numerical ───────────> Dense(32, Swish) ──> Den
 
 ## 4. Quy trình Thực nghiệm & Đánh giá Model
 
-Dữ liệu tổng số 8,030 bệnh nhân được tách làm 2 tập độc lập:
-* **Dev Set (85% ~ 6,825 mẫu):** Dùng để huấn luyện và đánh giá Out-Of-Fold qua **Stratified 5-Fold Cross Validation**.
-* **Hold-out Test Set (15% ~ 1,205 mẫu):** Tập kiểm thử tĩnh không tham gia vào bất kỳ quá trình chọn mô hình hay tìm ngưỡng nào.
+### 4.0 Chia dữ liệu theo NHÓM BỆNH NHÂN (sửa lỗi rò rỉ — 09/2026)
+
+Bản trước dùng `train_test_split` ngẫu nhiên. Kiểm toán ở bước 0.2 phát hiện đây là **rò rỉ nghiêm trọng**: bộ dữ liệu 8.030 lượt khám chỉ thuộc về **6.266 bệnh nhân** — 1.694 người khám nhiều lần. Chia ngẫu nhiên khiến cùng một người xuất hiện ở cả tập huấn luyện lẫn tập kiểm thử:
+
+| | Cách chia CŨ (ngẫu nhiên) | Cách chia MỚI (theo nhóm) |
+|---|---|---|
+| Bệnh nhân nằm ở cả 2 tập | **440** | **0** |
+| Node test bị ảnh hưởng | **444/1.205 (36,8%)** | **0/1.148 (0,0%)** |
+| Ca bệnh trong test bị ảnh hưởng | **14/32 (43,8%)** | **0/31 (0,0%)** |
+
+Gần một nửa số ca bệnh của tập test cũ là người mà mô hình đã thấy một lần khám khác của chính họ khi huấn luyện. Mọi chỉ số bản cũ vì vậy **lạc quan hơn thực tế**.
+
+Cách chia hiện tại — đồng chuẩn với nhánh ảnh (`imagefeat/crossfit_finetune.py`):
+* `patient_group = sha256(normalize_name(hoten) + "|" + namsinh)[:16]`, dùng **đúng công thức** của `imagefeat/build_index.py`; đã kiểm chứng khớp **1835/1835** với `image_index.parquet`.
+* **Dev/Test:** `StratifiedGroupKFold(n_splits=7, groups=patient_group)`, lấy 1 fold làm test → **Dev 6.882 (85,7%) / Test 1.148 (14,3%)**, ca bệnh 180 / 31.
+* **5 fold trong Dev:** `StratifiedGroupKFold(n_splits=5, groups=patient_group)`, `fold_id` được lưu ra file để phase fusion dùng lại nguyên vẹn.
+* **Assert cứng** trong notebook: 0 bệnh nhân bắc cầu dev/test và giữa 5 fold.
 
 ### 4.1 Kết quả Huấn luyện 5-Fold Cross Validation
-Trong mỗi Fold, mô hình được huấn luyện với **Class Weights** cân bằng loss, optimizer `Adam(learning_rate=0.001)`, và callback `ReduceLROnPlateau(patience=5, factor=0.5)` + `EarlyStopping(patience=12)`.
+Mỗi Fold huấn luyện với **Class Weights**, `Adam(lr=0.001)`, `ReduceLROnPlateau(patience=6, factor=0.5)` + `EarlyStopping(monitor="val_pr_auc", patience=12)`.
 
 | Fold | Best Epoch | Val ROC-AUC | Val PR-AUC |
 |---|---|---|---|
-| **Fold 1** | Epoch 12 | 0.9485 | 0.5308 |
-| **Fold 2** | Epoch 14 | 0.9496 | 0.4913 |
-| **Fold 3** | Epoch 7 | 0.9230 | 0.3947 |
-| **Fold 4** | Epoch 16 | 0.9231 | 0.4724 |
-| **Fold 5** | Epoch 13 | 0.9328 | 0.4510 |
-| **Trung bình 5 Folds** | **-** | **0.9354** | **0.4680** |
+| **Fold 1** | Epoch 5 | 0.9542 | 0.5054 |
+| **Fold 2** | Epoch 13 | 0.9124 | 0.4896 |
+| **Fold 3** | Epoch 6 | 0.8999 | 0.3324 |
+| **Fold 4** | Epoch 28 | 0.8773 | 0.4543 |
+| **Fold 5** | Epoch 18 | 0.9325 | 0.4305 |
+| **Trung bình 5 Folds** | **-** | **0.9153** | **0.4424** |
+| *(bản cũ, split ngẫu nhiên)* | *-* | *0.9354* | *0.4680* |
 
 ### 4.2 Tối ưu hóa Ngưỡng quyết định (Out-of-Fold F2-Score Threshold Sweep)
-Sau khi hoàn thành 5 Folds, toàn bộ xác suất dự báo OOF của 6,825 mẫu được tập hợp lại để quét ngưỡng tìm F2-Score cao nhất (ưu tiên Recall gấp 2 lần Precision):
-* **Ngưỡng tối ưu được tìm thấy:** **`0.77`**
+Gộp toàn bộ dự báo OOF của 6.882 mẫu để quét ngưỡng tối đa hóa F2-Score:
+* **OOF ROC-AUC:** `0.8851`  |  **OOF PR-AUC:** `0.4033`
+* **Ngưỡng tối ưu:** **`0.80`** (F2 = 0.5483) — bản cũ là `0.77`
 
-### 4.3 Kết quả Ensemble Đánh giá trên Tập Test Hold-out (1,205 mẫu)
-Sử dụng phương pháp **Ensemble Average** (trung bình xác suất của 5 mô hình fold) đánh giá trên 1,205 mẫu Test độc lập tại ngưỡng `0.77`:
+### 4.3 Kết quả Ensemble trên Tập Test Hold-out (1.148 mẫu, 31 ca bệnh)
+Ensemble Average của 5 mô hình fold, tại ngưỡng `0.80`:
 
-* **Ensemble Test ROC-AUC:** **`0.9255`**
-* **Ensemble Test PR-AUC:** **`0.4198`**
-* **Test Accuracy:** **`95.77%`**
+* **Ensemble Test ROC-AUC:** **`0.9585`**
+* **Ensemble Test PR-AUC:** **`0.5618`**
+* **Test Accuracy:** **`97.39%`**
 
 #### Confusion Matrix Tập Test (Rows: Actual, Cols: Predicted):
 ```
              Dự đoán Khỏe (0)    Dự đoán Bệnh (1)
-Thực tế Khỏe (0)        1139                34
-Thực tế Bệnh (1)          17                15
+Thực tế Khỏe (0)        1102                15
+Thực tế Bệnh (1)          15                16
 ```
 
 #### Detailed Metrics:
-* **Precision (Bệnh):** **`30.61%`** (15 / 49)
-* **Recall (Bệnh):** **`46.88%`** (15 / 32 ca bệnh được phát hiện chính xác)
-* **F1-Score (Bệnh):** **`37.04%`**
+* **Precision (Bệnh):** **`51.61%`** (16 / 31)
+* **Recall (Bệnh):** **`51.61%`** (16 / 31 ca bệnh được phát hiện chính xác)
+* **F1-Score (Bệnh):** **`51.61%`**
+
+### 4.4 Đọc kết quả cho đúng ⚠️
+
+So với bản cũ, **OOF giảm** (PR-AUC trung bình 5 fold `0.4680 → 0.4424`; OOF gộp `0.4033`) đúng như dự đoán khi gỡ rò rỉ — chia theo nhóm bệnh nhân là bài toán khó hơn.
+
+Nhưng **chỉ số trên tập test lại tăng** (PR-AUC `0.4198 → 0.5618`, Recall `46,88% → 51,61%`). **Không được diễn giải đây là mô hình tốt lên.** Lý do:
+* Tập test đã **khác hoàn toàn** (1.148 mẫu / 31 ca bệnh, thay vì 1.205 / 32) — hai con số không so sánh trực tiếp được.
+* Với **31 ca dương**, sai số lấy mẫu rất lớn: lệch 1 ca đã làm Recall đổi ~3,2 điểm phần trăm.
+* **OOF là ước lượng đáng tin hơn** vì tính trên 6.882 mẫu với 180 ca dương.
+
+Kết luận trung thực: *các chỉ số hiện tại đáng tin cậy hơn bản cũ vì không còn rò rỉ; phần tăng trên tập test nằm trong nhiễu lấy mẫu và không phải bằng chứng cải thiện.* Khi báo cáo nên kèm khoảng tin cậy bootstrap.
 
 ---
 
 ## 5. Trích xuất & Định dạng Vector Đặc trưng (Feature Extraction Specification)
 
-Đặc trưng nén lâm sàng 32-D được trích xuất từ 5 mô hình Fold cho toàn bộ 8,030 bệnh nhân bằng cách nạp trọng số từng fold, tạo sub-model tới lớp `fusion_dense`, dự báo đặc trưng và lấy trung bình cộng.
+Đặc trưng nén lâm sàng 32-D được trích xuất từ 5 mô hình Fold cho toàn bộ 8.030 bệnh nhân: nạp trọng số từng fold, tạo sub-model tới lớp `fusion_dense`, dự báo rồi lấy trung bình cộng.
+
+### Đổi khóa nối: `file_name` → `id` + `has_image`
+
+Bản cũ dùng `file_name` làm khóa nối sang nhánh ảnh. Bản này bỏ hẳn vì hai lý do:
+1. **PII** — tên file chứa họ tên bệnh nhân (`001_TO_VAN_DIEU_20181219.jpg`). Nhánh ảnh cũng đã chuyển sang `img_id` + `file_hash` vì lý do này.
+2. **Tái lập được** — `id` khớp `img_id` của `image_index.parquet` **1835/1835**, còn tên file thì phải quét thư mục ảnh mới có.
 
 ### File Đầu Ra:
-1. **`output/timeseries_features.parquet`**:
-   * **Shape:** `(8030, 33)` (Cột 0: `file_name`, Cột 1..32: `ts_feat_0` ... `ts_feat_31`).
-   * **Số lượng mẫu có file_name hợp lệ (.jpg):** **1,835 bệnh nhân** (với 99 ca mắc bệnh `bnn=1`).
-   * **Số lượng mẫu không có ảnh:** 6,195 bệnh nhân (giá trị `file_name = "khong"`).
-2. **`output/timeseries_features.npy`**:
-   * **Shape:** `(8030, 32)` (Ma trận float32 thuần túy).
+1. **`output/timeseries_features.parquet`** — `(8030, 34)`: `id`, `has_image`, `ts_feat_0..31`
+2. **`output/timeseries_features.npy`** — `(8030, 32)` float32
+3. **`output/fusion_node_meta.parquet`** — `(8030, 12)`: `row_id, id, has_image, bnn, split, fold_id, patient_group, tuoi, gioitinh, cviec, pxuong, tuoinghe`
+   * `split` / `fold_id` **phải được phase fusion dùng lại nguyên vẹn** — tự chia lại là vô hiệu hóa toàn bộ cơ chế chống rò rỉ.
+   * Phân bố: có ảnh 1.835 BN (99 ca bệnh, 5,40%) · không ảnh 6.195 BN (112 ca bệnh, 1,81%).
 
 ---
 
