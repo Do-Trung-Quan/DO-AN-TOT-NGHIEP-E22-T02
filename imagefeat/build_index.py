@@ -1,3 +1,4 @@
+
 """
 ================================================================================
 P0 — XAY DUNG CHI MUC CHUAN cho nhanh anh  [nguon su that duy nhat]
@@ -32,7 +33,7 @@ PII: dau ra KHONG chua ten file goc va KHONG chua ho ten. Bang anh xa nguoc
      ghi rieng ra LOCAL_ONLY_filename_map.csv (da chan trong .gitignore).
 
 CHAY:
-  python imagefeat/build_index.py --images-root "E:/.../NEW DATA"
+    python imagefeat/build_index.py
 ================================================================================
 """
 from __future__ import annotations
@@ -54,6 +55,7 @@ except Exception:
 
 IMG_EXT = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
 EXPECTED_ROWS = 1835
+DATA_ROOT = Path(r"C:\Users\Admin\Downloads\archive")
 
 # ---- 5 pattern rut `id` tu ten file (thu tu quan trong) ----
 RE_P1 = re.compile(r"^(\d+)_(?=\D)")                    # NNNN_TEN_...
@@ -104,8 +106,6 @@ def scan_images(images_root: Path) -> pd.DataFrame:
     """
     rows = []
     for path in sorted(images_root.rglob("*")):
-        if any(part.startswith("_cache") or part.startswith(".") for part in path.parts):
-            continue
         if path.suffix.lower() in IMG_EXT:
             rows.append({"image_path": str(path), "fname": path.name})
     if not rows:
@@ -222,9 +222,9 @@ def main() -> None:
     here = Path(__file__).resolve().parent
     repo = here.parent
     parser = argparse.ArgumentParser()
-    parser.add_argument("--images-root", type=Path, required=True,
+    parser.add_argument("--images-root", type=Path, default=DATA_ROOT,
                         help="Thu muc goc chua anh (quet de quy, gom ca train/ va test/)")
-    parser.add_argument("--info-csv", type=Path, default=repo / "timeseriesDATA" / "info.csv")
+    parser.add_argument("--info-csv", type=Path, default=DATA_ROOT / "info.csv")
     parser.add_argument("--output-dir", type=Path, default=here / "output")
     args = parser.parse_args()
     build(args.images_root, args.info_csv, args.output_dir)

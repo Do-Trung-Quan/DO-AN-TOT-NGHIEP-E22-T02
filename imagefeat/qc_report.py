@@ -1,8 +1,11 @@
 """
 ================================================================================
-P3 — CONG NGHIEM THU  [khong co bao cao nay thi KHONG nhan ban giao]
+P3 — CONG NGHIEM THU (ban mac dinh cho bo FROZEN)
+[khong co bao cao nay thi KHONG nhan ban giao]
 ================================================================================
-Sinh output/image_features_qc.md. Thoat ma 1 neu bat ky assert cung nao truot.
+Sinh output/image_features_frozen_qc.md cho bo dac trung
+imagefeat/output/image_features_frozen.parquet. Thoat ma 1 neu bat ky assert
+cung nao truot.
 
 5 ASSERT CUNG (truot = tu choi ban giao):
   1. So hang khop chi muc            = 1835/1835
@@ -28,9 +31,11 @@ VI SAO CO CHI SO 6:
   ve ~0.003 khi MEAN-CENTERING. Chi so nay bat buoc phai co de nguoi dung
   fusion biet ho PHAI center truoc khi dung do thi kNN.
 
-CHAY:
+CHAY (khong can tham so, da mac dinh vao bo frozen):
   python imagefeat/qc_report.py
-  python imagefeat/qc_report.py --features output/image_features_control.parquet
+
+Van co the doi sang bo khac neu can:
+  python imagefeat/qc_report.py --features output/image_features_control.parquet --output output/image_features_control_qc.md
 ================================================================================
 """
 from __future__ import annotations
@@ -103,12 +108,15 @@ def main() -> None:
     here = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser()
     parser.add_argument("--index", type=Path, default=here / "output" / "image_index.parquet")
-    parser.add_argument("--features", type=Path, default=here / "output" / "image_features.parquet")
-    parser.add_argument("--output", type=Path, default=here / "output" / "image_features_qc.md")
+    # DA DOI MAC DINH -> tro thang vao bo FROZEN, khong can truyen tay
+    parser.add_argument("--features", type=Path,
+                        default=here / "output" / "image_features_frozen.parquet")
+    parser.add_argument("--output", type=Path,
+                        default=here / "output" / "image_features_frozen_qc.md")
     args = parser.parse_args()
 
     print("=" * 80)
-    print("P3 — CONG NGHIEM THU")
+    print("P3 — CONG NGHIEM THU (bo FROZEN)")
     print("=" * 80)
 
     index = pd.read_parquet(args.index)
@@ -205,7 +213,7 @@ def main() -> None:
 
     verdict = "DAT — chap nhan ban giao" if not report.failed else "TRUOT — TU CHOI ban giao"
     document = [
-        "# Bao cao kiem dinh dac trung anh (QC)",
+        "# Bao cao kiem dinh dac trung anh (QC) — bo FROZEN",
         "",
         f"- Sinh luc: {datetime.now(timezone.utc).isoformat()}",
         f"- Nguon dac trung: `{args.features.name}`",
