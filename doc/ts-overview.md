@@ -75,7 +75,9 @@ Toàn bộ công việc nằm trong **1 notebook duy nhất**: [`ĐỒ_ÁN.ipynb
 | `data/Main_data_fixed_Not_Encode_Mapping_New.xlsx` | Dữ liệu thô gốc (8030 dòng, 433 ảnh). Đã lưu trữ bảo toàn. |
 | `data/new data.csv` | Dữ liệu bổ sung từ thầy (1835 dòng có ảnh X-quang). Đã lưu trữ bảo toàn. |
 | `output/timeseries_features.parquet` | **Sản phẩm chính** — ma trận đặc trưng lâm sàng 32D `(8030, 34)`: `id`, `has_image`, `ts_feat_0..31`. |
-| `output/fusion_node_meta.parquet` | **Bắt buộc cho fusion** — `(8030, 12)` chứa nhãn `bnn`, `split`, `fold_id`, `patient_group` và cột phụ trợ dựng cạnh. |
+| `output/fusion_node_meta.parquet` | **Bắt buộc cho fusion** — `(8030, 13)` chứa nhãn `bnn`, `split`, `fold_id`, `patient_uid` và cột phụ trợ dựng cạnh. |
+| `output/patient_identity.parquet` | `(8030, 2)` — `id` + `patient_uid`, **dành cho nhánh ảnh dùng chung** một định nghĩa danh tính. Không chứa PII. |
+| `scripts/patient_identity.py` | Luật xác định "cùng một người" + phân loại nghề 10 cấp. Notebook import từ đây. |
 | `scripts/build_merged_dataset.py` | Tái lập `data/Main_data_Merged_1835_Images.xlsx` từ file gốc + `data/info.csv`. |
 | `output/timeseries_features.npy` | Ma trận float32 thô `[8030, 32]`. |
 | `doc/X-ray-overview.md` | Tài liệu tổng quan nhánh ảnh (file tham khảo song song). |
@@ -95,7 +97,7 @@ Toàn bộ công việc nằm trong **1 notebook duy nhất**: [`ĐỒ_ÁN.ipynb
 | **4. Phân loại nghề 10 cấp** | Rule-based keyword → phân 4 cột nghề (`cviec, pxuong, cviec1, cviec2`) thành **ID nguyên 0–9** theo mức độ độc hại. | Dùng làm input cho lớp Embedding. |
 | **5. Tách 3 nhánh dữ liệu** | - **LSTM 3D:** tensor `[N, 6 vùng, k đặc trưng]`. <br>- **Numerical:** các cột số còn lại. <br>- **Job:** 4 cột nghề (ID). <br>- **Chia dữ liệu:** 85% Dev Set cho K-Fold, 15% Test Hold-out tĩnh. | Phân tầng theo nhãn `bnn`. |
 | **6. Model Keras đa nhánh** | Hàm `build_model()`. Nhánh Job sử dụng `Flatten()` giữ nguyên đặc trưng của từng ô nghề. | Lớp áp chót `fusion_dense` thiết lập 32 chiều nén thông tin lâm sàng. |
-| **7. Train + Đánh giá** | - **StratifiedGroupKFold 5-Fold** theo `patient_group` trên tập Dev.<br>- Imputer/Scaler fit độc lập trong fold chống rò rỉ.<br>- Quét ngưỡng F2-Score trên OOF (ngưỡng tối ưu `0.80`).<br>- Ensemble trên Test Hold-out (1.148 mẫu): **ROC-AUC = 0.9585**, **PR-AUC = 0.5618**, **Recall = 51.61%** (16/31 ca bệnh), **Precision = 51.61%**. | Biểu đồ lưu tại `output/learning_curves.png` và `output/confusion_matrix.png`. |
+| **7. Train + Đánh giá** | - **StratifiedGroupKFold 5-Fold** theo `patient_uid` trên tập Dev.<br>- Imputer/Scaler fit độc lập trong fold chống rò rỉ.<br>- Quét ngưỡng F2-Score trên OOF (ngưỡng tối ưu `0.75`).<br>- Ensemble trên Test Hold-out (1.148 mẫu): **ROC-AUC = 0.9556**, **PR-AUC = 0.5133**, **Recall = 58.06%** (18/31 ca bệnh), **Precision = 42.86%**. | Biểu đồ lưu tại `output/learning_curves.png` và `output/confusion_matrix.png`. |
 | **8. Trích xuất đặc trưng** | Trích xuất đặc trưng Ensemble 32 chiều bằng cách trung bình hóa lớp `fusion_dense` của 5 mô hình fold cho 8030 bệnh nhân. | Xuất `output/timeseries_features.parquet` (khóa `id` + `has_image`), `.npy`, và `output/fusion_node_meta.parquet`. |
 
 ---
@@ -113,7 +115,7 @@ Toàn bộ công việc nằm trong **1 notebook duy nhất**: [`ĐỒ_ÁN.ipynb
 | **6. Khắc phục rò rỉ & Sai nhãn** | Target chuẩn là `bnn`, loại hoàn toàn `bnn` khỏi feature đầu vào, fit scaler/imputer trong fold. | ✅ Xong |
 | **7. Đánh giá Ensemble & Quét F2** | Đánh giá ensemble trên tập Test; Tối ưu hóa ngưỡng tự động qua OOF F2-Score (ngưỡng 0.77, Recall 46.88%, PR-AUC 0.4198). | ✅ Xong |
 | **8. Xuất vector đặc trưng cho fusion** | Trích xuất đặc trưng Ensemble 32 chiều trung bình 5 fold, lưu parquet và npy. | ✅ Xong |
-| **9. Sửa rò rỉ bệnh nhân + đổi khóa nối** | Phát hiện split ngẫu nhiên để 440 bệnh nhân nằm ở cả dev lẫn test (36,8% node test, 43,8% ca bệnh). Chuyển sang `StratifiedGroupKFold` theo `patient_group`; đổi khóa nối `file_name` → `id` + `has_image` để gỡ PII. Xuất thêm `fusion_node_meta.parquet`. | ✅ Xong (09/2026) |
+| **9. Sửa rò rỉ bệnh nhân + đổi khóa nối** | Split ngẫu nhiên để **241 bệnh nhân** nằm ở cả dev lẫn test (20,0% node test, 15,6% ca bệnh). Chuyển sang `StratifiedGroupKFold` theo `patient_uid` (luật số điện thoại / 6 trường); đổi khóa nối `file_name` → `id` + `has_image` để gỡ PII. Xuất thêm `fusion_node_meta.parquet` và `patient_identity.parquet`. | ✅ Xong (09/2026) |
 
 ---
 
@@ -128,5 +130,5 @@ Mô hình đã được tối ưu hóa toàn diện:
 5. **Tối ưu hóa ngưỡng chẩn đoán bằng F2-Score:** Chọn ngưỡng tối ưu **`0.77`**, nâng Recall tập Test lên **`46.88%`** (bắt đúng 15/32 ca bệnh trong tập test hold-out).
 6. **Đồng nhất kết quả (Reproducibility):** Cài đặt cố định seed toàn cục (`random`, `numpy`, `tensorflow`).
 
-7. **Sửa rò rỉ bệnh nhân giữa train/test (09/2026):** 8.030 lượt khám chỉ thuộc **6.266 bệnh nhân** (1.694 người khám nhiều lần). Cách chia ngẫu nhiên cũ để **440 bệnh nhân** nằm ở cả dev lẫn test — ảnh hưởng 36,8% node test và **43,8% số ca bệnh**. Đã chuyển sang `StratifiedGroupKFold` theo `patient_group`, đồng chuẩn với nhánh ảnh, kèm assert cứng. OOF PR-AUC giảm `0.4680 → 0.4424` — đó là con số **trung thực hơn**, không phải mô hình kém đi.
+7. **Sửa rò rỉ bệnh nhân giữa train/test (09/2026):** 8.030 lượt khám chỉ thuộc **7.024 bệnh nhân** (1.002 người khám nhiều lần, chiếm 25% số dòng). Cách chia ngẫu nhiên để **241 bệnh nhân** nằm ở cả dev lẫn test — ảnh hưởng 20,0% node test và **15,6% số ca bệnh**. Đã chuyển sang `StratifiedGroupKFold` theo `patient_uid` (ưu tiên số điện thoại, xem [`scripts/patient_identity.py`](../scripts/patient_identity.py)), kèm assert cứng. OOF PR-AUC trung bình 5 fold `0.4680 → 0.4465` — con số **trung thực hơn**, không phải mô hình kém đi.
 8. **Gỡ PII khỏi sản phẩm bàn giao:** bỏ `file_name` (chứa họ tên bệnh nhân) khỏi mọi artifact, thay bằng khóa `id` — đã kiểm chứng khớp `img_id` của nhánh ảnh 1835/1835.

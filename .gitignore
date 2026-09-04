@@ -236,6 +236,7 @@ output/*
 !output/timeseries_features.parquet
 !output/timeseries_features.npy
 !output/fusion_node_meta.parquet
+!output/patient_identity.parquet
 !output/*.png
 
 # fusion/output/: cho ket qua nhe, chan file nang (fusion_dataset_*.pt sinh lai duoc)
