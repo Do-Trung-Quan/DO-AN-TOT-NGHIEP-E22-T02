@@ -1,10 +1,8 @@
 """
 ================================================================================
-P3 — CONG NGHIEM THU (ban mac dinh cho bo FROZEN)
-[khong co bao cao nay thi KHONG nhan ban giao]
+P3 — CONG NGHIEM THU  [khong co bao cao nay thi KHONG nhan ban giao]
 ================================================================================
-Sinh output/image_features_frozen_qc.md cho bo dac trung
-imagefeat/output/image_features_frozen.parquet. Thoat ma 1 neu bat ky assert
+Sinh <ten_bo>_qc.md ben canh file dac trung. Thoat ma 1 neu bat ky assert
 cung nao truot.
 
 5 ASSERT CUNG (truot = tu choi ban giao):
@@ -31,11 +29,10 @@ VI SAO CO CHI SO 6:
   ve ~0.003 khi MEAN-CENTERING. Chi so nay bat buoc phai co de nguoi dung
   fusion biet ho PHAI center truoc khi dung do thi kNN.
 
-CHAY (khong can tham so, da mac dinh vao bo frozen):
-  python imagefeat/qc_report.py
-
-Van co the doi sang bo khac neu can:
-  python imagefeat/qc_report.py --features output/image_features_control.parquet --output output/image_features_control_qc.md
+CHAY (--features la BAT BUOC, bao cao tu dat ten theo bo):
+  python imagefeat/qc_report.py --features imagefeat/output/image_features.parquet
+  python imagefeat/qc_report.py --features imagefeat/output/image_features_frozen.parquet
+  python imagefeat/qc_report.py --features imagefeat/output/image_features_control.parquet
 ================================================================================
 """
 from __future__ import annotations
@@ -108,7 +105,6 @@ def main() -> None:
     here = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser()
     parser.add_argument("--index", type=Path, default=here / "output" / "image_index.parquet")
-    # DA DOI MAC DINH -> tro thang vao bo FROZEN, khong can truyen tay
     parser.add_argument("--features", type=Path, required=True,
                         help="Bo dac trung can nghiem thu. BAT BUOC — cong cu "
                              "nghiem thu khong duoc tu doan kiem cai nao.")
@@ -116,8 +112,14 @@ def main() -> None:
                         help="Mac dinh: <features>_qc.md ben canh file dac trung.")
     args = parser.parse_args()
 
+    # Ten bo suy tu ten file, KHONG hardcode: bao cao nghiem thu ma ghi nham
+    # ten bo thi mat gia tri lam bang chung.
+    #   image_features_frozen.parquet -> "frozen"
+    #   image_features.parquet        -> "crossfit"
+    label = args.features.stem.replace("image_features", "").strip("_") or "crossfit"
+
     print("=" * 80)
-    print("P3 — CONG NGHIEM THU (bo FROZEN)")
+    print(f"P3 — CONG NGHIEM THU  [bo {label.upper()}]")
     print("=" * 80)
 
     index = pd.read_parquet(args.index)
@@ -228,7 +230,7 @@ def main() -> None:
 
     verdict = "DAT — chap nhan ban giao" if not report.failed else "TRUOT — TU CHOI ban giao"
     document = [
-        "# Bao cao kiem dinh dac trung anh (QC) — bo FROZEN",
+        f"# Bao cao kiem dinh dac trung anh (QC) — bo {label.upper()}",
         "",
         f"- Sinh luc: {datetime.now(timezone.utc).isoformat()}",
         f"- Nguon dac trung: `{args.features.name}`",

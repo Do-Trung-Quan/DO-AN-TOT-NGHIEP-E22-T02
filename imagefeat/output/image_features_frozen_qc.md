@@ -1,6 +1,6 @@
 # Bao cao kiem dinh dac trung anh (QC) — bo FROZEN
 
-- Sinh luc: 2026-09-05T05:20:39.670437+00:00
+- Sinh luc: 2026-09-06T09:46:36.150086+00:00
 - Nguon dac trung: `image_features_frozen.parquet`
 - Chi muc: `image_index.parquet`
 - **Ket luan: DAT — chap nhan ban giao**
