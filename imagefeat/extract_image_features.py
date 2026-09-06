@@ -20,9 +20,20 @@ CANH BAO PHAI KIEM TRUOC KHI DUNG:
   patient_group va bao cao so nguoi trung. Khong co danh sach thi phai ghi ro
   trong bao cao rang day la gia dinh, khong phai su kien.
 
+HAI CHE DO:
+  control : nap mot checkpoint SetA -> image_features_control.parquet
+  frozen  : KHONG nap checkpoint nao, dung thang backbone BioViL-T goc
+            -> image_features_frozen.parquet. Khong fine-tune tren bat ky bo du
+            lieu nao nen ro ri = 0 theo cau tao. Dac trung it bi collapse hon
+            control (effective rank ~14.8 so voi ~1.8).
+
+DUONG DAN ANH: uu tien --images-root (tu quet thu muc, rut img_id tu ten file).
+Cach nay chay duoc o BAT KY may nao va khong can file PII nao. Tuy chon --map
+doc LOCAL_ONLY_filename_map.csv chi dung duoc tren dung may sinh ra no.
+
 CHAY:
-  python imagefeat/extract_image_features.py
-  python imagefeat/extract_image_features.py --checkpoint "Finetune 4/best_model_biovilt_finetuned.pth"
+  python imagefeat/extract_image_features.py --images-root "/content/images"
+  python imagefeat/extract_image_features.py --frozen --images-root "/content/images"
 ================================================================================
 """
 from __future__ import annotations
@@ -38,6 +49,11 @@ warnings.filterwarnings("ignore")
 
 import numpy as np
 import pandas as pd
+
+# Dung chung logic quet thu muc + rut img_id tu ten file voi build_index.py,
+# de hai noi khong bao gio lech nhau ve cach nhan dang anh.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from build_index import resolve_image_paths  # noqa: E402
 import torch
 import torch.nn as nn
 from PIL import Image
@@ -118,33 +134,40 @@ def main() -> None:
                         default=repo / "Finetune CrossEntropy" / "best_model_ce.pth")
     parser.add_argument("--backbone", type=Path,
                         default=repo / "Pre-train BioViL-T" / "biovil_t_image_model_proj_size_128.pt")
+    parser.add_argument("--images-root", type=Path, default=None,
+                        help="Thu muc anh (KHUYEN NGHI). Tu quet va rut img_id tu ten "
+                             "file — khong can file PII, chay duoc o Colab.")
+    parser.add_argument("--frozen", action="store_true",
+                        help="Khong nap checkpoint: dung thang backbone BioViL-T goc.")
     parser.add_argument("--output-dir", type=Path, default=here / "output")
     parser.add_argument("--batch-size", type=int, default=8)
     parser.add_argument("--workers", type=int, default=0)
     args = parser.parse_args()
 
+    mode = "frozen" if args.frozen else "control"
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("=" * 80)
-    print("P2 — BO DAC TRUNG DOI CHUNG (khong train lai)")
+    print(f"P2 — TRICH DAC TRUNG ANH  [che do: {mode.upper()}]")
     print("=" * 80)
     print(f"Checkpoint: {args.checkpoint}\nDevice={device}")
-    if not args.checkpoint.exists():
+    if not args.frozen and not args.checkpoint.exists():
         raise SystemExit(f"Khong thay checkpoint: {args.checkpoint}")
 
     index = pd.read_parquet(args.index)
-    mapping = pd.read_csv(args.map)
-    frame = index.merge(mapping[["img_id", "image_path"]], on="img_id", how="left")
-    frame = frame.sort_values("img_id").reset_index(drop=True)
-    if frame["image_path"].isna().any():
-        raise SystemExit("Thieu image_path — chay lai build_index.py.")
-    print(f"Anh: {len(frame)}")
+    frame = resolve_image_paths(index, args.images_root, args.map)
 
     model = SetAClassifier(build_backbone(args.backbone)).to(device)
-    state = torch.load(args.checkpoint, map_location=device)
-    missing, unexpected = model.load_state_dict(state, strict=False)
-    if missing or unexpected:
-        print(f"  [CANH BAO] missing={len(missing)} unexpected={len(unexpected)} key")
-        print("  Neu con so nay lon, checkpoint khong khop kien truc — dung lai kiem tra.")
+    if args.frozen:
+        # Khong nap state_dict: backbone giu nguyen trong so pretrained cua
+        # BioViL-T. Head phan loai van ton tai nhung khong duoc dung — ta chi
+        # goi forward_embedding().
+        print("  Bo qua load_state_dict — dung trong so pretrained goc.")
+    else:
+        state = torch.load(args.checkpoint, map_location=device)
+        missing, unexpected = model.load_state_dict(state, strict=False)
+        if missing or unexpected:
+            print(f"  [CANH BAO] missing={len(missing)} unexpected={len(unexpected)} key")
+            print("  Neu con so nay lon, checkpoint khong khop kien truc — dung lai kiem tra.")
     model.eval()
 
     eval_tf = Compose([Resize(RESIZE), CenterCrop(CROP), ToTensor(), ExpandChannels()])
@@ -178,17 +201,29 @@ def main() -> None:
         pd.DataFrame(features, columns=[f"img_feat_{d}" for d in range(FEATURE_DIM_ALIVE)]),
     ], axis=1)
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    features_path = args.output_dir / "image_features_control.parquet"
+    features_path = args.output_dir / f"image_features_{mode}.parquet"
     output.to_parquet(features_path, index=False)
 
     manifest = {
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "script": "imagefeat/extract_image_features.py",
-        "role": "BO DOI CHUNG — khong cross-fit, dung de kiem chung ket qua fusion",
-        "checkpoint": str(args.checkpoint),
-        "checkpoint_sha256": sha256_file(args.checkpoint),
-        "train_label_of_checkpoint": "bnn (nhanh SetA, GroupShuffleSplit seed 42)",
-        "leakage_claim": "SetA va NEW DATA gia dinh khong giao nhau — CHUA kiem chung bang so",
+        "mode": mode,
+        "role": ("BO FROZEN — backbone BioViL-T pretrained goc, KHONG fine-tune, "
+                 "dung de doi chung dac trung it collapse"
+                 if args.frozen else
+                 "BO DOI CHUNG — khong cross-fit, dung de kiem chung ket qua fusion"),
+        "checkpoint": None if args.frozen else str(args.checkpoint),
+        "checkpoint_sha256": None if args.frozen else sha256_file(args.checkpoint),
+        "backbone": str(args.backbone),
+        "backbone_sha256": sha256_file(args.backbone),
+        "train_label_of_checkpoint": (
+            None if args.frozen else "bnn (nhanh SetA, GroupShuffleSplit seed 42)"),
+        "leakage_claim": (
+            "Khong fine-tune tren bat ky bo du lieu nao -> ro ri = 0 theo cau tao"
+            if args.frozen else
+            "SetA va NEW DATA khong giao nhau — da kiem chung: overlap = 0 anh"),
+        "images_source": (f"quet {args.images_root}" if args.images_root
+                          else f"map {args.map}"),
         "transform": f"Resize({RESIZE}) -> CenterCrop({CROP}) -> ToTensor -> ExpandChannels",
         "extraction_precision": "float32 (autocast TAT)",
         "feature_dim_raw": FEATURE_DIM_FULL,
@@ -197,7 +232,7 @@ def main() -> None:
         "samples": int(len(frame)),
         "torch": torch.__version__,
     }
-    manifest_path = args.output_dir / "image_features_control_manifest.json"
+    manifest_path = args.output_dir / f"image_features_{mode}_manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"Da ghi -> {features_path}")
     print(f"Da ghi -> {manifest_path}")

@@ -106,6 +106,11 @@ def scan_images(images_root: Path) -> pd.DataFrame:
     """
     rows = []
     for path in sorted(images_root.rglob("*")):
+        # Bo qua thu muc cache anh da resize (_cache512/...) va thu muc an.
+        # Anh trong cache TRUNG TEN voi anh goc -> khong bo qua se bao loi trung
+        # ten file va dung han, hoac te hon la chon nham ban da nen lai.
+        if any(part.startswith("_cache") or part.startswith(".") for part in path.parts):
+            continue
         if path.suffix.lower() in IMG_EXT:
             rows.append({"image_path": str(path), "fname": path.name})
     if not rows:
@@ -118,6 +123,50 @@ def scan_images(images_root: Path) -> pd.DataFrame:
             "khong the dung ten file lam khoa. Kiem tra lai thu muc."
         )
     return frame
+
+
+def resolve_image_paths(index: pd.DataFrame, images_root: Path | None,
+                        map_csv: Path | None) -> pd.DataFrame:
+    """Gan `image_path` cho tung `img_id` cua chi muc.
+
+    Hai duong, uu tien --images-root:
+      1. images_root : quet thu muc, rut `img_id` tu ten file. Chay duoc o BAT KY
+         may nao (Colab, may khac) va KHONG can file PII nao.
+      2. map_csv     : doc LOCAL_ONLY_filename_map.csv. File nay chua duong dan
+         TUYET DOI cua may sinh ra no va chua ten benh nhan trong ten file, nen
+         chi dung duoc tren dung may do. Giu lai de tuong thich nguoc.
+    """
+    if images_root is not None:
+        scanned = scan_images(Path(images_root))
+        scanned["img_id"] = scanned["fname"].map(extract_id)
+        unmatched = scanned["img_id"].isna()
+        if unmatched.any():
+            print(f"  [CANH BAO] {int(unmatched.sum())} file khong rut duoc `id`, bo qua:")
+            for name in scanned.loc[unmatched, "fname"].head(5):
+                print(f"      {name}")
+            scanned = scanned[~unmatched]
+        scanned["img_id"] = scanned["img_id"].astype(int)
+        if scanned["img_id"].duplicated().any():
+            raise SystemExit("Nhieu anh cung tro ve mot `id` — kiem tra thu muc anh.")
+        frame = index.merge(scanned[["img_id", "image_path"]], on="img_id", how="left")
+        source = f"quet thu muc {images_root}"
+    elif map_csv is not None and Path(map_csv).exists():
+        mapping = pd.read_csv(map_csv)
+        frame = index.merge(mapping[["img_id", "image_path"]], on="img_id", how="left")
+        source = f"bang anh xa {map_csv}"
+    else:
+        raise SystemExit(
+            "Can --images-root (khuyen nghi) hoac --map de biet anh nam o dau."
+        )
+
+    missing = frame["image_path"].isna()
+    if missing.any():
+        raise SystemExit(
+            f"{int(missing.sum())}/{len(frame)} anh khong tim thay ({source}).\n"
+            f"  Vi du img_id thieu: {frame.loc[missing, 'img_id'].head(5).tolist()}"
+        )
+    print(f"  Duong dan anh: {len(frame)}/{len(index)} — nguon: {source}")
+    return frame.sort_values("img_id").reset_index(drop=True)
 
 
 def load_clinical(info_csv: Path) -> pd.DataFrame:
@@ -136,7 +185,8 @@ def load_clinical(info_csv: Path) -> pd.DataFrame:
     return clinical
 
 
-def build(images_root: Path, info_csv: Path, output_dir: Path) -> pd.DataFrame:
+def build(images_root: Path, info_csv: Path, output_dir: Path,
+          identity_csv: Path | None = None) -> pd.DataFrame:
     print("=" * 80)
     print("P0 — XAY DUNG CHI MUC ANH  (join theo info.csv.id)")
     print("=" * 80)
@@ -187,6 +237,34 @@ def build(images_root: Path, info_csv: Path, output_dir: Path) -> pd.DataFrame:
     )
     merged["patient_group"] = merged["_patient_raw"].map(stable_hash)
 
+    # ---- patient_uid: danh tinh CHUAN, lay tu nhanh Timeseries ----
+    # KHONG tu tinh lai o day. Luat can cot `sdt` va cap do nghe cua notebook ts;
+    # cai lai o hai noi la nguy co hai nhanh gom khac nhau — dung cai loi dang sua.
+    #   patient_group (ten+namsinh) : chi de DOI CHIEU CHEO voi nhanh ts
+    #   patient_uid   (sdt/6 truong): DUNG DE CHIA FOLD
+    if identity_csv is not None and Path(identity_csv).exists():
+        identity = pd.read_parquet(identity_csv)
+        merged = merged.merge(identity[["id", "patient_uid"]],
+                              left_on="img_id", right_on="id", how="left",
+                              suffixes=("", "_ident"))
+        n_missing = int(merged["patient_uid"].isna().sum())
+        if n_missing:
+            raise SystemExit(
+                f"{n_missing} anh khong co patient_uid trong {identity_csv}. "
+                "Lay ban moi nhat tu nhanh Timeseries:\n"
+                '  git show "Timeseries:output/patient_identity.parquet" '
+                "> output/patient_identity.parquet"
+            )
+        print(f"[3b] patient_uid: {merged['patient_uid'].nunique()} nguoi "
+              f"(patient_group cu: {merged['patient_group'].nunique()} nhom)")
+    else:
+        raise SystemExit(
+            f"Khong thay {identity_csv}.\n"
+            "Bat buoc phai co de chia fold dung — lay tu nhanh Timeseries:\n"
+            '  git show "Timeseries:output/patient_identity.parquet" '
+            "> output/patient_identity.parquet"
+        )
+
     # ---- ngay chup: de phan tang va bao cao tach lo ----
     merged["batch_date"] = merged["fname"].map(extract_batch_date)
 
@@ -194,7 +272,8 @@ def build(images_root: Path, info_csv: Path, output_dir: Path) -> pd.DataFrame:
     merged["file_hash"] = merged["fname"].map(stable_hash)
 
     index = merged.loc[:, [
-        "img_id", "file_hash", "patient_group", "label_ketqua", "label_bnn", "batch_date",
+        "img_id", "file_hash", "patient_uid", "patient_group",
+        "label_ketqua", "label_bnn", "batch_date",
     ]].sort_values("img_id").reset_index(drop=True)
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -206,8 +285,8 @@ def build(images_root: Path, info_csv: Path, output_dir: Path) -> pd.DataFrame:
     map_path = output_dir / "LOCAL_ONLY_filename_map.csv"
     mapping.to_csv(map_path, index=False, encoding="utf-8")
 
-    n_patients = index["patient_group"].nunique()
-    multi_visit = (index.groupby("patient_group").size() > 1).sum()
+    n_patients = index["patient_uid"].nunique()
+    multi_visit = (index.groupby("patient_uid").size() > 1).sum()
     print(f"[4] Benh nhan: {n_patients} nguoi, {multi_visit} nguoi co nhieu lan kham")
     print(f"[5] Nhan   : ketqua duong = {int(index['label_ketqua'].sum())} "
           f"({100 * index['label_ketqua'].mean():.1f}%)  <- NHAN HUAN LUYEN")
@@ -226,8 +305,11 @@ def main() -> None:
                         help="Thu muc goc chua anh (quet de quy, gom ca train/ va test/)")
     parser.add_argument("--info-csv", type=Path, default=DATA_ROOT / "info.csv")
     parser.add_argument("--output-dir", type=Path, default=here / "output")
+    parser.add_argument("--identity", type=Path,
+                        default=repo / "output" / "patient_identity.parquet",
+                        help="Bang id -> patient_uid do nhanh Timeseries sinh ra")
     args = parser.parse_args()
-    build(args.images_root, args.info_csv, args.output_dir)
+    build(args.images_root, args.info_csv, args.output_dir, args.identity)
 
 
 if __name__ == "__main__":

@@ -109,10 +109,11 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--index", type=Path, default=here / "output" / "image_index.parquet")
     # DA DOI MAC DINH -> tro thang vao bo FROZEN, khong can truyen tay
-    parser.add_argument("--features", type=Path,
-                        default=here / "output" / "image_features_frozen.parquet")
-    parser.add_argument("--output", type=Path,
-                        default=here / "output" / "image_features_frozen_qc.md")
+    parser.add_argument("--features", type=Path, required=True,
+                        help="Bo dac trung can nghiem thu. BAT BUOC — cong cu "
+                             "nghiem thu khong duoc tu doan kiem cai nao.")
+    parser.add_argument("--output", type=Path, default=None,
+                        help="Mac dinh: <features>_qc.md ben canh file dac trung.")
     args = parser.parse_args()
 
     print("=" * 80)
@@ -120,6 +121,9 @@ def main() -> None:
     print("=" * 80)
 
     index = pd.read_parquet(args.index)
+    if args.output is None:
+        # image_features_frozen.parquet -> image_features_frozen_qc.md
+        args.output = args.features.with_name(args.features.stem + "_qc.md")
     features_frame = pd.read_parquet(args.features)
     merged = index.merge(features_frame, on="img_id", how="inner")
     feature_columns = [c for c in features_frame.columns if c.startswith("img_feat_")]
@@ -137,14 +141,25 @@ def main() -> None:
     dead = int((spread == 0).sum())
     report.gate(2, "Chieu hang so (float64)", f"{dead}/{len(feature_columns)}", "= 0", dead == 0)
 
+    # Khoa gom nhom: uu tien patient_uid (luat sdt / 6 truong). patient_group
+    # (ho ten + nam sinh) bo sot nhung ca go nham ten nen chi dung khi khong
+    # co lua chon nao khac.
+    group_col = "patient_uid" if "patient_uid" in merged.columns else "patient_group"
+    if group_col == "patient_group":
+        print("  [CANH BAO] image_index thieu `patient_uid` -> gom nhom bang cong thuc cu.")
+        print("             Chay lai build_index.py de co danh tinh chuan.")
+
     # --- 3. benh nhan nam o >1 fold ---
     folded = merged[merged["fold_id"] >= 0]
     if len(folded):
-        per_patient = folded.groupby("patient_group")["fold_id"].nunique()
+        per_patient = folded.groupby(group_col)["fold_id"].nunique()
         straddling = int((per_patient > 1).sum())
+        report.gate(3, "Benh nhan nam o >1 fold", straddling, "= 0", straddling == 0)
     else:
-        straddling = 0
-    report.gate(3, "Benh nhan nam o >1 fold", straddling, "= 0", straddling == 0)
+        # Bo control/frozen co fold_id = -1 o moi hang: khong ton tai fold nao.
+        # Bao "DAT" o day la an toan gia — phep kiem luon dung bat ke du lieu.
+        report.note(3, "Benh nhan nam o >1 fold",
+                    "N/A — bo nay khong cross-fit (fold_id = -1)")
 
     # --- 4. NaN/Inf ---
     bad = int((~np.isfinite(matrix)).sum())
@@ -177,7 +192,7 @@ def main() -> None:
 
     # --- 8. probe out-of-fold tren nhan bnn ---
     y_bnn = merged.loc[has_image, "label_bnn"].to_numpy()
-    groups = merged.loc[has_image, "patient_group"].to_numpy()
+    groups = merged.loc[has_image, group_col].to_numpy()
     baseline = float(y_bnn.mean())
     probe_line = "khong du du lieu"
     if len(np.unique(y_bnn)) > 1:

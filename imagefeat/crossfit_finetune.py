@@ -5,7 +5,7 @@ P1 — CROSS-FITTING 5 FOLD  [buoc quan trong nhat]
 Sinh vector dac trung OUT-OF-FOLD cho ca 1835 anh: moi anh duoc trich bang mot
 model CHUA TUNG NHIN THAY no. Dua nhanh anh len ngang chuan nhanh timeseries.
 
-    StratifiedGroupKFold(5)  groups = patient_group,  y = label_ketqua
+    StratifiedGroupKFold(5)  groups = patient_uid,  y = label_ketqua
     for k in 0..4:
         train tren 4 fold  ->  trich vector cho fold k
     ghep lai -> 1835 vector, moi vector out-of-fold, KHONG ro ri
@@ -15,7 +15,7 @@ KHAC BIET BAT BUOC so voi finetune_biovilt_silicosis.py:
   | Hang muc      | Script cu                      | Ban nay                       |
   |---------------|--------------------------------|-------------------------------|
   | Split         | train_test_split ngau nhien     | StratifiedGroupKFold theo BN  |
-  | Assert        | tren file_name (vo dung)        | tren patient_group            |
+  | Assert        | tren file_name (vo dung)        | tren patient_uid            |
   | Nhan          | ten thu muc normal/silicosis    | label_ketqua tu info.csv      |
   | Checkpoint    | val loss                        | val PR-AUC                    |
   | Trich xuat    | co autocast fp16                | fp32, TAT autocast            |
@@ -45,6 +45,10 @@ warnings.filterwarnings("ignore")
 
 import numpy as np
 import pandas as pd
+
+# Dung chung logic quet thu muc + rut img_id voi build_index.py
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from build_index import resolve_image_paths  # noqa: E402
 import torch
 import torch.nn as nn
 from PIL import Image
@@ -127,8 +131,8 @@ def build_backbone(backbone_path: Path):
 
 def assert_no_group_overlap(frame: pd.DataFrame, left: np.ndarray, right: np.ndarray,
                             what: str) -> None:
-    shared = (set(frame.iloc[left]["patient_group"])
-              & set(frame.iloc[right]["patient_group"]))
+    shared = (set(frame.iloc[left]["patient_uid"])
+              & set(frame.iloc[right]["patient_uid"]))
     assert not shared, f"RO RI BENH NHAN ({what}): {len(shared)} nguoi nam o ca hai tap!"
 
 
@@ -139,7 +143,7 @@ def run_fold(fold: int, frame: pd.DataFrame, trainval_idx: np.ndarray,
     inner = GroupShuffleSplit(n_splits=1, test_size=args.val_size, random_state=args.seed)
     trainval = frame.iloc[trainval_idx]
     rel_train, rel_val = next(inner.split(
-        trainval, trainval[label_column], groups=trainval["patient_group"]))
+        trainval, trainval[label_column], groups=trainval["patient_uid"]))
     train_idx = trainval_idx[rel_train]
     val_idx = trainval_idx[rel_val]
 
@@ -270,6 +274,12 @@ def main() -> None:
     parser.add_argument("--backbone", type=Path,
                         default=repo / "Pre-train BioViL-T" / "biovil_t_image_model_proj_size_128.pt")
     parser.add_argument("--output-dir", type=Path, default=here / "output")
+    parser.add_argument("--images-root", type=Path, default=None,
+                        help="Thu muc anh (KHUYEN NGHI). Tu quet, khong can file PII, "
+                             "chay duoc o Colab.")
+    parser.add_argument("--only-fold", type=int, default=None,
+                        help="Chi chay dung mot fold roi thoat. Dung khi phien Colab "
+                             "hay bi ngat: chay tung fold ~8 phut, mat phien khong mat trang.")
     parser.add_argument("--folds", type=int, default=5)
     parser.add_argument("--epochs", type=int, default=25)
     parser.add_argument("--unfreeze-epoch", type=int, default=5)
@@ -299,40 +309,70 @@ def main() -> None:
     print(f"Device={device} | nhan huan luyen=label_ketqua | aux_weight={args.aux_weight}")
 
     index = pd.read_parquet(args.index)
-    mapping = pd.read_csv(args.map)
-    frame = index.merge(mapping[["img_id", "image_path"]], on="img_id", how="left")
-    if frame["image_path"].isna().any():
-        raise SystemExit("Thieu image_path — chay lai build_index.py.")
-    frame = frame.sort_values("img_id").reset_index(drop=True)
+    if "patient_uid" not in index.columns:
+        raise SystemExit(
+            "image_index.parquet thieu cot `patient_uid`.\n"
+            "Chia fold theo `patient_group` (ho ten + nam sinh) BO SOT nhung ca go\n"
+            "nham ten — 13/87 nguoi co nhieu hon 1 anh bi tach qua 2 fold.\n"
+            "Chay lai: python imagefeat/build_index.py --images-root <thu muc anh>"
+        )
+    frame = resolve_image_paths(index, args.images_root, args.map)
 
     if args.smoke:
         # Lay mau theo BENH NHAN (khong theo hang) de khong pha vo nhom, va giu
         # ca 2 lop de sampler/PR-AUC con y nghia.
         rng = np.random.default_rng(args.seed)
-        by_patient = frame.groupby("patient_group")["label_ketqua"].max()
+        by_patient = frame.groupby("patient_uid")["label_ketqua"].max()
         positive = by_patient[by_patient == 1].index.to_numpy()
         negative = by_patient[by_patient == 0].index.to_numpy()
         keep = np.concatenate([
             rng.choice(positive, size=min(40, len(positive)), replace=False),
             rng.choice(negative, size=min(60, len(negative)), replace=False),
         ])
-        frame = frame[frame["patient_group"].isin(set(keep))].reset_index(drop=True)
-        print(f"[SMOKE] rut gon con {len(frame)} anh / {frame['patient_group'].nunique()} benh nhan")
+        frame = frame[frame["patient_uid"].isin(set(keep))].reset_index(drop=True)
+        print(f"[SMOKE] rut gon con {len(frame)} anh / {frame['patient_uid'].nunique()} benh nhan")
 
-    print(f"Anh: {len(frame)} | benh nhan: {frame['patient_group'].nunique()} | "
+    print(f"Anh: {len(frame)} | benh nhan: {frame['patient_uid'].nunique()} | "
           f"ketqua duong: {int(frame['label_ketqua'].sum())}")
 
     splitter = StratifiedGroupKFold(n_splits=args.folds, shuffle=True, random_state=args.seed)
-    splits = list(splitter.split(frame, frame["label_ketqua"], groups=frame["patient_group"]))
+    splits = list(splitter.split(frame, frame["label_ketqua"], groups=frame["patient_uid"]))
 
     features = np.full((len(frame), FEATURE_DIM_ALIVE), np.nan, dtype=np.float32)
     fold_id = np.full(len(frame), -1, dtype=np.int8)
 
+    # Luu ket qua tung fold ra dia -> chay lai la TIEP TUC, khong train lai tu dau.
+    # Phien Colab hay bi ngat giua chung; moi fold ~8 phut nen mat toi da 1 fold.
+    cache_dir = args.output_dir / "_folds"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+
+    wanted = range(args.folds) if args.only_fold is None else [args.only_fold]
+    if args.only_fold is not None:
+        print(f"[ONLY-FOLD] chi chay fold {args.only_fold}")
+
     for fold, (trainval_idx, heldout_idx) in enumerate(splits[:args.folds]):
+        cache_file = cache_dir / f"fold_{fold}.npz"
+        if cache_file.exists():
+            cached = np.load(cache_file)
+            features[cached["idx"]] = cached["feat"]
+            fold_id[cached["idx"]] = fold
+            print(f"[FOLD {fold}] da co san -> nap tu {cache_file.name}, bo qua train")
+            continue
+        if fold not in wanted:
+            print(f"[FOLD {fold}] chua chay va khong nam trong --only-fold -> bo trong")
+            continue
         print(f"\n{'-' * 80}\n[FOLD {fold}] heldout={len(heldout_idx)} anh")
-        features[heldout_idx] = run_fold(
+        fold_features = run_fold(
             fold, frame, trainval_idx, heldout_idx, args, device, args.backbone)
+        features[heldout_idx] = fold_features
         fold_id[heldout_idx] = fold
+        np.savez(cache_file, idx=heldout_idx, feat=fold_features)
+        print(f"[FOLD {fold}] da luu -> {cache_file}")
+
+    n_done = int((fold_id >= 0).sum())
+    if n_done < len(frame):
+        print(f"\n[CHUA XONG] {n_done}/{len(frame)} anh co dac trung. "
+              f"Chay lai cung lenh de tiep tuc cac fold con thieu.")
 
     covered = fold_id >= 0
     print(f"\n{'=' * 80}\nDa trich {int(covered.sum())}/{len(frame)} anh")
@@ -366,7 +406,7 @@ def main() -> None:
         "train_label": "label_ketqua (ketqua == 1) — NHAN PROXY tu doc phim",
         "target_label_carried": "label_bnn — nhan dich, KHONG dung de huan luyen",
         "aux_weight_bnn": args.aux_weight,
-        "split_strategy": f"StratifiedGroupKFold({args.folds}) groups=patient_group",
+        "split_strategy": f"StratifiedGroupKFold({args.folds}) groups=patient_uid",
         "checkpoint_selection": "val PR-AUC (average_precision_score)",
         "transform": f"Resize({RESIZE}) -> CenterCrop({CROP}) -> ToTensor -> ExpandChannels",
         "extraction_precision": "float32 (autocast TAT)",
@@ -374,7 +414,7 @@ def main() -> None:
         "feature_dim_kept": FEATURE_DIM_ALIVE,
         "dropped_dims": "256..511 — hang so vi BioViL-T temporal chi nhan 1 anh",
         "samples": int(len(frame)),
-        "patients": int(frame["patient_group"].nunique()),
+        "patients": int(frame["patient_uid"].nunique()),
         "seed": args.seed,
         "torch": torch.__version__,
         "warning_pii": "Khoa la img_id/file_hash. KHONG chua ten file hay ho ten.",

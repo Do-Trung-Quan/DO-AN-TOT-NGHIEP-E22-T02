@@ -224,6 +224,19 @@ __marimo__/
 # cua 1835 nguoi. Nghiem trong hon meta CSV nhieu.
 timeseriesDATA/info.csv
 
+# THU MUC data/ — chua CUNG loai du lieu do:
+#   info.csv                              1835 nguoi: ho ten + nam sinh + sdt
+#   Main_data_Merged_1835_Images.xlsx     8030 nguoi: nhu tren + tinh + so BH
+#   Main_data_fixed_Not_Encode_*.xlsx     8030 nguoi: nhu tren
+# Nhanh Timeseries da chan tu 09/2026; nhanh nay truoc do chua chan.
+data/
+*.xlsx
+~$*
+
+# output/ o goc repo: chi cho phep bang dinh danh (khong ten, khong sdt)
+output/*
+!output/patient_identity.parquet
+
 # meta CSV cua nhanh anh: cot `fname` chua ho ten day du benh nhan
 FinetuneNewData/vectors/*meta*.csv
 

@@ -1,6 +1,6 @@
-# Bao cao kiem dinh dac trung anh (QC)
+# Bao cao kiem dinh dac trung anh (QC) — bo FROZEN
 
-- Sinh luc: 2026-09-02T16:21:54.164051+00:00
+- Sinh luc: 2026-09-05T05:21:04.747192+00:00
 - Nguon dac trung: `image_features.parquet`
 - Chi muc: `image_index.parquet`
 - **Ket luan: TRUOT — TU CHOI ban giao**
@@ -16,7 +16,7 @@
 | 6 | Cosine TB (da mean-center) | `-0.0019` | bao cao | — |
 | 7 | Effective rank | `10.67/256` | bao cao | — |
 | 7 | Phuong sai PC1 | `40.8%` | bao cao | — |
-| 8 | PR-AUC probe tren nhan bnn | `0.1620 (nen 0.0917)` | bao cao | — |
+| 8 | PR-AUC probe tren nhan bnn | `0.2096 (nen 0.0917)` | bao cao | — |
 | 9 | Do chinh xac doan lo chup | `khong du lo` | bao cao | — |
 
 ## Cac muc TRUOT
