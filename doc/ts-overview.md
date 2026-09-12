@@ -46,7 +46,7 @@ Toàn bộ công việc nằm trong **1 notebook duy nhất**: [`ĐỒ_ÁN.ipynb
    Excel hợp nhất (8030 dòng, 1835 bệnh nhân match ảnh X-quang)
               │  lọc cột rác + cột rò rỉ nhãn
               ▼
-   Fill missing + sửa outlier + tách file_name (1835 file ảnh .jpg)
+   Fill missing + sửa outlier + tách has_image (1835 bệnh nhân có ảnh)
               │
               ▼
    Encoding: binary / ordinal / one-hot / scale số + phân loại nghề 10 cấp
@@ -55,13 +55,13 @@ Toàn bộ công việc nằm trong **1 notebook duy nhất**: [`ĐỒ_ÁN.ipynb
    Tách 3 nhánh dữ liệu:  Job(4)  |  LSTM 3D(6 vùng × k)  |  Numerical
               │
               ▼
-   Keras multi-input (Embedding + LSTM + Dense) -> Stratified 5-Fold
+   Keras multi-input (Embedding + LSTM + Dense) -> StratifiedGroupKFold 5-Fold
               │
               ▼
    Ensemble Feature Extraction (Lấy trung bình lớp fusion_dense 32-D)
               │
               ▼
-    output/timeseries_features.parquet (8030 bệnh nhân, 1835 file_name ảnh) -> Sẵn sàng cho GNN Fusion
+    output/timeseries_features.parquet + fusion_node_meta.parquet -> Sẵn sàng cho GNN Fusion
 ```
 
 ---
@@ -74,7 +74,11 @@ Toàn bộ công việc nằm trong **1 notebook duy nhất**: [`ĐỒ_ÁN.ipynb
 | `data/Main_data_Merged_1835_Images.xlsx` | **Dữ liệu thô gộp mới nhất** (8030 bệnh nhân), cập nhật thông tin lâm sàng & match chuẩn xác **1,835 file ảnh X-quang**. |
 | `data/Main_data_fixed_Not_Encode_Mapping_New.xlsx` | Dữ liệu thô gốc (8030 dòng, 433 ảnh). Đã lưu trữ bảo toàn. |
 | `data/new data.csv` | Dữ liệu bổ sung từ thầy (1835 dòng có ảnh X-quang). Đã lưu trữ bảo toàn. |
-| `output/timeseries_features.parquet` | **Sản phẩm chính** — ma trận đặc trưng lâm sàng 32D (8030 dòng x 33 cột) sẵn sàng cho GNN Fusion. |
+| `output/timeseries_features.parquet` | **Sản phẩm chính** — ma trận đặc trưng lâm sàng 32D `(8030, 34)`: `id`, `has_image`, `ts_feat_0..31`. |
+| `output/fusion_node_meta.parquet` | **Bắt buộc cho fusion** — `(8030, 13)` chứa nhãn `bnn`, `split`, `fold_id`, `patient_uid` và cột phụ trợ dựng cạnh. |
+| `output/patient_identity.parquet` | `(8030, 2)` — `id` + `patient_uid`, **dành cho nhánh ảnh dùng chung** một định nghĩa danh tính. Không chứa PII. |
+| `scripts/patient_identity.py` | Luật xác định "cùng một người" + phân loại nghề 10 cấp. Notebook import từ đây. |
+| `scripts/build_merged_dataset.py` | Tái lập `data/Main_data_Merged_1835_Images.xlsx` từ file gốc + `data/info.csv`. |
 | `output/timeseries_features.npy` | Ma trận float32 thô `[8030, 32]`. |
 | `doc/X-ray-overview.md` | Tài liệu tổng quan nhánh ảnh (file tham khảo song song). |
 | `doc/Paper_128-...Occupational_Disease_Prediction.pdf` | **Bài báo tham khảo** cho bước fusion bằng Graph Convolutional Network. |
@@ -87,14 +91,14 @@ Toàn bộ công việc nằm trong **1 notebook duy nhất**: [`ĐỒ_ÁN.ipynb
 | Cell | Nội dung | Điểm cần nhớ |
 |---|---|---|
 | **Mount Drive** | `drive.mount` (Colab) | Notebook thiết kế để chạy trên **Google Colab** (hoặc chạy offline). |
-| **1. Load + lọc cột** | Load dữ liệu từ `data/Main_data_Merged_1835_Images.xlsx`. Drop cột định danh (`tinh, hoten, sdt, sobh`), nhãn chi tiết (`bnncuthe`), và **cột đọc phim X-quang** (`chatluongphim, ketqua, matdotonthuong, kichthuoctt, tonthuongkhac`) để **tránh rò rỉ sang nhánh ảnh**. | Giữ cột `id` làm chìa khóa nối và tách `file_name` chứa 1,835 file ảnh. |
-| **2. Fill missing** | Text thiếu → `"không"`, số thiếu → `0`; sửa outlier `F4gang=6.0` về mode; **tách `file_name` ra mảng riêng**. | 1,835 bệnh nhân có tên file `.jpg`, 6,195 bệnh nhân còn lại mang giá trị `"khong"`. |
+| **1. Load + lọc cột** | Load dữ liệu từ `data/Main_data_Merged_1835_Images.xlsx`. Drop cột định danh (`tinh, hoten, sdt, sobh`), nhãn chi tiết (`bnncuthe`), và **cột đọc phim X-quang** (`chatluongphim, ketqua, matdotonthuong, kichthuoctt, tonthuongkhac`) để **tránh rò rỉ sang nhánh ảnh**. | Giữ cột `id` làm chìa khóa nối sang nhánh ảnh (khớp `img_id` 1835/1835). |
+| **2. Fill missing** | Text thiếu → `"không"`, số thiếu → `0`; sửa outlier `F4gang=6.0` về mode; **tách `has_image` ra mảng riêng**. | 1,835 bệnh nhân có ảnh, 6,195 bệnh nhân không có. `file_name` bị loại hẳn vì chứa họ tên (PII). |
 | **3. Feature Engineering + Encoding** | Mã hóa Binary/Ordinal/One-hot. Tính tuổi động bằng năm hiện tại trừ năm sinh (`datetime.now().year - namsinh`). | `bnn` được loại hoàn toàn khỏi các cột đặc trưng. |
 | **4. Phân loại nghề 10 cấp** | Rule-based keyword → phân 4 cột nghề (`cviec, pxuong, cviec1, cviec2`) thành **ID nguyên 0–9** theo mức độ độc hại. | Dùng làm input cho lớp Embedding. |
-| **5. Tách 3 nhánh dữ liệu** | - **LSTM 3D:** tensor `[N, 6 vùng, k đặc trưng]`. <br>- **Numerical:** các cột số còn lại. <br>- **Job:** 4 cột nghề (ID). <br>- **Chia dữ liệu:** 85% Dev Set cho K-Fold, 15% Test Hold-out tĩnh. | Phân tầng theo nhãn `bnn`. |
+| **5. Tách 3 nhánh dữ liệu** | - **LSTM 3D:** tensor `[N, 6 vùng, k đặc trưng]`. <br>- **Numerical:** các cột số còn lại. <br>- **Job:** 4 cột nghề (ID). <br>- **Chia dữ liệu:** `StratifiedGroupKFold(7)` theo `patient_uid` → Dev 6.882 (85,7%) / Test 1.148 (14,3%). | Phân tầng theo `bnn`, gom nhóm theo bệnh nhân. |
 | **6. Model Keras đa nhánh** | Hàm `build_model()`. Nhánh Job sử dụng `Flatten()` giữ nguyên đặc trưng của từng ô nghề. | Lớp áp chót `fusion_dense` thiết lập 32 chiều nén thông tin lâm sàng. |
-| **7. Train + Đánh giá** | - **Stratified 5-Fold Cross Validation** trên tập Dev.<br>- Imputer/Scaler fit độc lập trong fold chống rò rỉ.<br>- Quét ngưỡng F2-Score trên OOF Validation (chọn ngưỡng tối ưu `0.77`).<br>- Ensemble trên tập Test Hold-out: **ROC-AUC = 0.9255**, **PR-AUC = 0.4198**, **Recall = 46.88%** (bắt đúng 15/32 ca bệnh), **Precision = 30.61%**. | Biểu đồ lưu tại `output/learning_curves.png` và `output/confusion_matrix.png`. |
-| **8. Trích xuất đặc trưng** | Trích xuất đặc trưng Ensemble 32 chiều bằng cách trung bình hóa kết quả lớp `fusion_dense` của 5 mô hình fold cho 8030 bệnh nhân. | Xuất ra file `output/timeseries_features.parquet` (kèm 1,835 `file_name` ảnh) và `output/timeseries_features.npy`. |
+| **7. Train + Đánh giá** | - **StratifiedGroupKFold 5-Fold** theo `patient_uid` trên tập Dev.<br>- Imputer/Scaler fit độc lập trong fold chống rò rỉ.<br>- Quét ngưỡng F2-Score trên OOF (ngưỡng tối ưu `0.75`).<br>- Ensemble trên Test Hold-out (1.148 mẫu): **ROC-AUC = 0.9556**, **PR-AUC = 0.5133**, **Recall = 58.06%** (18/31 ca bệnh), **Precision = 42.86%**. | Biểu đồ lưu tại `output/learning_curves.png` và `output/confusion_matrix.png`. |
+| **8. Trích xuất đặc trưng** | Trích xuất đặc trưng Ensemble 32 chiều bằng cách trung bình hóa lớp `fusion_dense` của 5 mô hình fold cho 8030 bệnh nhân. | Xuất `output/timeseries_features.parquet` (khóa `id` + `has_image`), `.npy`, và `output/fusion_node_meta.parquet`. |
 
 ---
 
@@ -104,13 +108,14 @@ Toàn bộ công việc nằm trong **1 notebook duy nhất**: [`ĐỒ_ÁN.ipynb
 |---|---|---|
 | **0. Chuẩn bị data thô** | Gộp dữ liệu mới (1,835 ảnh, 99 ca bệnh) với 8,030 bệnh nhân gốc → `data/Main_data_Merged_1835_Images.xlsx`. | ✅ Xong |
 | **1. Lọc cột rác + chống rò rỉ** | Bỏ cột định danh, nhãn chi tiết `bnncuthe`, cột đọc phim X-quang. | ✅ Xong |
-| **2. Fill missing + làm sạch** | Điền thiếu theo rule, sửa outlier, tách `file_name` (match 1,835 ảnh). | ✅ Xong |
+| **2. Fill missing + làm sạch** | Điền thiếu theo rule, sửa outlier, tách `has_image` (1,835 bệnh nhân có ảnh). | ✅ Xong |
 | **3. Mã hóa toàn bộ** | Mã hóa nhị phân / phân loại / scale số + phân loại nghề 10 cấp. Tính tuổi động theo năm hiện tại. | ✅ Xong |
-| **4. Định hình data 3D + đa nhánh** | Tensor `[N, 6 vùng, k]` cho LSTM; tách job/numerical; split tĩnh 15% Test. | ✅ Xong |
-| **5. Model + K-Fold** | Huấn luyện Stratified 5-Fold Cross Validation với Class Weights & ReduceLROnPlateau. | ✅ Xong |
+| **4. Định hình data 3D + đa nhánh** | Tensor `[N, 6 vùng, k]` cho LSTM; tách job/numerical; split theo nhóm bệnh nhân, Test 14,3%. | ✅ Xong |
+| **5. Model + K-Fold** | Huấn luyện StratifiedGroupKFold 5-Fold (nhóm theo `patient_uid`) với Class Weights & ReduceLROnPlateau. | ✅ Xong |
 | **6. Khắc phục rò rỉ & Sai nhãn** | Target chuẩn là `bnn`, loại hoàn toàn `bnn` khỏi feature đầu vào, fit scaler/imputer trong fold. | ✅ Xong |
 | **7. Đánh giá Ensemble & Quét F2** | Đánh giá ensemble trên tập Test; Tối ưu hóa ngưỡng tự động qua OOF F2-Score (ngưỡng 0.77, Recall 46.88%, PR-AUC 0.4198). | ✅ Xong |
-| **8. Xuất vector đặc trưng cho fusion** | Trích xuất đặc trưng Ensemble 32 chiều trung bình 5 fold, lưu parquet và npy chứa 1,835 bệnh nhân match ảnh X-quang. | ✅ Xong |
+| **8. Xuất vector đặc trưng cho fusion** | Trích xuất đặc trưng Ensemble 32 chiều trung bình 5 fold, lưu parquet và npy. | ✅ Xong |
+| **9. Sửa rò rỉ bệnh nhân + đổi khóa nối** | Split ngẫu nhiên để **241 bệnh nhân** nằm ở cả dev lẫn test (20,0% node test, 15,6% ca bệnh). Chuyển sang `StratifiedGroupKFold` theo `patient_uid` (luật số điện thoại / 6 trường); đổi khóa nối `file_name` → `id` + `has_image` để gỡ PII. Xuất thêm `fusion_node_meta.parquet` và `patient_identity.parquet`. | ✅ Xong (09/2026) |
 
 ---
 
@@ -124,3 +129,6 @@ Mô hình đã được tối ưu hóa toàn diện:
 4. **Cải tiến chiến lược chống mất cân bằng:** Áp dụng Class Weights trực tiếp trong `.fit()`, kết hợp ReduceLROnPlateau tự động giảm LR khi bão hòa.
 5. **Tối ưu hóa ngưỡng chẩn đoán bằng F2-Score:** Chọn ngưỡng tối ưu **`0.77`**, nâng Recall tập Test lên **`46.88%`** (bắt đúng 15/32 ca bệnh trong tập test hold-out).
 6. **Đồng nhất kết quả (Reproducibility):** Cài đặt cố định seed toàn cục (`random`, `numpy`, `tensorflow`).
+
+7. **Sửa rò rỉ bệnh nhân giữa train/test (09/2026):** 8.030 lượt khám chỉ thuộc **7.024 bệnh nhân** (1.002 người khám nhiều lần, chiếm 25% số dòng). Cách chia ngẫu nhiên để **241 bệnh nhân** nằm ở cả dev lẫn test — ảnh hưởng 20,0% node test và **15,6% số ca bệnh**. Đã chuyển sang `StratifiedGroupKFold` theo `patient_uid` (ưu tiên số điện thoại, xem [`scripts/patient_identity.py`](../scripts/patient_identity.py)), kèm assert cứng. OOF PR-AUC trung bình 5 fold `0.4680 → 0.4465` — con số **trung thực hơn**, không phải mô hình kém đi.
+8. **Gỡ PII khỏi sản phẩm bàn giao:** bỏ `file_name` (chứa họ tên bệnh nhân) khỏi mọi artifact, thay bằng khóa `id` — đã kiểm chứng khớp `img_id` của nhánh ảnh 1835/1835.
