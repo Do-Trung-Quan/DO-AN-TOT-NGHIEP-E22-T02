@@ -30,7 +30,7 @@
 
 - **Nhánh ảnh** (branch `Chest-X-ray` — bạn đang ở đây): huấn luyện một **backbone CNN trích xuất đặc trưng ảnh**. Input = ảnh X-quang phổi, output = 1 vector đặc trưng.
 - **Nhánh Timeseries** (branch `Timeseries`): xử lý + mã hóa dữ liệu phiếu khám (~8000 dòng), cho qua LSTM (nhóm cột đo trên 6 vùng phổi) + Dense (cột tĩnh) → 1 vector đặc trưng lâm sàng.
-- **Fusion** (dự kiến): tạo đồ thị nối node ảnh và node timeseries, đưa vào GNN (GCN/GAT/DGCNN) để dự đoán cuối cùng. Xây ~8000 đồ thị (500 cái có cả ảnh + TS, còn lại chỉ TS).
+- **Fusion**: đồ thị dân số 8.030 node (node = bệnh nhân, đặc trưng = vector timeseries ⊕ vector ảnh nếu có), so sánh 3 backbone GNN. Xem [fusion_roadmap.md](fusion_roadmap.md).
 
 **Nhãn mục tiêu cuối cùng:** cột `bnn` (0 = khỏe mạnh, 1 = có bệnh nghề nghiệp).
 
@@ -123,7 +123,7 @@ Sau khi chốt backbone = BioViL-T, thầy yêu cầu thử **đổi hàm loss**
 
 ### 4.2. Backbone chốt = BioViL-T (chi tiết trong `Finetune 4/finetune_biovilt_setA.py`)
 - Load local từ `Pre-train BioViL-T/…proj_size_128.pt` (không có → tự tải HuggingFace).
-- Feature để gắn head: `out.img_embedding` (~2048-d) → head `Dropout(0.3) + Linear(→2)`.
+- Feature để gắn head: `out.img_embedding` (**512-d**, giữ lại 256 chiều đầu — xem mục 7.4) → head `Dropout(0.3) + Linear(→2)`.
 - **Tiền xử lý RIÊNG của BioViL-T:** `Resize(512) → Crop(448) → ToTensor(0–1) → ExpandChannels`. **Không** dùng ImageNet normalize; ảnh xám nhân bản thành 3 kênh. *(Khác BYOL/CheXNet — mỗi backbone có preprocessing riêng, đừng trộn lẫn.)*
 - **Train 2-stage:** Stage 1 đóng băng backbone chỉ train head; Stage 2 (từ epoch `unfreeze`) mở toàn bộ với LR nhỏ cho backbone (1e-5) + LR lớn cho head (1e-4).
 - **Chống imbalance:** `WeightedRandomSampler` + class weights trong loss.
@@ -150,57 +150,146 @@ python "Finetune Focal5/finetune_biovilt_focal5.py"
 
 ---
 
-## 5. Roadmap nhánh ảnh — từ đầu tới sẵn sàng fusion
+## 5. Giai đoạn TRÍCH ĐẶC TRƯNG cho fusion — `imagefeat/` ✅ hoàn thành 09/2026
 
-| Bước | Việc | Trạng thái |
-|---|---|---|
-| **0. Chuẩn bị data** | Thu thập ảnh X-quang, resize, làm sạch cơ bản; chuẩn hóa tên file khớp nhãn. | ✅ Xong |
-| **1. Pretrain backbone** | BYOL self-supervised trên NIH ChestX-ray14 (~112k ảnh) → `xray_byol_backbone.pth`. Ngoài ra chuẩn bị thêm backbone CheXNet (tải sẵn) và BioViL-T (tải sẵn). | ✅ Xong |
-| **2. Fine-tune & so sánh backbone** | Fine-tune nhị phân `Co/Khong` trên set_A, cùng split seed 42. So 4 backbone: BYOL (0.832) < CheXNet (0.847) < ImageNet (0.891) < **BioViL-T (0.902)**. | ✅ Xong — **chốt BioViL-T** |
-| **3. Ablation loss** | Giữ BioViL-T, thử CE / Weighted CE / Focal γ=2,5 / (còn Focal γ=1, Label smoothing). Kết luận: loss không tăng AUC, chỉ dịch Sens↔Spec. | 🟡 Gần xong (thiếu 2 loss) |
-| **4. Chốt mô hình trích đặc trưng** | Chọn checkpoint tốt nhất (VD `Finetune CrossEntropy/best_model_ce.pth`, AUC 0.913) làm **feature extractor** đóng băng. | 🟡 Cần chốt chính thức |
-| **5. Trích vector cho fusion** | Dùng backbone đã chốt, bỏ head phân loại, chạy **500 ảnh của dự án** (ảnh khớp với timeseries) → xuất mỗi ảnh 1 vector `img_embedding` (~2048-d), lưu ra file (npy/parquet) kèm `file_name`/`id` để nhánh fusion nối. | ⬜ **CHƯA có script — việc tiếp theo** |
-| **6. Bàn giao fusion** | Đưa vector ảnh + vector timeseries vào GNN, tạo node/edge, train predict `bnn`. | ⬜ Thuộc nhánh Fusion |
+Đây là cây cầu nối nhánh ảnh sang nhánh fusion. Sản phẩm bàn giao là **3 bộ vector đặc trưng** cho cùng 1.835 ảnh, cùng schema, để nhánh fusion so sánh xem nguồn nào tốt nhất.
 
-**Việc cần làm tiếp theo rõ ràng nhất:** viết script **Bước 5** (feature extraction) — hiện chưa tồn tại. Nó là cây cầu nối nhánh ảnh sang fusion: load `best_model_*.pth`, `model.eval()`, forward 500 ảnh dự án qua `backbone(...).img_embedding`, lưu ma trận `[500, 2048]` + danh sách id.
+### 5.1. Các file trong `imagefeat/`
 
-### Kết quả hiện có (cùng test set 339 ảnh, cùng split seed 42)
+| File | Vai trò |
+|---|---|
+| `build_index.py` | **Nguồn sự thật duy nhất.** Ghép 1.835 ảnh với `info.csv` theo cột `id` (khớp 1835/1835), sinh `image_index.parquet`. Gỡ PII: tên file → hash. |
+| `extract_image_features.py` | Trích đặc trưng bằng backbone đóng băng. `--frozen` = không nạp checkpoint; mặc định = nạp checkpoint SetA. |
+| `crossfit_finetune.py` | Cross-fit 5 fold theo `patient_uid`: mỗi ảnh nhận vector từ model **chưa từng thấy nó**. Lưu từng fold ra `_folds/` nên chạy lại là tiếp tục. |
+| `qc_report.py` | **Cổng nghiệm thu.** 5 assert cứng + 4 chỉ số báo cáo. Trượt là từ chối bàn giao. |
+| `output/image_index.parquet` | `(1835, 7)`: `img_id, file_hash, patient_uid, patient_group, label_ketqua, label_bnn, batch_date` |
+| `output/image_features*.parquet` | 3 bộ đặc trưng, mỗi bộ `(1835, 259)` |
+| `colab/phase_0_3_frozen.ipynb`<br>`colab/phase_0_4_crossfit.ipynb` | Notebook chạy trên Colab T4, bấm Run all |
 
-| Model | ROC-AUC | Accuracy | Sensitivity | Specificity |
-|---|---|---|---|---|
-| BYOL-ResNet18 | 0.832 | 0.76 | 0.88 | 0.58 |
-| CheXNet-DenseNet121 | 0.847 | 0.79 | 0.78 | 0.81 |
-| BioViL-T + Focal γ=2 | 0.902 | 0.86 | 0.906 | 0.781 |
-| **BioViL-T + CrossEntropy** | **0.913** | 0.85 | 0.847 | 0.861 |
+### 5.2. Khóa nối sang nhánh timeseries
 
-→ Đã **vượt mốc mục tiêu 0.8** ở mức backbone ảnh. Bước fusion sẽ kết hợp thêm dữ liệu lâm sàng để đẩy cao hơn/ổn định hơn.
+```
+image_index.img_id  ==  fusion_node_meta.id   (khớp 1835/1835, đã kiểm chứng)
+```
+
+**Không dùng tên file** làm khóa: tên file chứa họ tên bệnh nhân. Nhánh timeseries cũng đã bỏ `file_name` khỏi mọi artifact vì lý do này.
+
+`patient_uid` lấy từ `output/patient_identity.parquet` do nhánh Timeseries sinh ra, để **hai nhánh dùng chung một định nghĩa "ai là ai"**. Công thức cũ (`họ tên + năm sinh`) bỏ sót những ca gõ nhầm tên — ví dụ thật:
+
+```
+id   39  Vu Thi Tuoi   1972  Nu  Hai Duong  0346398595   ← có ảnh
+id 3317  vu thi tuou   1972  Nu  Hai Duong  0346398595   ← có ảnh
+```
+
+Cùng số điện thoại, một người, lệch một chữ cái. Cách cũ tách thành 2 nhóm → hai phim của cùng một người rơi vào 2 fold khác nhau. **13/87 người có nhiều phim bị lỗi này**, nay đã khắc phục.
+
+### 5.3. Ba bộ đặc trưng — khác nhau ở đâu
+
+| Bộ | Backbone fine-tune trên | Nhãn huấn luyện | Rò rỉ |
+|---|---|---|---|
+| **`control`** | SetA — 2.129 ảnh **khác hoàn toàn** (overlap = 0, đã kiểm chứng bằng số) | **`bnn`** | Không — backbone chưa từng thấy 1.835 ảnh này |
+| **`frozen`** | **Không fine-tune** | — | Không, theo cấu tạo |
+| **`crossfit`** | Chính 1.835 ảnh này, 5 fold theo `patient_uid` | **`ketqua`** | Không — mỗi vector là out-of-fold |
+
+### 5.4. Kết quả nghiệm thu
+
+Cả 3 bộ đều qua 5 cổng assert cứng:
+
+```
+1835/1835 hàng · 0 chiều hằng (kiểm float64) · 0 NaN/Inf
+0 bệnh nhân nằm ở >1 fold · 0 tên người trong artifact
+```
+
+Riêng `crossfit`: 5 fold cân bằng (363–370 ảnh, ~350 người/fold), **0 bệnh nhân bắc cầu**.
+
+### 5.5. So sánh chất lượng — probe tuyến tính, CV 5-fold nhóm theo `patient_uid`
+
+| Bộ | PC1 | Effective rank | `bnn` ROC | **`bnn` PR-AUC** | `ketqua` ROC | `ketqua` PR-AUC |
+|---|---|---|---|---|---|---|
+| `control` | 90,7% | 1,80 | 0,8646 | **0,2522** | 0,7335 | 0,5176 |
+| `frozen` | 34,3% | 14,79 | 0,8630 | 0,2183 | 0,7390 | 0,5186 |
+| `crossfit` | 48,6% | 5,56 | 0,8146 | 0,1865 | **0,8165** | **0,6153** |
+
+*(nền PR-AUC: `bnn` = 0,0540 · `ketqua` = 0,2518)*
+
+Khoảng tin cậy bootstrap 95% cho `bnn` PR-AUC:
+
+```
+control   0,2608  [0,1950 – 0,3404]
+frozen    0,2232  [0,1715 – 0,2778]
+crossfit  0,1934  [0,1441 – 0,2512]
+
+control − crossfit = +0,0674  [+0,0033 – +0,1400]   P(control > crossfit) = 98,1%
+```
+
+### 5.6. ⚠️ Phát hiện quan trọng: nhãn huấn luyện quyết định, không phải miền dữ liệu
+
+Kết quả **ngược với dự đoán ban đầu**. Giả thuyết khi thiết kế Phase 0.4 là *"cross-fit thích nghi đúng miền dữ liệu nên sẽ mạnh nhất"*. Thực tế:
+
+* `crossfit` **tốt nhất** cho `ketqua` (PR-AUC 0,6153 so với ~0,518) — đúng như thiết kế, nó được huấn luyện trên nhãn đó.
+* `crossfit` **kém nhất** cho `bnn` (0,1865), và khoảng cách với `control` là **có ý nghĩa thống kê** (P = 98,1%).
+
+Lời giải nằm ở **nhãn huấn luyện**, không phải ở miền dữ liệu:
+
+| Bộ | Nhãn huấn luyện | Miền ảnh | Kết quả trên `bnn` |
+|---|---|---|---|
+| `control` | **`bnn`** ✅ đúng nhãn đích | SetA — khác miền | **tốt nhất** |
+| `frozen` | không có | — | trung bình |
+| `crossfit` | `ketqua` ❌ nhãn proxy | đúng miền | **kém nhất** |
+
+Càng tối ưu mạnh cho nhãn proxy `ketqua` (tổn thương trên phim), biểu diễn càng vứt bỏ những hướng thông tin mà nhãn đích `bnn` (bệnh nghề nghiệp) cần. Bệnh nghề nghiệp không chỉ là tổn thương trên phim — nó còn phụ thuộc tiền sử phơi nhiễm, thời gian tiếp xúc, nghề nghiệp.
+
+**Hệ quả cho phase fusion:** dùng **`control` làm nguồn chính**, hai bộ còn lại làm nhánh ablation. Đây cũng là lựa chọn đã ghi trong `fusion_roadmap.md` từ đầu — nay có bằng chứng số ủng hộ.
+
+### 5.7. Hai điều nhánh fusion BẮT BUỘC phải biết
+
+**1. Phải mean-center trước khi dựng đồ thị kNN.** Cosine trung bình giữa các ảnh ở dạng thô là **0,63 – 0,98** tùy bộ; sau khi mean-center chỉ còn **~0,002 – 0,008**. Nếu dựng kNN trên vector thô, mọi ảnh sẽ "giống nhau 60–98%" và đồ thị gần như vô nghĩa.
+
+**2. Nhiễu loạn theo lô chụp.** Embedding đoán được **lô chụp** với độ chính xác 41–47% (nền theo lớp lớn nhất 10,9%, 16 lô). Tỷ lệ dương theo ngày chụp lệch 8 lần (5,5% → 44,8%). Khi báo cáo kết quả fusion nên tách metric theo `batch_date`.
 
 ---
 
-## 6. ⚠️ Ghi chú: những chỗ đồng nghiệp làm KHÁC với file docx
+## 6. Roadmap nhánh ảnh — trạng thái cuối
 
-> Đây là các điểm nhánh ảnh **đã lệch/mở rộng** so với roadmap khái quát trong `.docx`. Không hẳn là sai — phần lớn là cải tiến hợp lý — nhưng cần biết để báo cáo cho khớp.
+| Bước | Việc | Trạng thái |
+|---|---|---|
+| **0. Chuẩn bị data** | Thu thập ảnh, resize, chuẩn hóa tên khớp nhãn. | ✅ Xong |
+| **1. Pretrain backbone** | BYOL trên NIH ChestX-ray14; thêm CheXNet và BioViL-T tải sẵn. | ✅ Xong |
+| **2. Fine-tune & so backbone** | BYOL (0.832) < CheXNet (0.847) < ImageNet (0.891) < **BioViL-T (0.902)**. | ✅ Xong — chốt BioViL-T |
+| **3. Ablation loss** | CE / Weighted CE / Focal γ=2,5. Kết luận: loss không tăng AUC, chỉ dịch Sens↔Spec. | ✅ Xong |
+| **4. Chốt mô hình trích đặc trưng** | `Finetune CrossEntropy/best_model_ce.pth` (AUC 0.913). | ✅ Xong |
+| **5. Xây chỉ mục chuẩn** | `build_index.py` → `image_index.parquet`, khóa `img_id`, gỡ PII, kèm `patient_uid`. | ✅ Xong (09/2026) |
+| **6. Trích 3 bộ đặc trưng** | `control` (P2) · `frozen` (P0.3) · `crossfit` (P0.4). Cả 3 qua cổng QC. | ✅ Xong (09/2026) |
+| **7. Bàn giao fusion** | 3 bộ `.parquet` + `image_index.parquet` + 3 QC report + 3 manifest. | ✅ **Sẵn sàng** |
 
-1. **Backbone cuối cùng KHÔNG phải là backbone tự-pretrain.**
-   - *docx:* "Pretrain với kho ảnh X-quang trên mạng dùng **SimCLR/BYOL** → fine-tune". Tức là backbone chính là do mình tự pretrain.
-   - *Thực tế:* BYOL tự-pretrain chỉ đạt AUC 0.832 (thấp nhất). Đồng nghiệp đã **thử thêm CheXNet và BioViL-T (đều là weight pretrained tải sẵn từ bên ngoài)** và **chọn BioViL-T** (0.902) làm chính thức. → Backbone chốt là **pretrained ngoài**, không phải self-supervised như docx hình dung. (SimCLR chưa hề được dùng; chỉ có BYOL.)
+**Nhánh ảnh đã hoàn thành nhiệm vụ.** Mọi artifact cần cho fusion đã có, tái lập được bằng mã đã commit, và đã qua nghiệm thu.
+
+---
+
+## 7. ⚠️ Ghi chú: những chỗ làm KHÁC với file docx
+
+> Các điểm nhánh ảnh **đã lệch/mở rộng** so với roadmap khái quát trong `.docx`. Phần lớn là cải tiến hợp lý, nhưng cần biết để báo cáo cho khớp.
+
+1. **Backbone cuối cùng KHÔNG phải backbone tự-pretrain.**
+   - *docx:* pretrain SimCLR/BYOL → fine-tune, tức backbone do mình tự pretrain.
+   - *Thực tế:* BYOL tự-pretrain chỉ đạt AUC 0.832 (thấp nhất). Chốt **BioViL-T** (weight pretrained tải sẵn từ Microsoft, 0.902). SimCLR chưa hề được dùng.
 
 2. **Data fine-tune KHÔNG phải "500 ảnh của mình".**
-   - *docx:* "Fine tune với **500 ảnh X-quang của mình**".
-   - *Thực tế:* các lần fine-tune dùng **set_A ≈ 2129 ảnh** (`SetA_Labels.xlsx`), một tập silicosis lớn hơn, **không phải** 500 ảnh khớp với timeseries. 500 ảnh dự án (folder Drive) hiện **chưa được đưa vào pipeline** — chúng dành cho **Bước 5 (trích vector fusion)**, chưa làm.
+   - *docx:* fine-tune với 500 ảnh X-quang của mình.
+   - *Thực tế:* fine-tune dùng **set_A ≈ 2.129 ảnh**. Bộ 1.835 ảnh của dự án được dùng ở giai đoạn trích đặc trưng (mục 5), không dùng để chọn backbone.
 
 3. **Phân phối test set ngược với thực tế triển khai.**
-   - Test set set_A có **202 `Co` / 137 `Khong`** (bệnh chiếm đa số).
-   - Nhưng `FINETUNE_GUIDE.md` (bàn giao BYOL) mô tả data thật khớp timeseries **imbalance ~14:1 nghiêng về `Khong`** (29 `Co` / 404 `Khong`). → Metrics đẹp trên set_A **chưa chắc giữ nguyên** khi áp lên phân phối thật của dự án. Cần lưu ý khi tuyên bố "AUC 0.913".
+   - Test set set_A có 202 `Co` / 137 `Khong` (bệnh chiếm đa số), trong khi bộ 1.835 ảnh chỉ có 5,4% `bnn` dương. → AUC 0.913 trên set_A **không giữ nguyên** khi áp lên phân phối thật.
 
-4. **Đường đi nhãn đã đổi giữa chừng.**
-   - `FINETUNE_GUIDE.md` ban đầu hướng dẫn fine-tune bằng cột `bnn` của file chính `Main_data_fixed_Not_Encode_Mapping_New.xlsx` (433 ảnh khớp). Con đường này **đã bị bỏ**, thay bằng `SetA_Labels.xlsx`. Hai nguồn nhãn này **không đồng nhất về quy mô lẫn phân phối** — đừng nhầm khi đọc tài liệu cũ.
+4. **Vector đặc trưng là 512-D → giữ 256, không phải 2048-D.**
+   - BioViL-T (`RESNET50_MULTI_IMAGE`) trả về `img_embedding` 512 chiều. Nhưng đây là mô hình **temporal** nhận *ảnh hiện tại + ảnh tiền sử*; khi chỉ cấp 1 ảnh thì **256 chiều sau (256..511) là hằng số** ở cả 1.835 ảnh. Đã đo bằng `float64` và loại bỏ.
+   - ⚠️ Phép kiểm này **phải dùng `float64`**: ở `float32` chỉ phát hiện 1/256 chiều chết.
 
-5. **Chỉ mới 1 lần split, chưa k-fold.**
-   - `FINETUNE_GUIDE.md` và chính ghi chú ablation khuyến nghị **Stratified K-Fold / nhiều seed** để số liệu ổn định. Hiện mọi kết quả đều từ **1 split duy nhất**; chênh lệch ~0.02 AUC giữa các model/loss có thể chỉ là nhiễu. Nên chạy k-fold trước khi kết luận chắc trong báo cáo.
+5. **Nhãn huấn luyện của `crossfit` là `ketqua`, KHÔNG phải `bnn`.**
+   - `bnn` chỉ có 99 ca dương / 86 bệnh nhân dương. Chia 5 fold còn ~17 người dương mỗi fold — không đủ fine-tune ResNet50. `ketqua` có 462 dương (25,2%), học được.
+   - **Hệ quả:** không được đặt AUC nhánh ảnh cạnh AUC nhánh timeseries trong cùng một bảng — hai bài toán khác nhau.
 
-6. **Tên mô hình fusion chưa thống nhất.**
-   - *docx:* nói chung là **GNN (GCN/GAT)**, xây ~8000 đồ thị.
-   - *README:* ghi cụ thể **DGCNN**. Chỉ là khác biệt tên gọi/biến thể — cần chốt thống nhất khi sang nhánh fusion.
+6. **Chỉ mới 1 lần split cho phần chọn backbone, chưa k-fold.**
+   - Kết quả so 4 backbone (0.832 → 0.913) đều từ **1 split duy nhất** trên 339 ảnh test. Chênh ~0.02 AUC có thể chỉ là nhiễu. Riêng phần trích đặc trưng (mục 5) đã dùng 5-fold nhóm theo bệnh nhân.
 
-7. **Đường dẫn hard-code theo máy Windows** của người train (`e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\...`). Ai chạy lại phải sửa path; đây là nợ kỹ thuật nhỏ nên cân nhắc chuyển sang config/biến môi trường.
+7. **Đường dẫn hard-code theo máy cá nhân** vẫn còn trong các script `Finetune */` cũ. Các script trong `imagefeat/` đã chuyển sang tham số dòng lệnh (`--images-root`, `--identity`).

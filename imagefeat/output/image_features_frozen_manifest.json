@@ -1,0 +1,20 @@
+{
+  "created_utc": "2026-09-06T01:57:09.473098+00:00",
+  "script": "imagefeat/extract_image_features.py",
+  "mode": "frozen",
+  "role": "BO FROZEN — backbone BioViL-T pretrained goc, KHONG fine-tune, dung de doi chung dac trung it collapse",
+  "checkpoint": null,
+  "checkpoint_sha256": null,
+  "backbone": "/content/DO-AN-TOT-NGHIEP-E22-T02/Pre-train BioViL-T/biovil_t_image_model_proj_size_128.pt",
+  "backbone_sha256": "b2399d73dc2a68b9f3a1950e864ae0ecd24093fb07aa459d7e65807ebdc0fb77",
+  "train_label_of_checkpoint": null,
+  "leakage_claim": "Khong fine-tune tren bat ky bo du lieu nao -> ro ri = 0 theo cau tao",
+  "images_source": "quet /content/images",
+  "transform": "Resize(512) -> CenterCrop(448) -> ToTensor -> ExpandChannels",
+  "extraction_precision": "float32 (autocast TAT)",
+  "feature_dim_raw": 512,
+  "feature_dim_kept": 256,
+  "dead_dims_in_raw": 256,
+  "samples": 1835,
+  "torch": "2.11.0+cu128"
+}

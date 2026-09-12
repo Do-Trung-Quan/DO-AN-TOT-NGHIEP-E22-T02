@@ -1,0 +1,78 @@
+================================================================================
+FINE-TUNE BioViL-T — SILICOSIS vs NORMAL  
+================================================================================
+Data    : C:\Users\ASUS\Downloads\archive
+Backbone: C:\Users\ASUS\AndroidStudioProjects\cgv1\New folder (2)\DO-AN-TOT-NGHIEP-E22-T02\Pre-train BioViL-T\biovil_t_image_model_proj_size_128.pt
+LOSS    : nn.CrossEntropyLoss() (mac dinh, KHONG class weight)
+Device=cuda | AMP=True | Batch=4 | Epochs=25 | Unfreeze@5
+
+[1] Quet thu muc + split...
+  cache[train]: 1475 anh (0 moi tao) -> C:\Users\ASUS\Downloads\archive\_cache512\train
+  cache[test]: 360 anh (0 moi tao) -> C:\Users\ASUS\Downloads\archive\_cache512\test
+  Train 1253 {0: np.int64(938), 1: np.int64(315)} | Val 222 {0: np.int64(166), 1: np.int64(56)} | Test 360 {0: np.int64(269), 1: np.int64(91)}
+  Counts {0: np.int64(938), 1: np.int64(315)} | class weights [1.34 3.98]
+
+[2] Building BioViL-T model...
+  Load backbone LOCAL: C:\Users\ASUS\AndroidStudioProjects\cgv1\New folder (2)\DO-AN-TOT-NGHIEP-E22-T02\Pre-train BioViL-T\biovil_t_image_model_proj_size_128.pt
+  feature_size = 512
+  Stage 1: backbone FROZEN | head trainable
+  Criterion: nn.CrossEntropyLoss() (mac dinh, KHONG class weight)
+
+[3] Training...
+================================================================================
+Epoch   1/25 [S1] | Train 0.6933 | Val 0.6968
+  -> best saved
+Epoch   2/25 [S1] | Train 0.6908 | Val 0.6817
+  -> best saved
+Epoch   3/25 [S1] | Train 0.6875 | Val 0.6840
+Epoch   4/25 [S1] | Train 0.6871 | Val 0.6815
+  -> best saved
+Epoch   5/25 [S1] | Train 0.6856 | Val 0.6932
+
+[UNFREEZE] Epoch 6: mo bang backbone -> Stage 2
+Epoch   6/25 [S2] | Train 0.6556 | Val 0.5901
+  -> best saved
+Epoch   7/25 [S2] | Train 0.6127 | Val 0.5391
+  -> best saved
+Epoch   8/25 [S2] | Train 0.5709 | Val 0.6031
+Epoch   9/25 [S2] | Train 0.5664 | Val 0.5959
+Epoch  10/25 [S2] | Train 0.5483 | Val 0.4882
+  -> best saved
+Epoch  11/25 [S2] | Train 0.5284 | Val 0.5460
+Epoch  12/25 [S2] | Train 0.5128 | Val 0.5890
+Epoch  13/25 [S2] | Train 0.5231 | Val 0.7171
+Epoch  14/25 [S2] | Train 0.5101 | Val 0.5128
+Epoch  15/25 [S2] | Train 0.4860 | Val 0.5154
+Epoch  16/25 [S2] | Train 0.4899 | Val 0.5834
+Epoch  17/25 [S2] | Train 0.4835 | Val 0.5411
+
+[EARLY STOP] epoch 17
+
+Load best model...
+
+================================================================================
+TEST (Youden's J) — LOSS = ce
+================================================================================
+  ROC AUC               : 0.8774
+  Accuracy              : 0.8500
+  Optimal Threshold     : 0.547
+  Sensitivity (silicosis): 0.725
+  Specificity (normal)   : 0.892
+  F1 (silicosis)        : 0.7097
+
+               precision    recall  f1-score   support
+
+   normal (0)       0.91      0.89      0.90       269
+silicosis (1)       0.69      0.73      0.71        91
+
+     accuracy                           0.85       360
+    macro avg       0.80      0.81      0.80       360
+ weighted avg       0.85      0.85      0.85       360
+
+
+Saved -> C:\Users\ASUS\AndroidStudioProjects\cgv1\New folder (2)\DO-AN-TOT-NGHIEP-E22-T02\Finetune Silicosis\evaluation_biovilt_silicosis_ce.png
+Saved -> confusion_matrix_biovilt_silicosis_ce.csv
+
+================================================================================
+DONE — BioViL-T silicosis [loss=ce] | AUC=0.8774 | Sens=0.725 | Spec=0.892
+================================================================================

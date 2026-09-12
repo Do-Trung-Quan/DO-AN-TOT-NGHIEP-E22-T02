@@ -1,0 +1,5 @@
+File này thực hiện fine-tuning mô hình BioViL-T trên tập ảnh X-ray Set A bằng cách đọc label từ Excel, nối ảnh với nhãn, chia dữ liệu thành train/val/test theo nhóm bệnh nhân, sau đó huấn luyện mô hình với backbone đã được tiền huấn luyện.
+
+Điểm khác biệt chính so với các biến thể khác là loss dùng là CrossEntropyLoss, tức là dùng hàm loss chuẩn mặc định thay vì focal loss.
+
+Quá trình thực hiện gồm: đọc dữ liệu, chuẩn bị dataset, tạo DataLoader, xây dựng mô hình BioViL-T, train head trước rồi mới mở backbone để fine-tune, cuối cùng đánh giá bằng các chỉ số ROC AUC, accuracy, sensitivity và specificity.

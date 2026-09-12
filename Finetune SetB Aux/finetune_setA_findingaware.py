@@ -19,6 +19,8 @@ CHAY:
   python "Finetune SetB Aux/finetune_setA_findingaware.py"
 ================================================================================
 """
+
+# 1) Nhập thư viện và thiết lập môi trường ban đầu
 import os, re, sys, argparse, warnings
 warnings.filterwarnings("ignore")
 import numpy as np
@@ -43,6 +45,7 @@ try:
 except Exception:
     pass
 
+# 2) Đọc tham số dòng lệnh để chạy thử nhanh hoặc huấn luyện đầy đủ
 parser = argparse.ArgumentParser()
 parser.add_argument("--smoke", action="store_true")
 parser.add_argument("--epochs", type=int, default=30)
@@ -50,9 +53,7 @@ parser.add_argument("--batch-size", type=int, default=8)
 parser.add_argument("--unfreeze-epoch", type=int, default=6)
 args = parser.parse_args()
 
-# ================================================================================
-# CONFIG  (GIONG Finetune CrossEntropy, chi doi backbone + OUTPUT_DIR)
-# ================================================================================
+# 3) Cấu hình đường dẫn, tham số huấn luyện và môi trường chạy
 EXCEL_PATH    = r"e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\Finetune 2\SetA_Labels.xlsx"
 IMAGE_DIR     = r"e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\Finetune\images_256\train"
 OUTPUT_DIR    = r"e:\Hoc hanh\ĐÒ ÁN\Data DGCNN\Finetune SetB Aux"
@@ -72,6 +73,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 USE_AMP = (DEVICE == "cuda")
 
+# 4) Bộ ghi log để lưu kết quả train vào file text
 class _Tee:
     def __init__(self, *s): self.s = s
     def write(self, d):
@@ -91,9 +93,7 @@ print("=" * 80)
 print(f"Backbone (finding-aware): {FINDINGS_BACKBONE}")
 print(f"Device={DEVICE} | AMP={USE_AMP} | Batch={BATCH_SIZE} | Epochs={EPOCHS}")
 
-# ================================================================================
-# 1) LOAD + MATCH + SPLIT  (giong Finetune CrossEntropy -> CUNG tap test 339)
-# ================================================================================
+# 5) Tải dữ liệu từ Excel, khớp file ảnh và chia tập train/val/test
 print("\n[1] Excel + match + split...")
 df = pd.read_excel(EXCEL_PATH)
 df[LABEL_COLUMN] = df[LABEL_COLUMN].map({"Khong": 0, "Co": 1})
@@ -118,9 +118,7 @@ if args.smoke:
 print(f"  Train {len(train_df)} | Val {len(val_df)} | Test {len(test_df)}")
 assert len(set(train_df["patient_base"]) & set(test_df["patient_base"])) == 0, "Leakage!"
 
-# ================================================================================
-# 2) TRANSFORMS + DATASET  (giong Finetune 4)
-# ================================================================================
+# 6) Xây dựng transforms và dataset cho ảnh X-ray
 from health_multimodal.image.data.transforms import ExpandChannels
 train_tf = Compose([Resize(RESIZE), RandomHorizontalFlip(0.5), RandomRotation(10),
                     RandomCrop(CROP), ToTensor(), ExpandChannels()])
@@ -141,9 +139,7 @@ train_loader = DataLoader(XrayDataset(train_df, train_tf), batch_size=BATCH_SIZE
 val_loader   = DataLoader(XrayDataset(val_df, eval_tf), batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
 test_loader  = DataLoader(XrayDataset(test_df, eval_tf), batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
 
-# ================================================================================
-# 3) MODEL — BioViL-T backbone NAP TU BUOC 1 (finding-aware)
-# ================================================================================
+# 7) Tạo backbone BioViL-T và mô hình classifier cho bài toán phân loại
 print("\n[2] Building BioViL-T (nap backbone finding-aware)...")
 from health_multimodal.image.model.model import ImageModel
 from health_multimodal.image.model.types import ImageEncoderType
@@ -181,9 +177,7 @@ optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters(
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", factor=0.5, patience=3)
 scaler = torch.amp.GradScaler("cuda", enabled=USE_AMP)
 
-# ================================================================================
-# 4) TRAIN (2-stage)
-# ================================================================================
+# 8) Huấn luyện mô hình theo 2 giai đoạn: head trước, sau đó mở backbone
 print("\n[3] Training...")
 print("=" * 80)
 best_val = float("inf"); patience_ctr = 0; stage = 1
@@ -224,9 +218,7 @@ for epoch in range(EPOCHS):
             print(f"\n[EARLY STOP] epoch {epoch+1}"); break
     scheduler.step(va)
 
-# ================================================================================
-# 5) EVALUATE (Youden's J)
-# ================================================================================
+# 9) Đánh giá mô hình trên tập test và lưu kết quả
 print("\nLoad best + test...")
 model.load_state_dict(torch.load(CKPT, map_location=DEVICE)); model.eval()
 y_true, y_proba = [], []

@@ -1,0 +1,7 @@
+File này thực hiện fine-tuning mô hình BioViL-T trên tập ảnh X-ray Set A với loss dạng Weighted Cross Entropy nhằm xử lý mất cân bằng lớp.
+
+Quá trình thực hiện gồm đọc label từ Excel, nối từng ảnh với nhãn, chia dữ liệu thành train/val/test theo nhóm bệnh nhân, sau đó xây dựng Dataset và DataLoader để huấn luyện mô hình.
+
+Điểm khác biệt chính là sử dụng loss có trọng số cho từng lớp, giúp mô hình chú ý nhiều hơn đến lớp thiểu số và cải thiện khả năng nhận diện lớp khó.
+
+Kết quả được đánh giá bằng ROC AUC, accuracy, sensitivity, specificity và confusion matrix.

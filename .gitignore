@@ -218,44 +218,35 @@ __marimo__/
 .streamlit/secrets.toml
 
 # ==============================================================================
-# DU LIEU & ARTIFACT
+# PII — DU LIEU BENH NHAN. KHONG BAO GIO COMMIT.
 # ==============================================================================
-# Du lieu tho: chan tuyet doi — chua ho ten, so dien thoai, nam sinh benh nhan
+# info.csv chua ho ten (hoten), nam sinh (namsinh) VA SO DIEN THOAI (sdt)
+# cua 1835 nguoi. Nghiem trong hon meta CSV nhieu.
+timeseriesDATA/info.csv
+
+# THU MUC data/ — chua CUNG loai du lieu do:
+#   info.csv                              1835 nguoi: ho ten + nam sinh + sdt
+#   Main_data_Merged_1835_Images.xlsx     8030 nguoi: nhu tren + tinh + so BH
+#   Main_data_fixed_Not_Encode_*.xlsx     8030 nguoi: nhu tren
+# Nhanh Timeseries da chan tu 09/2026; nhanh nay truoc do chua chan.
 data/
 *.xlsx
+~$*
 
-# Artifact: chan mac dinh
-*.csv
-*.npy
-*.parquet
-
-# output/: chan tat, MO RIENG cac artifact ban giao.
-# Luu y: phai dung `output/*` chu khong phai `output/` — git khong cho mo lai
-# mot file nam trong thu muc da bi loai.
+# output/ o goc repo: chi cho phep bang dinh danh (khong ten, khong sdt)
 output/*
-!output/timeseries_features.parquet
-!output/timeseries_features.npy
-!output/fusion_node_meta.parquet
 !output/patient_identity.parquet
-!output/*.png
 
-# fusion/output/: cho ket qua nhe, chan file nang (fusion_dataset_*.pt sinh lai duoc)
-fusion/output/*
-!fusion/output/*.json
-!fusion/output/*.md
-!fusion/output/*.png
-!fusion/output/*.parquet
-
-# imagefeat/output/: artifact khoa theo img_id, khong chua ten
-!imagefeat/output/*.parquet
-!imagefeat/output/*.json
-!imagefeat/output/*.md
-
-# ==============================================================================
-# PII — KHONG BAO GIO COMMIT  (dat cuoi de thang moi rule tren)
-# ==============================================================================
-data/info.csv
-timeseriesDATA/info.csv
-imagefeat/output/LOCAL_ONLY_*
+# meta CSV cua nhanh anh: cot `fname` chua ho ten day du benh nhan
 FinetuneNewData/vectors/*meta*.csv
 
+# bang anh xa nguoc img_id -> ten file goc, chi duoc ton tai o local
+imagefeat/output/LOCAL_ONLY_*
+
+# Cac file DUOC PHEP commit trong imagefeat/output/ (khoa la img_id, khong co ten):
+#   image_index.parquet, image_features.parquet, image_features_control.parquet,
+#   image_features_manifest.json, image_features_qc.md
+#
+# LUU Y: cac duong dan tren da tung duoc commit truoc day. Them vao .gitignore
+# CHI chan cac commit moi — lich su git van con du lieu. Can `git filter-repo`
+# de don triet de, phai thong nhat ca nhom truoc khi force-push.

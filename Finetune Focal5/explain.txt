@@ -1,0 +1,7 @@
+File này thực hiện fine-tuning mô hình BioViL-T trên tập ảnh X-ray Set A với mục tiêu thử nghiệm hàm loss focal có gamma = 5.
+
+Quá trình làm việc tương tự như các biến thể khác: đọc label từ Excel, nối ảnh với nhãn, chia dữ liệu theo nhóm bệnh nhân, tạo Dataset và DataLoader, sau đó huấn luyện mô hình BioViL-T bằng backbone tiền huấn luyện.
+
+Điểm khác biệt chính là dùng FocalLoss với gamma lớn hơn, giúp mô hình tập trung nhiều hơn vào các mẫu khó phân loại hơn.
+
+Kết quả cuối cùng được đánh giá bằng các chỉ số ROC AUC, accuracy, sensitivity, specificity và confusion matrix.
