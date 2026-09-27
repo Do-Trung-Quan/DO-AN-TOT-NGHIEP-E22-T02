@@ -280,6 +280,8 @@ def main() -> None:
     p.add_argument("--graph", type=Path, default=ROOT / "fusion/output/graph_ketqua_k10_bridge.npz")
     p.add_argument("--seeds", type=int, default=3)
     p.add_argument("--epochs", type=int, default=60)
+    p.add_argument("--out-dir", type=Path, default=ROOT / "fusion/output",
+                   help="Noi ghi ket qua. Dung thu muc tam khi chay thu de khong de len ket qua that")
     p.add_argument("--hidden", type=int, default=64)
     args = p.parse_args()
 
@@ -442,16 +444,17 @@ def main() -> None:
     out(f"**Moc cho Phase 4 (GNN phai vuot):** nhom KHONG anh **{ru:.3f}** ({best_u}) | "
         f"nhom CO anh **{ri:.3f}** ({best_i})")
 
+    args.out_dir.mkdir(parents=True, exist_ok=True)
     # Ten file gan lien voi nguon anh: chay `frozen` khong bao gio de len ket qua `control`
-    (ROOT / f"fusion/output/phase3_baselines_{args.source}.md").write_text(
+    (args.out_dir / f"phase3_baselines_{args.source}.md").write_text(
         "\n".join(L) + "\n", encoding="utf-8")
-    (ROOT / f"fusion/output/phase3_baselines_{args.source}.json").write_text(
+    (args.out_dir / f"phase3_baselines_{args.source}.json").write_text(
         json.dumps({"source": args.source, "epochs": args.epochs, "seeds": args.seeds,
                     "ket_qua": results}, indent=2, ensure_ascii=False, default=float),
         encoding="utf-8")
-    np.savez_compressed(ROOT / f"fusion/output/phase3_oof_{args.source}.npz",
+    np.savez_compressed(args.out_dir / f"phase3_oof_{args.source}.npz",
                         **{k.split(" ")[0]: v[0] for k, v in oof_store.items()})
-    print(f"\nDa ghi -> fusion/output/phase3_baselines_{args.source}.{{md,json}}"
+    print(f"\nDa ghi -> {args.out_dir}/phase3_baselines_{args.source}.{{md,json}}"
           f" + phase3_oof_{args.source}.npz")
 
 

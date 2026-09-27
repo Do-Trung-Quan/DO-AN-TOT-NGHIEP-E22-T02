@@ -15,6 +15,13 @@ Y TUONG
   => GAT chi dang dung neu vuot duoc B3/B3b o nhom khong anh VA khong thua B2 o nhom
      co anh. Neu khong, ket luan trung thuc la "co che chu y khong giup gi o day".
 
+DAC TRUNG DAU VAO — giong B3b cua Phase 3
+  lam sang (bang tho + diem nhanh ts) | anh (256 chieu, token thieu neu vang)
+  | DIEM NGUY CO TRUNG BINH CUA HANG XOM (1 chieu + so hang xom).
+  Khoi thu ba la thu DA THANG o Phase 3 (B3b: +0,022 ROC o nhom khong anh, P=99%).
+  Dua no vao thang lam dau vao thay vi bat GAT tu hoc lai tu vector tho.
+  Tat bang --no-nb-score de do rieng dong gop cua no.
+
 KHONG DUNG torch_geometric
   Lop GATv2 duoc cai bang torch thuan (~40 dong) de tranh rui ro cai dat va de chay
   duoc ca o may khong co GPU. Cong thuc theo Brody et al., ICLR 2022 (GATv2):
@@ -25,6 +32,11 @@ GIAO THUC — GIONG HET PHASE 3 de so sanh cong bang
   - 5 fold co san x nhieu seed; diem OOF = trung binh cac seed.
   - Truyen tin tren TOAN BO do thi (transductive) nhung loss chi tinh tren node train
     cua fold do. Nhan cua node validation khong bao gio tham gia huan luyen.
+  - LayerNorm chu khong BatchNorm: o che do transductive, moi luot truyen tien chay
+    tren CA 8030 node nen BatchNorm se tinh thong ke tren ca node validation.
+  - Early stopping: tach 15% benh nhan trong tap TRAIN lam tap theo doi, dung khi
+    PR-AUC tren do khong cai thien sau `--patience` epoch. Node validation cua fold
+    KHONG bao gio duoc dung de dung som.
   - KTC 95% bootstrap theo benh nhan; bao cao tach nhom co anh / khong anh.
   - Tu doc fusion/output/phase3_baselines_<nguon>.json de doi chieu thang voi Phase 3.
 
@@ -49,7 +61,9 @@ import torch.nn.functional as F
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from fusion.baselines import paired_gap, score_block, standardise  # noqa: E402
+from fusion.baselines import (image_probe_scores, neighbour_score_mean,  # noqa: E402
+                              paired_gap, score_block, standardise)
+from sklearn.metrics import average_precision_score  # noqa: E402
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -108,8 +122,9 @@ class GATNet(nn.Module):
         self.tokens = nn.ParameterList(
             [nn.Parameter(torch.zeros(d)) if m else nn.Parameter(torch.zeros(0), requires_grad=False)
              for d, m in zip(dims, maskable)])
+        # LayerNorm chu khong BatchNorm: xem giai thich o docstring
         self.enc = nn.Sequential(
-            nn.Linear(sum(dims) + sum(maskable), hidden), nn.BatchNorm1d(hidden),
+            nn.Linear(sum(dims) + sum(maskable), hidden), nn.LayerNorm(hidden),
             nn.ReLU(), nn.Dropout(dropout))
         self.g1 = GATv2Layer(hidden, hidden // heads, heads=heads, dropout=dropout)
         self.g2 = GATv2Layer(hidden, hidden, heads=1, dropout=dropout)
@@ -142,7 +157,17 @@ def symmetric_with_self_loops(edge_index: np.ndarray, n: int) -> np.ndarray:
     return np.stack([src, dst])
 
 
-def train_fold(blocks, masks, y, edge_index, train_idx, val_idx, seed, args) -> np.ndarray:
+def split_inner(train_idx: np.ndarray, groups: np.ndarray, seed: int, frac: float = 0.15):
+    """Tach mot phan tap train lam tap theo doi de dung som — tach THEO BENH NHAN."""
+    rng = np.random.default_rng(1000 + seed)
+    uniq = rng.permutation(np.unique(groups[train_idx]))
+    watch = set(uniq[: max(1, int(len(uniq) * frac))].tolist())
+    is_watch = np.array([g in watch for g in groups[train_idx]])
+    return train_idx[~is_watch], train_idx[is_watch]
+
+
+def train_fold(blocks, masks, y, edge_index, train_idx, val_idx, seed, args,
+               groups: np.ndarray) -> np.ndarray:
     torch.manual_seed(seed)
     np.random.seed(seed)
     model = GATNet([b.shape[1] for b in blocks], args.maskable, hidden=args.hidden,
@@ -155,20 +180,35 @@ def train_fold(blocks, masks, y, edge_index, train_idx, val_idx, seed, args) -> 
     tr = torch.tensor(train_idx, dtype=torch.long, device=DEVICE)
     va = torch.tensor(val_idx, dtype=torch.long, device=DEVICE)
 
-    pos = float(y[train_idx].sum())
+    fit_idx, watch_idx = split_inner(train_idx, groups, seed)
+    fit = torch.tensor(fit_idx, dtype=torch.long, device=DEVICE)
+    pos = float(y[fit_idx].sum())
     loss_fn = nn.BCEWithLogitsLoss(
-        pos_weight=torch.tensor([(len(train_idx) - pos) / max(pos, 1.0)], device=DEVICE))
+        pos_weight=torch.tensor([(len(fit_idx) - pos) / max(pos, 1.0)], device=DEVICE))
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=5e-4)
-    sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=args.epochs)
 
-    for _ in range(args.epochs):
+    best_score, best_state, bad = -1.0, None, 0
+    for epoch in range(args.epochs):
         model.train()
         opt.zero_grad()
-        loss = loss_fn(model(bt, mt, ei)[tr], yt[tr])
-        loss.backward()
+        loss_fn(model(bt, mt, ei)[fit], yt[fit]).backward()
         opt.step()
-        sched.step()
 
+        if (epoch + 1) % 5 == 0:          # do tap theo doi 5 epoch mot lan cho nhanh
+            model.eval()
+            with torch.no_grad():
+                p = torch.sigmoid(model(bt, mt, ei)[watch_idx]).cpu().numpy()
+            score = average_precision_score(y[watch_idx], p)
+            if score > best_score:
+                best_score, bad = score, 0
+                best_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
+            else:
+                bad += 1
+                if bad >= args.patience:
+                    break
+
+    if best_state is not None:
+        model.load_state_dict(best_state)
     model.eval()
     with torch.no_grad():
         return torch.sigmoid(model(bt, mt, ei)[va]).cpu().numpy()
@@ -184,6 +224,12 @@ def main() -> None:
     p.add_argument("--heads", type=int, default=4)
     p.add_argument("--dropout", type=float, default=0.3)
     p.add_argument("--lr", type=float, default=5e-3)
+    p.add_argument("--out-dir", type=Path, default=ROOT / "fusion/output",
+                   help="Noi ghi ket qua. Dung thu muc tam khi chay thu de khong de len ket qua that")
+    p.add_argument("--patience", type=int, default=6,
+                   help="So lan do lien tiep khong cai thien thi dung (moi lan cach 5 epoch)")
+    p.add_argument("--nb-score", action=argparse.BooleanOptionalAction, default=True,
+                   help="Dung khoi 'diem nguy co hang xom' (mac dinh bat). --no-nb-score de tat")
     p.add_argument("--no-graph", action="store_true",
                    help="Ablation: tat truyen tin, chi con MLP — de biet do thi dong gop bao nhieu")
     args = p.parse_args()
@@ -201,9 +247,10 @@ def main() -> None:
     uid, dev, fold = d["patient_uid"], d["split"] == "dev", d["fold_id"]
     n = len(y)
     edge_index = symmetric_with_self_loops(g["edge_index"], n)
-    args.maskable = [False, True]
+    args.maskable = [False, True, True] if args.nb_score else [False, True]
 
-    tag = "GAT" + (" (tat do thi)" if args.no_graph else "")
+    tag = ("GAT" + (" (tat do thi)" if args.no_graph else "")
+           + ("" if args.nb_score else " (khong diem hang xom)"))
     print("=" * 78)
     print(f"PHASE 4 — {tag}   [nguon anh: {args.source} | {DEVICE}]")
     print("=" * 78)
@@ -213,12 +260,23 @@ def main() -> None:
     oof = np.zeros(n)
     for k in range(5):
         va = np.flatnonzero(dev & (fold == k))
-        tr = np.flatnonzero(dev & (fold != k) & (fold >= 0))
+        tr_mask = dev & (fold != k) & (fold >= 0)
+        tr = np.flatnonzero(tr_mask)
         # Chuan hoa fit tren rieng hang train cua fold — khong dung node validation
-        blocks = [standardise(dev & (fold != k) & (fold >= 0), X_ls, np.ones(n, bool)),
-                  standardise(dev & (fold != k) & (fold >= 0), X_img, has_img)]
+        blocks = [standardise(tr_mask, X_ls, np.ones(n, bool)),
+                  standardise(tr_mask, X_img, has_img)]
         masks = [np.ones(n, bool), has_img]
-        preds = [train_fold(blocks, masks, y, edge_index, tr, va, s, args)
+
+        if args.nb_score:
+            # Giong B3b: probe anh hoc tren rieng hang TRAIN co anh, roi lay trung binh
+            # diem cua cac hang xom co anh. Nhan cua node dang danh gia khong tham gia.
+            s_img = image_probe_scores(tr_mask & has_img, X_img, y, has_img)
+            nbs, cnt = neighbour_score_mean(g["edge_index"], s_img, has_img)
+            X_nbs = np.column_stack([nbs, np.log1p(cnt)]).astype(np.float32)
+            blocks.append(standardise(tr_mask, X_nbs, cnt > 0))
+            masks.append(cnt > 0)
+
+        preds = [train_fold(blocks, masks, y, edge_index, tr, va, s, args, uid)
                  for s in range(args.seeds)]
         oof[va] = np.mean(preds, axis=0)
         print(f"  [fold {k}] xong")
@@ -227,7 +285,9 @@ def main() -> None:
            "co_anh": score_block(y[dev & has_img], oof[dev & has_img], uid[dev & has_img]),
            "khong_anh": score_block(y[dev & ~has_img], oof[dev & ~has_img], uid[dev & ~has_img])}
 
-    name = f"gat{'_nograph' if args.no_graph else ''}_{args.source}"
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+    name = (f"gat{'_nograph' if args.no_graph else ''}"
+            f"{'' if args.nb_score else '_nonb'}_{args.source}")
     L = []
     def out(t=""):
         print(t); L.append(t)
@@ -235,8 +295,9 @@ def main() -> None:
     out(f"# Phase 4 — {tag} (nguon anh `{args.source}`)")
     out()
     out(f"- Sinh luc: {datetime.now(timezone.utc).isoformat()} | thiet bi: {DEVICE}")
-    out(f"- {args.seeds} seed x {args.epochs} epoch | hidden {args.hidden}, {args.heads} head, "
-        f"dropout {args.dropout}, lr {args.lr}")
+    out(f"- {args.seeds} seed x toi da {args.epochs} epoch (early stopping, patience "
+        f"{args.patience}) | hidden {args.hidden}, {args.heads} head, dropout {args.dropout}, "
+        f"lr {args.lr} | LayerNorm | diem hang xom: {'CO' if args.nb_score else 'KHONG'}")
     out()
     out("| Nhom | n | duong | ROC-AUC | PR-AUC |")
     out("|---|---|---|---|---|")
@@ -248,7 +309,7 @@ def main() -> None:
     out()
 
     # ---- Doi chieu thang voi Phase 3 tren cung benh nhan ----
-    p3_oof = ROOT / f"fusion/output/phase3_oof_{args.source}.npz"
+    p3_oof = ROOT / f"fusion/output/phase3_oof_{args.source}.npz"   # luon doc ban chinh
     if p3_oof.exists():
         O = np.load(p3_oof)
         key = {k.split(" ")[0]: k for k in O.files}
@@ -274,13 +335,13 @@ def main() -> None:
     else:
         out(f"> Chua co {p3_oof.name} — chay fusion/baselines.py truoc de doi chieu duoc.")
 
-    (ROOT / f"fusion/output/phase4_{name}.md").write_text("\n".join(L) + "\n", encoding="utf-8")
-    (ROOT / f"fusion/output/phase4_{name}.json").write_text(
+    (args.out_dir / f"phase4_{name}.md").write_text("\n".join(L) + "\n", encoding="utf-8")
+    (args.out_dir / f"phase4_{name}.json").write_text(
         json.dumps({"source": args.source, "no_graph": args.no_graph, "epochs": args.epochs,
                     "seeds": args.seeds, "ket_qua": res}, indent=2, ensure_ascii=False,
                    default=float), encoding="utf-8")
-    np.savez_compressed(ROOT / f"fusion/output/phase4_oof_{name}.npz", GAT=oof)
-    print(f"\nDa ghi -> fusion/output/phase4_{name}.{{md,json}} + phase4_oof_{name}.npz")
+    np.savez_compressed(args.out_dir / f"phase4_oof_{name}.npz", GAT=oof)
+    print(f"\nDa ghi -> {args.out_dir}/phase4_{name}.{{md,json}} + phase4_oof_{name}.npz")
 
 
 if __name__ == "__main__":
