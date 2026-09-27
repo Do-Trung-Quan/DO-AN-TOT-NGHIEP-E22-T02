@@ -248,6 +248,7 @@ fusion/output/*
 !fusion/output/*.md
 !fusion/output/fusion_dataset_ketqua_*.npz
 !fusion/output/graph_ketqua_*.npz
+!fusion/output/tabular_ketqua.npz
 
 # output/ketqua/: dau ra nhanh ts voi nhan ketqua — cung ly do tren.
 !output/ketqua/

@@ -28,6 +28,7 @@ output/ketqua/ts_predictions.parquet        (8030, 7)    điểm ngoài mẫu c�
 imagefeat/output/image_features_control.parquet  (1835, 259)
 imagefeat/output/image_features_frozen.parquet   (1835, 259)
 fusion/output/fusion_dataset_ketqua_{control,frozen}.npz    9/9 kiểm định đạt
+fusion/output/tabular_ketqua.npz            (8030, 139)  đặc trưng lâm sàng dạng bảng
 fusion/output/graph_ketqua_{k5,k10_bridge,k20_bridge}.npz
 ```
 
@@ -71,9 +72,9 @@ attention học được trọng số hàng xóm thì tối thiểu phải bằn
 
 | | Nhãn `bnn` | Nhãn `ketqua` |
 |---|---|---|
-| Homophily lớp dương (k10_bridge) | 0,4113 | 0,2075 |
+| Homophily lớp dương (k10_bridge) | 0,4113 | 0,1501 |
 | Tỷ lệ nền | 0,0263 | 0,1197 |
-| **Lift** | **15,65×** | **1,73×** |
+| **Lift** | **15,65×** | **1,25×** |
 
 Lý do: cạnh dựng từ đặc trưng ts, mà ts chỉ đạt ROC 0,64 với `ketqua`. Lift tối đa có
 thể đạt cũng chỉ là 1/0,12 ≈ 8,4×. Đã thử các cách dựng cạnh khác trên nhóm có ảnh:
@@ -83,6 +84,8 @@ thể đạt cũng chỉ là 1/0,12 ≈ 8,4×. Đã thử các cách dựng cạ
 | ts 32 chiều | 1,46× |
 | ảnh 256 chiều | 1,63× |
 | **ts + ảnh ghép** | **1,72×** |
+
+*(Số 1,25× đo lại sau khi khử rò rỉ đặc trưng ts; trước đó là 1,73× — phần chênh là ảo.)*
 
 → Gate Phase 2 vẫn qua ở cả 3 cấu hình, nhưng **đừng kỳ vọng GNN tạo đột phá từ cấu
 trúc đồ thị**. Giá trị nằm ở kênh truyền ảnh sang người không ảnh (mục 2.2).
@@ -101,9 +104,9 @@ GNN cho công bằng. Hiện chúng đang đến từ ba script khác nhau.
 
 | Mã | Mô hình | Đầu vào |
 |---|---|---|
-| **B0** | MLP | chỉ `X_ts` (32 chiều) |
+| **B0** | MLP | lâm sàng: bảng thô 139 cột + điểm nhánh ts |
 | **B1** | MLP | chỉ `X_img` (256 chiều), chỉ 1.835 node có ảnh |
-| **B2** | MLP | `X_ts ⊕ X_img`, node không ảnh dùng token thiếu học được |
+| **B2** | MLP | lâm sàng ⊕ ảnh, node không ảnh dùng token thiếu học được |
 | **B3** | MLP | B2 + đặc trưng hàng xóm gộp sẵn (trung bình 10 hàng xóm) — **không có GNN** |
 
 B3 quan trọng: nó chính là phép thử thô ở mục 2.2, đưa vào đường ống chuẩn. **Nếu GNN
@@ -185,7 +188,7 @@ giải thích được, dù không phải con số gây choáng.
 
 | # | Rủi ro | Trạng thái |
 |---|---|---|
-| 1 | **Đặc trưng ts "biết nhãn" ở tập dev** — cell 12 trung bình 5 fold model trên cả 8.030 node | **Chấp nhận + khai báo.** Mọi cấu hình dùng chung một bộ ts nên so sánh tương đối vẫn hợp lệ; số trên test vẫn sạch. Chi phí sửa ~7 phút nếu sau này cần |
+| 1 | ~~Đặc trưng ts "biết nhãn" ở dev~~ | **ĐÃ XỬ LÝ 27/09.** Vector 32 chiều không dùng được theo cả hai cách: trung bình 5 model thì rò rỉ (MLP đạt ROC 0,752 so với 0,641 thật), lấy out-of-fold thì 5 fold nằm ở 5 không gian (probe còn 0,487). **Thay bằng bảng thô 139 cột + điểm dự đoán nhánh ts** — sạch tuyệt đối và mạnh hơn (0,663) |
 | 2 | Shortcut `has_image` — nhóm có ảnh có tỷ lệ bệnh 25,2% so với 8,1% | Missing-token + modality dropout + ablation tắt cờ ở Phase 5 |
 | 3 | Homophily chỉ 1,73× | Đã đo, đã ghi vào kỳ vọng. Cổng Phase 4 chặn việc đầu tư tiếp nếu không hiệu quả |
 | 4 | Test chỉ 147 ca dương | Chọn bằng OOF, chạm test một lần, luôn kèm KTC 95% |

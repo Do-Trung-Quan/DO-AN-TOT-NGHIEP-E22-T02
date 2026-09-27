@@ -1,5 +1,5 @@
 {
-  "created_utc": "2026-09-27T09:02:04.751633+00:00",
+  "created_utc": "2026-09-27T09:54:57.347808+00:00",
   "script": "fusion/build_graph.py",
   "tag": "ketqua_k5",
   "k": 5,
@@ -16,24 +16,24 @@
     "2": "bridge"
   },
   "edge_type_counts": {
-    "knn": 30413
+    "knn": 29324
   },
-  "n_edges": 30413,
-  "homophily": 0.809,
+  "n_edges": 29324,
+  "homophily": 0.7939,
   "homophily_baseline": 0.7893,
-  "homophily_margin": 0.0197,
-  "positive_homophily": 0.2185,
-  "positive_homophily_lift": 1.83,
-  "positive_reach": 0.718,
-  "cross_modality_edge_ratio": 0.3,
-  "isolated_node_coverage": 0.7091,
-  "mean_degree": 7.57,
+  "homophily_margin": 0.0046,
+  "positive_homophily": 0.1478,
+  "positive_homophily_lift": 1.23,
+  "positive_reach": 0.642,
+  "cross_modality_edge_ratio": 0.3264,
+  "isolated_node_coverage": 0.7737,
+  "mean_degree": 7.3,
   "degree_p10_p50_p90": [
     5,
     7,
-    11
+    10
   ],
   "n_components": 1,
   "largest_component": 8030,
-  "imaged_neighbours_of_plain_nodes_mean": 1.47
+  "imaged_neighbours_of_plain_nodes_mean": 1.55
 }
