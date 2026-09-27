@@ -1,0 +1,77 @@
+{
+  "created_utc": "2026-09-27T08:59:28.535825+00:00",
+  "script": "fusion/build_dataset.py",
+  "source": "frozen",
+  "label": "ketqua",
+  "source_file": "image_features_frozen.parquet",
+  "n_nodes": 8030,
+  "n_with_image": 1835,
+  "dim_ts": 32,
+  "dim_img": 256,
+  "join_key": "id (== img_id cua nhanh anh), da kiem chung 1835/1835",
+  "group_key": "patient_uid (luat sdt / 6 truong, dung chung 2 nhanh)",
+  "missing_image_encoding": "NaN — KHONG dien 0",
+  "normalisation": "KHONG chuan hoa o day; scaler fit trong tung fold o Phase 3",
+  "arrays": {
+    "X_ts": [
+      8030,
+      32
+    ],
+    "X_img": [
+      8030,
+      256
+    ],
+    "has_image": [
+      8030
+    ],
+    "y": [
+      8030
+    ],
+    "split": [
+      8030
+    ],
+    "fold_id": [
+      8030
+    ],
+    "patient_uid": [
+      8030
+    ],
+    "id": [
+      8030
+    ],
+    "batch_date": [
+      8030
+    ],
+    "tuoi": [
+      8030
+    ],
+    "gioitinh": [
+      8030
+    ],
+    "cviec": [
+      8030
+    ],
+    "pxuong": [
+      8030
+    ],
+    "tuoinghe": [
+      8030
+    ]
+  },
+  "phan_bo_nhan": {
+    "co_anh": {
+      "n": 1835,
+      "duong": 462,
+      "ty_le": 0.25177111716621253
+    },
+    "khong_anh": {
+      "n": 6195,
+      "duong": 499,
+      "ty_le": 0.08054882970137207
+    }
+  },
+  "lift_co_anh_vs_khong": 3.126,
+  "so_lo_chup": 18,
+  "cosine_anh_tho": 0.9443,
+  "cosine_anh_da_center": 0.0002
+}

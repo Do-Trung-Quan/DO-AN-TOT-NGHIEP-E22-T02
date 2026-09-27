@@ -1,5 +1,19 @@
 # Overview — Nhánh ảnh (`Chest-X-ray`)
 
+> ## ⚠️ CẬP NHẬT 27/09/2026 — ĐỌC TRƯỚC
+>
+> 1. **Nhãn đích của đồ án đã đổi sang `ketqua`** (đọc phim theo chuẩn ILO). Nhãn `bnn`
+>    là **tiền sử** đã được công nhận bệnh nghề nghiệp (97/99 ca chẩn đoán trước đợt
+>    khám), không phải kết quả khám lần này.
+> 2. **Bộ đặc trưng `crossfit` đã bị xoá khỏi dự án.** Vector của 5 fold do 5 mô hình
+>    khác nhau sinh ra nên nằm ở **5 không gian vector khác nhau** (chỉ nhìn vector là
+>    đoán đúng fold 100%; `control`/`frozen` chỉ ~22%). Mọi con số của `crossfit` trong
+>    tài liệu này **không hợp lệ**, kể cả kết luận "nhãn huấn luyện quan trọng hơn miền
+>    dữ liệu" vốn dựa trên phép đo đó.
+> 3. Số liệu nhánh ảnh còn hiệu lực: `imagefeat/output/eval_ketqua.md` và
+>    `doc/fusion_roadmap.md`.
+
+
 > Tài liệu này dành cho người **mới tham gia** nhánh ảnh. Đọc xong bạn sẽ hiểu: đồ án làm gì, nhánh ảnh đóng vai trò gì, mỗi folder/file là gì, và roadmap từ bước đầu tiên tới khi có model sẵn sàng **fusion** với nhánh Timeseries.
 
 ---

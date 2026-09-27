@@ -4,7 +4,7 @@
 P0 — XAY DUNG CHI MUC CHUAN cho nhanh anh  [nguon su that duy nhat]
 ================================================================================
 Ghep 1835 anh X-quang voi 1835 dong trong timeseriesDATA/info.csv, sinh ra
-mot bang chi muc duy nhat ma moi buoc sau (crossfit, extract, QC) deu doc.
+mot bang chi muc duy nhat ma moi buoc sau (extract, QC, danh gia) deu doc.
 
 TAI SAO KHONG MATCH THEO TEN:
   Ten file co loi chinh ta so voi ho ten trong info.csv:

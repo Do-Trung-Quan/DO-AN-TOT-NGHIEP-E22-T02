@@ -30,7 +30,6 @@ VI SAO CO CHI SO 6:
   fusion biet ho PHAI center truoc khi dung do thi kNN.
 
 CHAY (--features la BAT BUOC, bao cao tu dat ten theo bo):
-  python imagefeat/qc_report.py --features imagefeat/output/image_features.parquet
   python imagefeat/qc_report.py --features imagefeat/output/image_features_frozen.parquet
   python imagefeat/qc_report.py --features imagefeat/output/image_features_control.parquet
 ================================================================================
@@ -115,8 +114,8 @@ def main() -> None:
     # Ten bo suy tu ten file, KHONG hardcode: bao cao nghiem thu ma ghi nham
     # ten bo thi mat gia tri lam bang chung.
     #   image_features_frozen.parquet -> "frozen"
-    #   image_features.parquet        -> "crossfit"
-    label = args.features.stem.replace("image_features", "").strip("_") or "crossfit"
+    #   image_features_control.parquet -> "control"
+    label = args.features.stem.replace("image_features", "").strip("_") or "?"
 
     print("=" * 80)
     print(f"P3 — CONG NGHIEM THU  [bo {label.upper()}]")

@@ -1,0 +1,40 @@
+{
+  "created_utc": "2026-09-27T09:02:06.716651+00:00",
+  "script": "fusion/build_graph.py",
+  "tag": "ketqua_k20_bridge",
+  "k": 20,
+  "attr_edges": false,
+  "attr_max_per_node": null,
+  "bridge": true,
+  "seed": 42,
+  "similarity_space": "ts 32-D chuan hoa (fit tren node dev) + cosine",
+  "edge_source": "CHI tu dac trung + thuoc tinh — KHONG BAO GIO tu nhan",
+  "shared_across_sources": true,
+  "edge_type_map": {
+    "0": "knn",
+    "1": "attr",
+    "2": "bridge"
+  },
+  "edge_type_counts": {
+    "knn": 116599,
+    "bridge": 250
+  },
+  "n_edges": 116849,
+  "homophily": 0.8045,
+  "homophily_baseline": 0.7893,
+  "homophily_margin": 0.0152,
+  "positive_homophily": 0.2053,
+  "positive_homophily_lift": 1.72,
+  "positive_reach": 0.9667,
+  "cross_modality_edge_ratio": 0.3176,
+  "isolated_node_coverage": 1.0,
+  "mean_degree": 29.1,
+  "degree_p10_p50_p90": [
+    21,
+    26,
+    41
+  ],
+  "n_components": 1,
+  "largest_component": 8030,
+  "imaged_neighbours_of_plain_nodes_mean": 5.99
+}

@@ -236,6 +236,26 @@ data/
 # output/ o goc repo: chi cho phep bang dinh danh (khong ten, khong sdt)
 output/*
 !output/patient_identity.parquet
+!output/fusion_node_meta.parquet
+!output/timeseries_features.parquet
+!output/timeseries_features.npy
+
+# fusion/output/: tu 09/2026 COMMIT ca *.npz (tong ~7 MB) de notebook Colab chi can
+# `git clone` la chay duoc — may local cua nhom yeu nen Phase 3+ chay tren Colab.
+# Cac file nay deu KHONG co PII: patient_uid la ma bam 16 ky tu, khong ten/sdt.
+fusion/output/*
+!fusion/output/*.json
+!fusion/output/*.md
+!fusion/output/fusion_dataset_ketqua_*.npz
+!fusion/output/graph_ketqua_*.npz
+
+# output/ketqua/: dau ra nhanh ts voi nhan ketqua — cung ly do tren.
+!output/ketqua/
+output/ketqua/*
+!output/ketqua/timeseries_features.parquet
+!output/ketqua/fusion_node_meta.parquet
+!output/ketqua/ts_predictions.parquet
+!output/ketqua/patient_identity.parquet
 
 # meta CSV cua nhanh anh: cot `fname` chua ho ten day du benh nhan
 FinetuneNewData/vectors/*meta*.csv
