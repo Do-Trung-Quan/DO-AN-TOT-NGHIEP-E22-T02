@@ -8,9 +8,17 @@ cua GNN o Phase 4 so duoc cong bang.
   B0  MLP tren dac trung lam sang               — bang tho 139 cot + diem nhanh ts
   B1  MLP tren anh (256 chieu), CHI 1835 node co anh
   B2  MLP tren lam sang + anh                   — hop nhat, KHONG dung do thi
-  B3  MLP tren lam sang + anh + DAC TRUNG ANH TRUNG BINH CUA HANG XOM
-      -> chinh la phep "muon anh tu hang xom" nhung dua vao duong ong chuan.
-         B3 KHONG phai GNN: hang xom duoc gop san mot lan, khong hoc trong so.
+  B3  MLP tren lam sang + anh + VECTOR ANH TRUNG BINH CUA HANG XOM (256 chieu)
+  B3b MLP tren lam sang + anh + DIEM NGUY CO TRUNG BINH CUA HANG XOM (1 chieu)
+      -> ca hai deu la phep "muon anh tu hang xom", khac o cho muon gi:
+         B3 muon ca vector, B3b chi muon ket luan. B3b la phep kiem chung gia thuyet
+         "bo control chay duoc vi no gan nhu mot truc diem nguy cro, con frozen 15 chieu
+         da dang nen trung binh lai thanh mo".
+         Ca hai KHONG phai GNN: hang xom duoc gop san, khong hoc trong so.
+
+  L0/L1/L2  Hoi quy logistic tren cung dac trung — de biet mo hinh sau co dang dong
+      hay khong. Da do: MLP chi anh 0,749 con LR chi anh 0,760. Neu mo hinh sau khong
+      hon duoc mo hinh tuyen tinh thi phai noi thang trong bao cao.
 
 GIA THUYET TRUNG TAM CUA DO AN nam o B3 so voi B0 tren nhom KHONG co anh:
 neu thong tin anh truyen qua hang xom co ich thi B3 phai hon B0 o nhom do.
@@ -51,7 +59,10 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import average_precision_score, roc_auc_score
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -75,7 +86,10 @@ def neighbour_image_mean(edge_index: np.ndarray, X_img: np.ndarray,
     Tra ve (dac trung hang xom, so hang xom co anh). Node khong cham duoc hang xom
     co anh nao se co vector 0 va so dem 0 -> mo hinh nhan ra qua token thieu.
     """
-    src, dst = edge_index
+    # Do thi luu MOI CANH MOT CHIEU. Phai doi xung hoa truoc khi gop, neu khong moi node
+    # chi thay duoc mot nua so hang xom (do duoc: 1,1 thay vi 3,23 hang xom co anh).
+    src = np.concatenate([edge_index[0], edge_index[1]])
+    dst = np.concatenate([edge_index[1], edge_index[0]])
     keep = has_image[dst]                       # chi gop tu hang xom CO anh
     src, dst = src[keep], dst[keep]
     total = np.zeros_like(X_img)
@@ -86,6 +100,74 @@ def neighbour_image_mean(edge_index: np.ndarray, X_img: np.ndarray,
     nz = count > 0
     out[nz] = total[nz] / count[nz, None]
     return out, count
+
+
+def neighbour_score_mean(edge_index: np.ndarray, scores: np.ndarray,
+                         has_image: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Trung binh DIEM NGUY CO cua cac hang xom co anh (1 chieu) + so hang xom."""
+    src = np.concatenate([edge_index[0], edge_index[1]])
+    dst = np.concatenate([edge_index[1], edge_index[0]])
+    keep = has_image[dst]
+    src, dst = src[keep], dst[keep]
+    total = np.zeros(len(scores), dtype=np.float64)
+    count = np.zeros(len(scores), dtype=np.float64)
+    np.add.at(total, src, scores[dst])
+    np.add.at(count, src, 1.0)
+    out = np.zeros(len(scores))
+    nz = count > 0
+    out[nz] = total[nz] / count[nz]
+    return out, count
+
+
+def image_probe_scores(train_imaged: np.ndarray, X_img: np.ndarray, y: np.ndarray,
+                       has_image: np.ndarray) -> np.ndarray:
+    """Diem nguy co tu anh, hoc tren rieng hang TRAIN co anh roi cham cho MOI node co anh.
+
+    Node dang duoc danh gia khong bao gio nam trong tap train nay -> nhan cua no khong
+    tham gia. Node train duoc cham "trong mau" nhung diem do chi dung lam DAC TRUNG cho
+    hang xom, khong dung de cham diem chinh no.
+    """
+    probe = make_pipeline(StandardScaler(),
+                          LogisticRegression(C=0.1, class_weight="balanced", max_iter=5000))
+    probe.fit(X_img[train_imaged], y[train_imaged])
+    out = np.zeros(len(y))
+    out[has_image] = probe.predict_proba(X_img[has_image])[:, 1]
+    return out
+
+
+def sk_oof(keys, maskable, imaged_only, rows, fold, RAW, VALID, y) -> np.ndarray:
+    """Hoi quy logistic tren cung khoi dac trung — khoi vang mat dien 0 + them cot co/khong."""
+    oof = np.zeros(len(y))
+    for k in range(5):
+        va, tr = rows & (fold == k), rows & (fold != k) & (fold >= 0)
+        parts = []
+        for key, can_miss in zip(keys, maskable):
+            Z = standardise(tr, RAW[key], VALID[key])
+            parts.append(Z)
+            if can_miss:
+                parts.append(VALID[key].astype(np.float32)[:, None])
+        X = np.hstack(parts)
+        mdl = make_pipeline(StandardScaler(),
+                            LogisticRegression(C=0.1, class_weight="balanced", max_iter=5000))
+        oof[va] = mdl.fit(X[tr], y[tr]).predict_proba(X[va])[:, 1]
+    return oof
+
+
+def paired_gap(y, a, b, groups, n=400):
+    """Chenh lech ROC-AUC giua hai mo hinh tren CUNG benh nhan + KTC 95% bootstrap."""
+    uniq, inv = np.unique(groups, return_inverse=True)
+    rows = [np.flatnonzero(inv == i) for i in range(len(uniq))]
+    rng = np.random.default_rng(42)
+    diffs = []
+    for _ in range(n):
+        idx = np.concatenate([rows[i] for i in rng.integers(0, len(rows), len(rows))])
+        if y[idx].min() == y[idx].max():
+            continue
+        diffs.append(roc_auc_score(y[idx], a[idx]) - roc_auc_score(y[idx], b[idx]))
+    diffs = np.array(diffs)
+    return (roc_auc_score(y, a) - roc_auc_score(y, b),
+            float(np.percentile(diffs, 2.5)), float(np.percentile(diffs, 97.5)),
+            float((diffs > 0).mean()))
 
 
 def standardise(train_rows: np.ndarray, X: np.ndarray, valid: np.ndarray) -> np.ndarray:
@@ -231,21 +313,39 @@ def main() -> None:
 
     # (ten, cac khoi dac trung, khoi nao co the vang mat, chi chay tren node co anh)
     CONFIGS = {
-        "B0 — chi lam sang":                (["ls"], [False], False),
-        "B1 — chi anh (node co anh)":       (["img"], [False], True),
-        "B2 — lam sang + anh":              (["ls", "img"], [False, True], False),
-        "B3 — lam sang + anh + hang xom":   (["ls", "img", "nb"], [False, True, True], False),
+        "B0 — chi lam sang":                    (["ls"], [False], False, "mlp"),
+        "B1 — chi anh (node co anh)":           (["img"], [False], True, "mlp"),
+        "B2 — lam sang + anh":                  (["ls", "img"], [False, True], False, "mlp"),
+        "B3 — + vector anh hang xom":           (["ls", "img", "nb"], [False, True, True], False, "mlp"),
+        "B3b — + diem nguy co hang xom":        (["ls", "img", "nbs"], [False, True, True], False, "mlp"),
+        "L1 — hoi quy logistic, chi anh":       (["img"], [False], True, "lr"),
+        "L2 — hoi quy logistic, lam sang+anh":  (["ls", "img"], [False, True], False, "lr"),
+        "L3b — hoi quy logistic, + diem hang xom": (["ls", "img", "nbs"], [False, True, True], False, "lr"),
     }
     RAW = {"ls": X_ls, "img": np.nan_to_num(X_img_raw), "nb": X_nb}
     VALID = {"ls": np.ones(len(y), bool), "img": has_img, "nb": has_nb}
 
+    X_img_filled = np.nan_to_num(X_img_raw)
     results, oof_store = {}, {}
-    for name, (keys, maskable, imaged_only) in CONFIGS.items():
+    for name, (keys, maskable, imaged_only, kind) in CONFIGS.items():
         rows = dev & has_img if imaged_only else dev
         oof = np.zeros(len(y))
         for k in range(5):
             va = rows & (fold == k)
             tr = rows & (fold != k) & (fold >= 0)
+
+            # Dac trung "diem hang xom" phu thuoc fold -> tinh lai trong tung fold.
+            # Probe chi hoc tren hang TRAIN co anh, nen nhan cua node dang danh gia
+            # khong bao gio tham gia.
+            if "nbs" in keys:
+                s_img = image_probe_scores(tr & has_img, X_img_filled, y, has_img)
+                nbs, cnt = neighbour_score_mean(g["edge_index"], s_img, has_img)
+                RAW["nbs"] = np.column_stack([nbs, np.log1p(cnt)]).astype(np.float32)
+                VALID["nbs"] = cnt > 0
+
+            if kind == "lr":
+                continue   # LR chay mot lan cho ca 5 fold ben duoi
+
             blocks_tr, blocks_va, masks_tr, masks_va = [], [], [], []
             for key in keys:
                 Z = standardise(tr, RAW[key], VALID[key])
@@ -255,6 +355,9 @@ def main() -> None:
                                    maskable, seed, args.epochs, args.hidden)
                      for seed in range(args.seeds)]
             oof[va] = np.mean(preds, axis=0)
+
+        if kind == "lr":
+            oof = sk_oof(keys, maskable, imaged_only, rows, fold, RAW, VALID, y)
         oof_store[name] = (oof, rows)
 
         res = {"toan_bo_dev": score_block(y[rows], oof[rows], uid[rows])}
@@ -299,29 +402,57 @@ def main() -> None:
         out()
 
     # ---------------- cong ----------------
-    b1 = results["B1 — chi anh (node co anh)"]["toan_bo_dev"]["roc"]
-    b2i = results["B2 — lam sang + anh"]["co_anh"]["roc"]
-    b0u = results["B0 — chi lam sang"]["khong_anh"]["roc"]
-    b3u = results["B3 — lam sang + anh + hang xom"]["khong_anh"]["roc"]
-    gate1, gate2 = b2i >= b1 - 0.005, b3u > b0u
-    out("## Cong Phase 3")
+    # Cong dua tren KHOANG TIN CAY chu khong so hai so tran: chenh 0,005 giua hai mo hinh
+    # tren 393 ca duong la nhieu, khong phai khac biet.
+    mi, mu = dev & has_img, dev & ~has_img
+    O = {k: v[0] for k, v in oof_store.items()}
+    out("## Cong Phase 3 — xet bang khoang tin cay, khong so so tran")
     out()
-    out(f"| Cong | Do duoc | Ket qua |")
-    out("|---|---|---|")
-    out(f"| B2 >= B1 tren nhom co anh | {b2i:.3f} vs {b1:.3f} | {'DAT' if gate1 else '**TRUOT**'} |")
-    out(f"| B3 > B0 tren nhom khong anh | {b3u:.3f} vs {b0u:.3f} | {'DAT' if gate2 else '**TRUOT**'} |")
+    out("| Cong | Chenh lech ROC | KTC 95% | P | Ket qua |")
+    out("|---|---|---|---|---|")
+    checks = [
+        ("Anh + lam sang co kem hon chi anh khong (nhom co anh)",
+         O["B2 — lam sang + anh"], O["B1 — chi anh (node co anh)"], mi, "khong_kem"),
+        ("Hang xom co giup nhom KHONG anh khong (B3)",
+         O["B3 — + vector anh hang xom"], O["B0 — chi lam sang"], mu, "phai_hon"),
+        ("Hang xom co giup nhom KHONG anh khong (B3b)",
+         O["B3b — + diem nguy co hang xom"], O["B0 — chi lam sang"], mu, "phai_hon"),
+        ("Mo hinh sau co hon hoi quy logistic khong (nhom co anh)",
+         O["B2 — lam sang + anh"], O["L2 — hoi quy logistic, lam sang+anh"], mi, "khong_kem"),
+    ]
+    gates = {}
+    for title, a, b, mask, rule in checks:
+        gap, lo, hi, p = paired_gap(y[mask], a[mask], b[mask], uid[mask])
+        ok = (lo > 0) if rule == "phai_hon" else (hi > 0)
+        gates[title] = ok
+        out(f"| {title} | {gap:+.4f} | [{lo:+.4f}; {hi:+.4f}] | {p:.0%} | "
+            f"{'DAT' if ok else '**TRUOT**'} |")
     out()
-    out(f"**Moc cho Phase 4:** GNN phai vuot B3 o nhom khong anh (**{b3u:.3f}**) "
-        f"va vuot B2 o nhom co anh (**{b2i:.3f}**).")
+    out("*`phai_hon` = KTC phai nam tron ben duong. `khong_kem` = chi truot khi KTC "
+        "nam tron ben am, tuc thua ro rang.*")
+    out()
+    best_u = max(("B3 — + vector anh hang xom", "B3b — + diem nguy co hang xom",
+                  "L3b — hoi quy logistic, + diem hang xom"),
+                 key=lambda n: results[n]["khong_anh"]["roc"])
+    best_i = max(("B2 — lam sang + anh", "B1 — chi anh (node co anh)",
+                  "L2 — hoi quy logistic, lam sang+anh"),
+                 key=lambda n: results[n].get("co_anh", results[n]["toan_bo_dev"])["roc"])
+    ru = results[best_u]["khong_anh"]["roc"]
+    ri = results[best_i].get("co_anh", results[best_i]["toan_bo_dev"])["roc"]
+    out(f"**Moc cho Phase 4 (GNN phai vuot):** nhom KHONG anh **{ru:.3f}** ({best_u}) | "
+        f"nhom CO anh **{ri:.3f}** ({best_i})")
 
-    (ROOT / "fusion/output/phase3_baselines.md").write_text("\n".join(L) + "\n", encoding="utf-8")
-    (ROOT / "fusion/output/phase3_baselines.json").write_text(
+    # Ten file gan lien voi nguon anh: chay `frozen` khong bao gio de len ket qua `control`
+    (ROOT / f"fusion/output/phase3_baselines_{args.source}.md").write_text(
+        "\n".join(L) + "\n", encoding="utf-8")
+    (ROOT / f"fusion/output/phase3_baselines_{args.source}.json").write_text(
         json.dumps({"source": args.source, "epochs": args.epochs, "seeds": args.seeds,
                     "ket_qua": results}, indent=2, ensure_ascii=False, default=float),
         encoding="utf-8")
     np.savez_compressed(ROOT / f"fusion/output/phase3_oof_{args.source}.npz",
                         **{k.split(" ")[0]: v[0] for k, v in oof_store.items()})
-    print("\nDa ghi -> fusion/output/phase3_baselines.{md,json} + phase3_oof_*.npz")
+    print(f"\nDa ghi -> fusion/output/phase3_baselines_{args.source}.{{md,json}}"
+          f" + phase3_oof_{args.source}.npz")
 
 
 if __name__ == "__main__":
