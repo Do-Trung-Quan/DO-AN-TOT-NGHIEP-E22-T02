@@ -1,23 +1,23 @@
 # Phase 3 — baseline B0..B3  (nguon anh `control`)
 
-- Sinh luc: 2026-09-27T11:39:14.459768+00:00 | thiet bi: cuda
+- Sinh luc: 2026-09-27T12:50:29.821110+00:00 | thiet bi: cuda
 - Dac trung lam sang: bang tho 139 cot + diem nhanh ts
 - Tap dev 6882 node, 823 ca duong. Test 1148 node chua dung.
 - 5 fold co san x 3 seed, 60 epoch; KTC 95% bootstrap theo benh nhan
 
 ## Toan bo dev
 
-| Mo hinh | n | duong | ROC-AUC | PR-AUC |
-|---|---|---|---|---|
-| B0 — chi lam sang | 6882 | 823 | 0.633 [0.613–0.652] | 0.190 [0.173–0.213] |
-| B1 — chi anh (node co anh) | 1571 | 393 | 0.749 [0.723–0.777] | 0.518 [0.467–0.567] |
-| B2 — lam sang + anh | 6882 | 823 | 0.713 [0.693–0.733] | 0.320 [0.287–0.355] |
-| B3 — + vector anh hang xom | 6882 | 823 | 0.711 [0.690–0.730] | 0.320 [0.289–0.354] |
-| B3b — + diem nguy co hang xom | 6882 | 823 | 0.716 [0.695–0.736] | 0.317 [0.286–0.351] |
-| L1 — hoi quy logistic, chi anh | 1571 | 393 | 0.760 [0.732–0.788] | 0.518 [0.466–0.569] |
-| L2 — hoi quy logistic, lam sang+anh | 6882 | 823 | 0.729 [0.708–0.747] | 0.338 [0.305–0.374] |
-| L3b — hoi quy logistic, + diem hang xom | 6882 | 823 | 0.727 [0.706–0.746] | 0.337 [0.304–0.372] |
-| (tham chieu) nhanh ts goc | 6882 | 823 | 0.641 [0.620–0.662] | 0.218 [0.196–0.246] |
+| Mo hinh                                 | n    | duong | ROC-AUC             | PR-AUC              |
+| -----------------------------------------| ------| -------| ---------------------| ---------------------|
+| B0 — chi lam sang                       | 6882 | 823   | 0.633 [0.613–0.652] | 0.190 [0.173–0.213] |
+| B1 — chi anh (node co anh)              | 1571 | 393   | 0.749 [0.723–0.777] | 0.518 [0.467–0.567] |
+| B2 — lam sang + anh                     | 6882 | 823   | 0.713 [0.693–0.733] | 0.320 [0.287–0.355] |
+| B3 — + vector anh hang xom              | 6882 | 823   | 0.711 [0.690–0.730] | 0.320 [0.289–0.354] |
+| B3b — + diem nguy co hang xom           | 6882 | 823   | 0.716 [0.695–0.736] | 0.317 [0.286–0.351] |
+| L1 — hoi quy logistic, chi anh          | 1571 | 393   | 0.760 [0.732–0.788] | 0.518 [0.466–0.569] |
+| L2 — hoi quy logistic, lam sang+anh     | 6882 | 823   | 0.729 [0.708–0.747] | 0.338 [0.305–0.374] |
+| L3b — hoi quy logistic, + diem hang xom | 6882 | 823   | 0.727 [0.706–0.746] | 0.337 [0.304–0.372] |
+| (tham chieu) nhanh ts goc               | 6882 | 823   | 0.641 [0.620–0.662] | 0.218 [0.196–0.246] |
 
 ## Nhom CO anh
 

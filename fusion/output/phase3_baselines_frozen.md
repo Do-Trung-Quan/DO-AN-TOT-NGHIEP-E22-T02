@@ -1,6 +1,6 @@
 # Phase 3 — baseline B0..B3  (nguon anh `frozen`)
 
-- Sinh luc: 2026-09-27T11:45:46.783638+00:00 | thiet bi: cuda
+- Sinh luc: 2026-09-27T12:57:06.460393+00:00 | thiet bi: cuda
 - Dac trung lam sang: bang tho 139 cot + diem nhanh ts
 - Tap dev 6882 node, 823 ca duong. Test 1148 node chua dung.
 - 5 fold co san x 3 seed, 60 epoch; KTC 95% bootstrap theo benh nhan
