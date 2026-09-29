@@ -271,3 +271,7 @@ imagefeat/output/LOCAL_ONLY_*
 # LUU Y: cac duong dan tren da tung duoc commit truoc day. Them vao .gitignore
 # CHI chan cac commit moi — lich su git van con du lieu. Can `git filter-repo`
 # de don triet de, phai thong nhat ca nhom truoc khi force-push.
+
+# Zip data local
+kiemchung_data.zip
+*.zip

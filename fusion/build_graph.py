@@ -148,14 +148,18 @@ def diagnose(edge_index: np.ndarray, y: np.ndarray, has_image: np.ndarray) -> di
     n = len(y)
     p = float(y.mean())
 
+def diagnose(edge_index: np.ndarray, y: np.ndarray, has_image: np.ndarray,
+             fold_id: np.ndarray | None = None) -> dict:
+    """Tinh 7 chi so chan doan do thi."""
+    n = len(y)
+    src, dst = edge_index
+    p = float(y.mean())
+
     # 1. Label homophily so voi moc ngau nhien
     homophily = float((y[src] == y[dst]).mean())
     baseline = p ** 2 + (1 - p) ** 2
 
     # 2. Homophily RIENG LOP DUONG — chi so that su quyet dinh voi du lieu lech 1:37.
-    #    Homophily tho luon cao san vi 97.4% node la am; no khong cho biet GNN co
-    #    giup phat hien BENH hay khong. Cai can biet la: mot benh nhan mac benh thi
-    #    bao nhieu % hang xom cua ho cung mac benh.
     n_pos_nb = np.zeros(n)
     np.add.at(n_pos_nb, dst, y[src])
     np.add.at(n_pos_nb, src, y[dst])
@@ -178,7 +182,10 @@ def diagnose(edge_index: np.ndarray, y: np.ndarray, has_image: np.ndarray) -> di
     # 5. Bac
     mean_degree = float(degree.mean())
 
-    # 6. So thanh phan lien thong — do thi vo vun thi thong tin khong lan duoc xa
+    # 6. Ty le canh cung fold (kiem toan tranh phan manh do thi theo fold)
+    same_fold = float((fold_id[src] == fold_id[dst]).mean()) if fold_id is not None else None
+
+    # 7. So thanh phan lien thong
     try:
         from scipy.sparse import coo_matrix
         from scipy.sparse.csgraph import connected_components
@@ -188,7 +195,7 @@ def diagnose(edge_index: np.ndarray, y: np.ndarray, has_image: np.ndarray) -> di
     except Exception:
         n_comp, largest = -1, -1
 
-    return {
+    out_d = {
         "n_edges": int(edge_index.shape[1]),
         "homophily": round(homophily, 4),
         "homophily_baseline": round(baseline, 4),
@@ -206,6 +213,9 @@ def diagnose(edge_index: np.ndarray, y: np.ndarray, has_image: np.ndarray) -> di
         "largest_component": int(largest),
         "imaged_neighbours_of_plain_nodes_mean": round(float(n_img_nb[~has_image].mean()), 2),
     }
+    if same_fold is not None:
+        out_d["same_fold_edge_ratio"] = round(same_fold, 4)
+    return out_d
 
 
 def print_diagnosis(d: dict, y: np.ndarray) -> None:
@@ -215,6 +225,9 @@ def print_diagnosis(d: dict, y: np.ndarray) -> None:
           f"(p10/p50/p90 = {'/'.join(map(str, d['degree_p10_p50_p90']))})")
     print(f"    Thanh phan lien thong       : {d['n_components']}  "
           f"(lon nhat {d['largest_component']:,}/{len(y):,} node)")
+    if "same_fold_edge_ratio" in d:
+        print(f"    Canh noi CUNG FOLD          : {d['same_fold_edge_ratio']:.1%}  "
+              f"(moc ngau nhien ~16.7% | {'<- SACH (KHONG RO RI)' if d['same_fold_edge_ratio'] < 0.3 else '<- BI PHAN MANH FOLD'})")
     print()
     print(f"    Label homophily             : {d['homophily']:.4f}")
     print(f"      moc ngau nhien            : {d['homophily_baseline']:.4f}")
@@ -237,8 +250,11 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=Path,
                         default=here / "output" / "fusion_dataset_ketqua_control.npz",
-                        help="Chi dung X_ts / has_image / cot thuoc tinh — do thi "
+                        help="Chi dung has_image / cot thuoc tinh — do thi "
                              "GIONG NHAU o ca 3 nguon anh")
+    parser.add_argument("--tabular", type=Path,
+                        default=here / "output" / "tabular_ketqua.npz",
+                        help="Bang tho 139 cot (sach tuyet doi, khong bi 5 fold keo lech toa do)")
     parser.add_argument("--k", type=int, default=10, help="So hang xom kNN")
     parser.add_argument("--attr-edges", action="store_true",
                         help="Them canh cung cap do nghe va |chenh tuoi| <= 5")
@@ -258,15 +274,27 @@ def main() -> None:
     print("=" * 78)
 
     data = np.load(args.dataset, allow_pickle=False)
-    X_ts = data["X_ts"].astype(np.float64)
     y = data["y"]
     has_image = data["has_image"].astype(bool)
     dev_mask = data["split"] == "dev"
-    print(f"[1] Nap {args.dataset.name}: {len(y)} node | {int(has_image.sum())} co anh "
-          f"| {int(y.sum())} ca benh")
+    fold_id = data["fold_id"] if "fold_id" in data else None
+    
+    # Uu tien dung bang tho 139 cot (sach 100%, 1 khong gian duy nhat) thay vi vector 32 chieu cu
+    if args.tabular.exists():
+        tab = np.load(args.tabular, allow_pickle=False)
+        assert len(tab["X_tab"]) == len(y), "tabular lech so node"
+        X_feat = tab["X_tab"].astype(np.float64)
+        space_desc = f"bang lam sang tho {X_feat.shape[1]}-D (sach, 1 khong gian)"
+        print(f"[1] Nap bang tho tu {args.tabular.name} ({X_feat.shape[1]} cot lam sang sach)")
+    else:
+        X_feat = data["X_ts"].astype(np.float64)
+        space_desc = f"ts vector {X_feat.shape[1]}-D"
+        print(f"[1] Nap vector {args.dataset.name}")
 
-    Xn = cosine_matrix(X_ts, dev_mask)
-    print(f"[2] Chuan hoa ts (fit tren {int(dev_mask.sum())} node dev) + L2-normalize")
+    print(f"    Tong: {len(y)} node | {int(has_image.sum())} co anh | {int(y.sum())} ca benh")
+
+    Xn = cosine_matrix(X_feat, dev_mask)
+    print(f"[2] Chuan hoa dac trung ({space_desc}, fit tren {int(dev_mask.sum())} node dev) + L2-normalize")
 
     parts, types = [], []
     e = knn_edges(Xn, args.k)
@@ -300,7 +328,7 @@ def main() -> None:
     n_dup = all_edges.shape[1] - edge_index.shape[1]
     print(f"    Sau khi gop + khu trung lap  : {edge_index.shape[1]:,}  (bo {n_dup:,} trung)")
 
-    d = diagnose(edge_index, y, has_image)
+    d = diagnose(edge_index, y, has_image, fold_id)
     print_diagnosis(d, y)
 
     if d["homophily_margin"] <= 0:
