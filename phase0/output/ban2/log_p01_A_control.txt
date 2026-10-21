@@ -1,0 +1,30 @@
+==============================================================================
+P0.1 — A_goc | nguon control | config 774c692d84e7fd34
+==============================================================================
+dev co anh: 1571 dong, 393 duong, 1493 benh nhan, 18 lo (gom 'unknown' neu co)
+[kiem tra] L1 tai hien so voi phase3_oof_control.npz: max|diff| = 0.00e+00
+L1 AUC gop = 0.760 [0.732; 0.788]
+
+[1] Probe lo (du doan lo tu embedding)
+  accuracy 0.430 [0.406; 0.454] | lop da so 0.108 | hoan vi: tb 0.08230426479949078 toi da 0.09038828771483132
+  accuracy can bang 0.347 | AUC OvR macro 0.894
+  [kham pha] trong cung tinh: acc 0.499 so voi lop da so 0.299
+
+[2] AUC trong lo cua L1
+  chinh: 0.719 [0.686; 0.751] | loai 2 lo (20190827, unknown)
+  nhay cam (>=10 duong, >=10 am): 0.702 [0.665; 0.738] | loai 4 lo
+  (so voi AUC gop 0.760)
+
+[3] Gia tri gia tang cua anh: LR(lo) vs LR(lo + anh)
+  AUC gop: LR(lo) 0.705 | LR(lo+anh) 0.790
+  delta AUC gop      = +0.0849 [+0.0601; +0.1099] P(delta>0)=100%
+  AUC trong lo cua LR(lo+anh) so voi moc 0,5: +0.2106 [+0.1753; +0.2447] P(delta>0)=100%  (OOF LR(lo) tu no cho 0.365 trong lo: nhieu do fold, khong phai moc)
+
+[4] Leave-batch-out (bo han tung lo)
+  AUC trong lo (leave-batch-out) = 0.722 [0.690; 0.754]
+  chenh so voi in-fold = +0.0028 [-0.0086; +0.0142] P(delta>0)=69%
+  dong bi loai khoi train (theo lo): toi da 34
+
+[doi chieu bang quyet dinh] AUC trong lo = 0.719; can duoi KTC cua delta AUC gop = +0.0601 -> tiep_tuc
+
+xong sau 1718s -> D:\DoAn\DO-AN-TOT-NGHIEP-E22-T02\phase0\output\p01_A_goc_control.json|md

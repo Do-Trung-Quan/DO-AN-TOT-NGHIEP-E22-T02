@@ -1,0 +1,292 @@
+{
+  "config_hash": "774c692d84e7fd34",
+  "bang_cheo_bnn_ketqua": {
+    "co_anh=0|bnn_co=False": {
+      "1": 487,
+      "2": 5596
+    },
+    "co_anh=0|bnn_co=True": {
+      "1": 12,
+      "2": 100
+    },
+    "co_anh=1|bnn_co=False": {
+      "1": 420,
+      "2": 1316
+    },
+    "co_anh=1|bnn_co=True": {
+      "1": 42,
+      "2": 57
+    }
+  },
+  "truong_ilo_theo_nhom": [
+    {
+      "pham_vi": "co_anh",
+      "nhom": "bnnCo_ketqua1",
+      "n": 42,
+      "chatluongphim": 42,
+      "matdotonthuong": 42,
+      "kichthuoctt": 42,
+      "tonthuongkhac": 34
+    },
+    {
+      "pham_vi": "co_anh",
+      "nhom": "bnnCo_ketqua2 (nhom 57)",
+      "n": 57,
+      "chatluongphim": 57,
+      "matdotonthuong": 0,
+      "kichthuoctt": 0,
+      "tonthuongkhac": 33
+    },
+    {
+      "pham_vi": "co_anh",
+      "nhom": "bnnKhong_ketqua1",
+      "n": 420,
+      "chatluongphim": 420,
+      "matdotonthuong": 420,
+      "kichthuoctt": 420,
+      "tonthuongkhac": 281
+    },
+    {
+      "pham_vi": "co_anh",
+      "nhom": "bnnKhong_ketqua2",
+      "n": 1316,
+      "chatluongphim": 1316,
+      "matdotonthuong": 0,
+      "kichthuoctt": 0,
+      "tonthuongkhac": 859
+    },
+    {
+      "pham_vi": "toan_8030",
+      "nhom": "bnnCo_ketqua1",
+      "n": 54,
+      "chatluongphim": 54,
+      "matdotonthuong": 54,
+      "kichthuoctt": 54,
+      "tonthuongkhac": 38
+    },
+    {
+      "pham_vi": "toan_8030",
+      "nhom": "bnnCo_ketqua2 (nhom 57)",
+      "n": 157,
+      "chatluongphim": 157,
+      "matdotonthuong": 0,
+      "kichthuoctt": 0,
+      "tonthuongkhac": 83
+    },
+    {
+      "pham_vi": "toan_8030",
+      "nhom": "bnnKhong_ketqua1",
+      "n": 907,
+      "chatluongphim": 907,
+      "matdotonthuong": 907,
+      "kichthuoctt": 907,
+      "tonthuongkhac": 475
+    },
+    {
+      "pham_vi": "toan_8030",
+      "nhom": "bnnKhong_ketqua2",
+      "n": 6912,
+      "chatluongphim": 6912,
+      "matdotonthuong": 0,
+      "kichthuoctt": 0,
+      "tonthuongkhac": 3057
+    }
+  ],
+  "vungtonthuong_co_gia_tri": {
+    "bnnCo_ketqua1": 42,
+    "bnnCo_ketqua2 (nhom 57)": 0,
+    "bnnKhong_ketqua1": 420,
+    "bnnKhong_ketqua2": 0
+  },
+  "ilo_nhom57": {
+    "n": 57,
+    "matdotonthuong_co_gia_tri": 0,
+    "kichthuoctt_co_gia_tri": 0,
+    "vungtonthuong_co_gia_tri": 0,
+    "tonthuongkhac_co_gia_tri": 33,
+    "ghi_chu": "mat do, kich thuoc, vung ton thuong chi co khi ketqua=1 tren toan bo du lieu"
+  },
+  "nam_cong_nhan_so_voi_nam_kham": {
+    "bnnCo_ketqua1": {
+      "n": 42,
+      "trung_vi_cach_nam": 5.5,
+      "q1": 3.0,
+      "q3": 8.0,
+      "truoc_dot_kham": 42,
+      "cung_nam": 0
+    },
+    "bnnCo_ketqua2 (nhom 57)": {
+      "n": 57,
+      "trung_vi_cach_nam": 8.0,
+      "q1": 5.0,
+      "q3": 10.0,
+      "truoc_dot_kham": 55,
+      "cung_nam": 2
+    }
+  },
+  "bnncuthe_phan_bo": {
+    "bnnCo_ketqua1": {
+      "bui phoi silic": 42
+    },
+    "bnnCo_ketqua2 (nhom 57)": {
+      "bui phoi silic": 56,
+      "hen nn": 1
+    }
+  },
+  "diem_L1": {
+    "control": {
+      "n_nhom57_dev": 47,
+      "diem_L1": {
+        "trung_vi_nhom57": 0.4750177264213562,
+        "tb_nhom57": 0.4778345075059444,
+        "trung_vi_am_con_lai": 0.3378937244415283,
+        "trung_vi_duong": 0.6038005948066711
+      },
+      "phan_vi_trong_am_con_lai": {
+        "trung_vi": 0.6967285587975243,
+        "ty_le_tren_P75_am": 0.425531914893617
+      },
+      "phan_vi_trong_duong": {
+        "trung_vi": 0.3256997455470738,
+        "ty_le_tren_trung_vi_duong": 0.3191489361702128
+      },
+      "AUC_nhom57_vs_am_con_lai": {
+        "auc": 0.637658257614237,
+        "ci": [
+          0.5522566869154342,
+          0.7123315831381164
+        ],
+        "ghi_chu": "AUC>0.5 nghia la nhom 57 co diem cao hon nhom so sanh"
+      },
+      "AUC_nhom57_vs_duong": {
+        "auc": 0.35628823561258194,
+        "ci": [
+          0.27471885658495293,
+          0.43744630608535
+        ],
+        "ghi_chu": "AUC>0.5 nghia la nhom 57 co diem cao hon nhom so sanh"
+      }
+    },
+    "frozen": {
+      "n_nhom57_dev": 47,
+      "diem_L1": {
+        "trung_vi_nhom57": 0.3376017212867737,
+        "tb_nhom57": 0.4241458365416273,
+        "trung_vi_am_con_lai": 0.2935865521430969,
+        "trung_vi_duong": 0.6197475790977478
+      },
+      "phan_vi_trong_am_con_lai": {
+        "trung_vi": 0.5534924845269673,
+        "ty_le_tren_P75_am": 0.3617021276595745
+      },
+      "phan_vi_trong_duong": {
+        "trung_vi": 0.1806615776081425,
+        "ty_le_tren_trung_vi_duong": 0.2978723404255319
+      },
+      "AUC_nhom57_vs_am_con_lai": {
+        "auc": 0.5885396090825291,
+        "ci": [
+          0.503316969961207,
+          0.6707763884267988
+        ],
+        "ghi_chu": "AUC>0.5 nghia la nhom 57 co diem cao hon nhom so sanh"
+      },
+      "AUC_nhom57_vs_duong": {
+        "auc": 0.317524768556115,
+        "ci": [
+          0.23666848171406177,
+          0.4043191689721097
+        ],
+        "ghi_chu": "AUC>0.5 nghia la nhom 57 co diem cao hon nhom so sanh"
+      }
+    }
+  },
+  "luu_y_control": "Embedding 'control' duoc fine-tune tren SetA voi nhan bnn (tap ngoai); neu nhom 57 co diem cao o 'control' ma khong o 'frozen' thi tin hieu co the den tu viec tinh chinh theo bnn, khong chi tu phim cua ho.",
+  "so_dong_nhom57_tong_co_anh": 57,
+  "so_dong_nhom57_trong_dev": {
+    "control": 47,
+    "frozen": 47
+  },
+  "ketqua_luot_khac": {
+    "bnnCo_ketqua1": {
+      "n": 54,
+      "co_luot_khac": 9,
+      "co_it_nhat_mot_luot_khac_ketqua1": 2,
+      "tat_ca_luot_khac_ketqua2": 7
+    },
+    "bnnCo_ketqua2 (nhom 57)": {
+      "n": 157,
+      "co_luot_khac": 62,
+      "co_it_nhat_mot_luot_khac_ketqua1": 8,
+      "tat_ca_luot_khac_ketqua2": 54
+    },
+    "nhom57_co_anh": {
+      "n": 57,
+      "co_luot_khac": 20,
+      "co_it_nhat_mot_luot_khac_ketqua1": 2
+    }
+  },
+  "nhom_bnnCo_ketqua2_theo_split": {
+    "dev": 47,
+    "test": 10
+  },
+  "ids_nhom57_co_anh": [
+    1001,
+    1008,
+    1018,
+    1024,
+    1029,
+    1034,
+    1036,
+    1050,
+    1052,
+    1062,
+    1073,
+    1077,
+    1078,
+    1096,
+    1100,
+    1112,
+    1113,
+    1114,
+    1151,
+    1175,
+    1227,
+    1428,
+    1522,
+    2568,
+    2783,
+    2802,
+    2921,
+    3031,
+    6170,
+    6178,
+    6483,
+    8012,
+    8023,
+    8030,
+    8039,
+    8040,
+    8041,
+    8048,
+    8052,
+    8059,
+    8063,
+    8071,
+    8082,
+    8085,
+    8097,
+    8101,
+    8108,
+    8165,
+    8198,
+    8265,
+    8348,
+    8480,
+    8561,
+    8565,
+    8572,
+    8599,
+    8637
+  ]
+}

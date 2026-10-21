@@ -135,21 +135,35 @@ def image_probe_scores(train_imaged: np.ndarray, X_img: np.ndarray, y: np.ndarra
     return out
 
 
+def sk_fold(keys, maskable, rows, k, fold, RAW, VALID, y):
+    """Hoi quy logistic cho DUNG MOT fold k. Tra ve (mask validation, du doan tren mask do).
+
+    Tach rieng khoi sk_oof de cac khoi phu thuoc fold (nbs = diem hang xom tinh lai theo fold)
+    duoc dung dung fold: truoc day LR chay MOT LAN sau vong fold nen ca 5 fold dung nbs cua fold cuoi.
+    """
+    va, tr = rows & (fold == k), rows & (fold != k) & (fold >= 0)
+    parts = []
+    for key, can_miss in zip(keys, maskable):
+        Z = standardise(tr, RAW[key], VALID[key])
+        parts.append(Z)
+        if can_miss:
+            parts.append(VALID[key].astype(np.float32)[:, None])
+    X = np.hstack(parts)
+    mdl = make_pipeline(StandardScaler(),
+                        LogisticRegression(C=0.1, class_weight="balanced", max_iter=5000))
+    return va, mdl.fit(X[tr], y[tr]).predict_proba(X[va])[:, 1]
+
+
 def sk_oof(keys, maskable, imaged_only, rows, fold, RAW, VALID, y) -> np.ndarray:
-    """Hoi quy logistic tren cung khoi dac trung — khoi vang mat dien 0 + them cot co/khong."""
+    """Hoi quy logistic tren cung khoi dac trung — khoi vang mat dien 0 + them cot co/khong.
+
+    CHI dung cho cac khoi KHONG phu thuoc fold (ls, img, nb). Khoi nbs phai goi sk_fold ben
+    trong vong fold sau khi tinh lai nbs.
+    """
     oof = np.zeros(len(y))
     for k in range(5):
-        va, tr = rows & (fold == k), rows & (fold != k) & (fold >= 0)
-        parts = []
-        for key, can_miss in zip(keys, maskable):
-            Z = standardise(tr, RAW[key], VALID[key])
-            parts.append(Z)
-            if can_miss:
-                parts.append(VALID[key].astype(np.float32)[:, None])
-        X = np.hstack(parts)
-        mdl = make_pipeline(StandardScaler(),
-                            LogisticRegression(C=0.1, class_weight="balanced", max_iter=5000))
-        oof[va] = mdl.fit(X[tr], y[tr]).predict_proba(X[va])[:, 1]
+        va, p = sk_fold(keys, maskable, rows, k, fold, RAW, VALID, y)
+        oof[va] = p
     return oof
 
 
@@ -346,7 +360,9 @@ def main() -> None:
                 VALID["nbs"] = cnt > 0
 
             if kind == "lr":
-                continue   # LR chay mot lan cho ca 5 fold ben duoi
+                va_k, p_k = sk_fold(keys, maskable, rows, k, fold, RAW, VALID, y)
+                oof[va_k] = p_k
+                continue
 
             blocks_tr, blocks_va, masks_tr, masks_va = [], [], [], []
             for key in keys:
@@ -358,8 +374,6 @@ def main() -> None:
                      for seed in range(args.seeds)]
             oof[va] = np.mean(preds, axis=0)
 
-        if kind == "lr":
-            oof = sk_oof(keys, maskable, imaged_only, rows, fold, RAW, VALID, y)
         oof_store[name] = (oof, rows)
 
         res = {"toan_bo_dev": score_block(y[rows], oof[rows], uid[rows])}

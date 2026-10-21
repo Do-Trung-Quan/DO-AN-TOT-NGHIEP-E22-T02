@@ -230,6 +230,9 @@ def main() -> None:
                    help="So lan do lien tiep khong cai thien thi dung (moi lan cach 5 epoch)")
     p.add_argument("--nb-score", action=argparse.BooleanOptionalAction, default=True,
                    help="Dung khoi 'diem nguy co hang xom' (mac dinh bat). --no-nb-score de tat")
+    p.add_argument("--phase3-oof", type=Path, default=None,
+                   help="OOF Phase 3 de doi chieu (cung do thi/k). Mac dinh: fusion/output/phase3_oof_{source}.npz "
+                        "— dung do thi k=10 cu, KHONG hop khi chay do thi k khac")
     p.add_argument("--no-graph", action="store_true",
                    help="Ablation: tat truyen tin, chi con MLP — de biet do thi dong gop bao nhieu")
     args = p.parse_args()
@@ -309,7 +312,7 @@ def main() -> None:
     out()
 
     # ---- Doi chieu thang voi Phase 3 tren cung benh nhan ----
-    p3_oof = ROOT / f"fusion/output/phase3_oof_{args.source}.npz"   # luon doc ban chinh
+    p3_oof = args.phase3_oof or ROOT / f"fusion/output/phase3_oof_{args.source}.npz"
     if p3_oof.exists():
         O = np.load(p3_oof)
         key = {k.split(" ")[0]: k for k in O.files}

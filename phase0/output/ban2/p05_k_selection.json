@@ -1,0 +1,52 @@
+{
+  "config_hash": "774c692d84e7fd34",
+  "k_ung_vien": [
+    5,
+    10,
+    20
+  ],
+  "tieu_chi": "homophily lift lop duong, chi tinh tren canh co hai dau thuoc 4 fold dev con lai (theo tung fold bao cao); hoa thi chon k nho hon (chenh < 0.01)",
+  "quy_tac_hoa": "chon k nho nhat co lift >= lift_toi_da - 0.01",
+  "lift_theo_fold": {
+    "0": {
+      "5": 1.1177325227963526,
+      "10": 1.1854992401215805,
+      "20": 1.1771329787234042
+    },
+    "1": {
+      "5": 1.159563829787234,
+      "10": 1.1453411854103344,
+      "20": 1.1336284194528876
+    },
+    "2": {
+      "5": 1.1972120060790274,
+      "10": 1.1963753799392096,
+      "20": 1.1880091185410333
+    },
+    "3": {
+      "5": 1.1880928679817906,
+      "10": 1.183079817905918,
+      "20": 1.163027617602428
+    },
+    "4": {
+      "5": 1.205021851289833,
+      "10": 1.220899393019727,
+      "20": 1.2066931714719271
+    }
+  },
+  "k_chon_theo_fold": {
+    "0": 10,
+    "1": 5,
+    "2": 5,
+    "3": 5,
+    "4": 10
+  },
+  "lift_toan_dev": {
+    "5": 1.1698563791008505,
+    "10": 1.1857443499392468,
+    "20": 1.1732012150668287
+  },
+  "k_chon_toan_dev": 10,
+  "hai_ban_chon_cung_k": false,
+  "ghi_chu": "do thi dung trong cung khong gian X_tab 139 cot; so lieu cu o k5/k20 nam o X_ts 32-D khong so sanh duoc"
+}

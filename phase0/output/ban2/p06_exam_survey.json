@@ -1,0 +1,644 @@
+{
+  "config_hash": "774c692d84e7fd34",
+  "n_luot_kham": 8030,
+  "bang_42_o": [
+    {
+      "dau_hieu": "rungt",
+      "vung": 1,
+      "co": 2,
+      "khong": 6,
+      "thieu": 8022,
+      "ty_le_co_tren_8030": 0.00024906600249066,
+      "ty_le_co_tren_khong_thieu": 0.25,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 2,
+      "co_khi_co_anh": 2,
+      "co_khi_khong_anh": 0
+    },
+    {
+      "dau_hieu": "rungt",
+      "vung": 2,
+      "co": 1,
+      "khong": 7,
+      "thieu": 8022,
+      "ty_le_co_tren_8030": 0.00012453300124533,
+      "ty_le_co_tren_khong_thieu": 0.125,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 1,
+      "co_khi_co_anh": 1,
+      "co_khi_khong_anh": 0
+    },
+    {
+      "dau_hieu": "rungt",
+      "vung": 3,
+      "co": 0,
+      "khong": 8,
+      "thieu": 8022,
+      "ty_le_co_tren_8030": 0.0,
+      "ty_le_co_tren_khong_thieu": 0.0,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 0,
+      "co_khi_co_anh": 0,
+      "co_khi_khong_anh": 0
+    },
+    {
+      "dau_hieu": "rungt",
+      "vung": 4,
+      "co": 3,
+      "khong": 5,
+      "thieu": 8022,
+      "ty_le_co_tren_8030": 0.00037359900373599005,
+      "ty_le_co_tren_khong_thieu": 0.375,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 3,
+      "co_khi_co_anh": 3,
+      "co_khi_khong_anh": 0
+    },
+    {
+      "dau_hieu": "rungt",
+      "vung": 5,
+      "co": 2,
+      "khong": 6,
+      "thieu": 8022,
+      "ty_le_co_tren_8030": 0.00024906600249066,
+      "ty_le_co_tren_khong_thieu": 0.25,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 2,
+      "co_khi_co_anh": 1,
+      "co_khi_khong_anh": 1
+    },
+    {
+      "dau_hieu": "rungt",
+      "vung": 6,
+      "co": 4,
+      "khong": 4,
+      "thieu": 8022,
+      "ty_le_co_tren_8030": 0.00049813200498132,
+      "ty_le_co_tren_khong_thieu": 0.5,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 4,
+      "co_khi_co_anh": 2,
+      "co_khi_khong_anh": 2
+    },
+    {
+      "dau_hieu": "rungg",
+      "vung": 1,
+      "co": 9,
+      "khong": 5,
+      "thieu": 8016,
+      "ty_le_co_tren_8030": 0.00112079701120797,
+      "ty_le_co_tren_khong_thieu": 0.6428571428571429,
+      "co_khi_ketqua1": 2,
+      "co_khi_ketqua2": 7,
+      "co_khi_co_anh": 4,
+      "co_khi_khong_anh": 5
+    },
+    {
+      "dau_hieu": "rungg",
+      "vung": 2,
+      "co": 10,
+      "khong": 4,
+      "thieu": 8016,
+      "ty_le_co_tren_8030": 0.0012453300124533001,
+      "ty_le_co_tren_khong_thieu": 0.7142857142857143,
+      "co_khi_ketqua1": 2,
+      "co_khi_ketqua2": 8,
+      "co_khi_co_anh": 3,
+      "co_khi_khong_anh": 7
+    },
+    {
+      "dau_hieu": "rungg",
+      "vung": 3,
+      "co": 6,
+      "khong": 8,
+      "thieu": 8016,
+      "ty_le_co_tren_8030": 0.0007471980074719801,
+      "ty_le_co_tren_khong_thieu": 0.42857142857142855,
+      "co_khi_ketqua1": 1,
+      "co_khi_ketqua2": 5,
+      "co_khi_co_anh": 2,
+      "co_khi_khong_anh": 4
+    },
+    {
+      "dau_hieu": "rungg",
+      "vung": 4,
+      "co": 8,
+      "khong": 6,
+      "thieu": 8016,
+      "ty_le_co_tren_8030": 0.00099626400996264,
+      "ty_le_co_tren_khong_thieu": 0.5714285714285714,
+      "co_khi_ketqua1": 2,
+      "co_khi_ketqua2": 6,
+      "co_khi_co_anh": 4,
+      "co_khi_khong_anh": 4
+    },
+    {
+      "dau_hieu": "rungg",
+      "vung": 5,
+      "co": 7,
+      "khong": 7,
+      "thieu": 8016,
+      "ty_le_co_tren_8030": 0.0008717310087173101,
+      "ty_le_co_tren_khong_thieu": 0.5,
+      "co_khi_ketqua1": 2,
+      "co_khi_ketqua2": 5,
+      "co_khi_co_anh": 4,
+      "co_khi_khong_anh": 3
+    },
+    {
+      "dau_hieu": "rungg",
+      "vung": 6,
+      "co": 6,
+      "khong": 8,
+      "thieu": 8016,
+      "ty_le_co_tren_8030": 0.0007471980074719801,
+      "ty_le_co_tren_khong_thieu": 0.42857142857142855,
+      "co_khi_ketqua1": 2,
+      "co_khi_ketqua2": 4,
+      "co_khi_co_anh": 2,
+      "co_khi_khong_anh": 4
+    },
+    {
+      "dau_hieu": "goduc",
+      "vung": 1,
+      "co": 5,
+      "khong": 0,
+      "thieu": 8025,
+      "ty_le_co_tren_8030": 0.0006226650062266501,
+      "ty_le_co_tren_khong_thieu": 1.0,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 5,
+      "co_khi_co_anh": 2,
+      "co_khi_khong_anh": 3
+    },
+    {
+      "dau_hieu": "goduc",
+      "vung": 2,
+      "co": 4,
+      "khong": 1,
+      "thieu": 8025,
+      "ty_le_co_tren_8030": 0.00049813200498132,
+      "ty_le_co_tren_khong_thieu": 0.8,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 4,
+      "co_khi_co_anh": 1,
+      "co_khi_khong_anh": 3
+    },
+    {
+      "dau_hieu": "goduc",
+      "vung": 3,
+      "co": 2,
+      "khong": 3,
+      "thieu": 8025,
+      "ty_le_co_tren_8030": 0.00024906600249066,
+      "ty_le_co_tren_khong_thieu": 0.4,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 2,
+      "co_khi_co_anh": 0,
+      "co_khi_khong_anh": 2
+    },
+    {
+      "dau_hieu": "goduc",
+      "vung": 4,
+      "co": 4,
+      "khong": 1,
+      "thieu": 8025,
+      "ty_le_co_tren_8030": 0.00049813200498132,
+      "ty_le_co_tren_khong_thieu": 0.8,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 4,
+      "co_khi_co_anh": 2,
+      "co_khi_khong_anh": 2
+    },
+    {
+      "dau_hieu": "goduc",
+      "vung": 5,
+      "co": 2,
+      "khong": 3,
+      "thieu": 8025,
+      "ty_le_co_tren_8030": 0.00024906600249066,
+      "ty_le_co_tren_khong_thieu": 0.4,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 2,
+      "co_khi_co_anh": 1,
+      "co_khi_khong_anh": 1
+    },
+    {
+      "dau_hieu": "goduc",
+      "vung": 6,
+      "co": 1,
+      "khong": 4,
+      "thieu": 8025,
+      "ty_le_co_tren_8030": 0.00012453300124533,
+      "ty_le_co_tren_khong_thieu": 0.2,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 1,
+      "co_khi_co_anh": 0,
+      "co_khi_khong_anh": 1
+    },
+    {
+      "dau_hieu": "vtam",
+      "vung": 1,
+      "co": 3,
+      "khong": 32,
+      "thieu": 7995,
+      "ty_le_co_tren_8030": 0.00037359900373599005,
+      "ty_le_co_tren_khong_thieu": 0.08571428571428572,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 3,
+      "co_khi_co_anh": 1,
+      "co_khi_khong_anh": 2
+    },
+    {
+      "dau_hieu": "vtam",
+      "vung": 2,
+      "co": 13,
+      "khong": 22,
+      "thieu": 7995,
+      "ty_le_co_tren_8030": 0.0016189290161892902,
+      "ty_le_co_tren_khong_thieu": 0.37142857142857144,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 13,
+      "co_khi_co_anh": 3,
+      "co_khi_khong_anh": 10
+    },
+    {
+      "dau_hieu": "vtam",
+      "vung": 3,
+      "co": 22,
+      "khong": 13,
+      "thieu": 7995,
+      "ty_le_co_tren_8030": 0.0027397260273972603,
+      "ty_le_co_tren_khong_thieu": 0.6285714285714286,
+      "co_khi_ketqua1": 3,
+      "co_khi_ketqua2": 19,
+      "co_khi_co_anh": 8,
+      "co_khi_khong_anh": 14
+    },
+    {
+      "dau_hieu": "vtam",
+      "vung": 4,
+      "co": 5,
+      "khong": 30,
+      "thieu": 7995,
+      "ty_le_co_tren_8030": 0.0006226650062266501,
+      "ty_le_co_tren_khong_thieu": 0.14285714285714285,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 5,
+      "co_khi_co_anh": 2,
+      "co_khi_khong_anh": 3
+    },
+    {
+      "dau_hieu": "vtam",
+      "vung": 5,
+      "co": 10,
+      "khong": 25,
+      "thieu": 7995,
+      "ty_le_co_tren_8030": 0.0012453300124533001,
+      "ty_le_co_tren_khong_thieu": 0.2857142857142857,
+      "co_khi_ketqua1": 1,
+      "co_khi_ketqua2": 9,
+      "co_khi_co_anh": 4,
+      "co_khi_khong_anh": 6
+    },
+    {
+      "dau_hieu": "vtam",
+      "vung": 6,
+      "co": 18,
+      "khong": 17,
+      "thieu": 7995,
+      "ty_le_co_tren_8030": 0.00224159402241594,
+      "ty_le_co_tren_khong_thieu": 0.5142857142857142,
+      "co_khi_ketqua1": 7,
+      "co_khi_ketqua2": 11,
+      "co_khi_co_anh": 8,
+      "co_khi_khong_anh": 10
+    },
+    {
+      "dau_hieu": "vtno",
+      "vung": 1,
+      "co": 2,
+      "khong": 8,
+      "thieu": 8020,
+      "ty_le_co_tren_8030": 0.00024906600249066,
+      "ty_le_co_tren_khong_thieu": 0.2,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 2,
+      "co_khi_co_anh": 1,
+      "co_khi_khong_anh": 1
+    },
+    {
+      "dau_hieu": "vtno",
+      "vung": 2,
+      "co": 7,
+      "khong": 3,
+      "thieu": 8020,
+      "ty_le_co_tren_8030": 0.0008717310087173101,
+      "ty_le_co_tren_khong_thieu": 0.7,
+      "co_khi_ketqua1": 1,
+      "co_khi_ketqua2": 6,
+      "co_khi_co_anh": 3,
+      "co_khi_khong_anh": 4
+    },
+    {
+      "dau_hieu": "vtno",
+      "vung": 3,
+      "co": 2,
+      "khong": 8,
+      "thieu": 8020,
+      "ty_le_co_tren_8030": 0.00024906600249066,
+      "ty_le_co_tren_khong_thieu": 0.2,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 2,
+      "co_khi_co_anh": 1,
+      "co_khi_khong_anh": 1
+    },
+    {
+      "dau_hieu": "vtno",
+      "vung": 4,
+      "co": 2,
+      "khong": 8,
+      "thieu": 8020,
+      "ty_le_co_tren_8030": 0.00024906600249066,
+      "ty_le_co_tren_khong_thieu": 0.2,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 2,
+      "co_khi_co_anh": 1,
+      "co_khi_khong_anh": 1
+    },
+    {
+      "dau_hieu": "vtno",
+      "vung": 5,
+      "co": 5,
+      "khong": 5,
+      "thieu": 8020,
+      "ty_le_co_tren_8030": 0.0006226650062266501,
+      "ty_le_co_tren_khong_thieu": 0.5,
+      "co_khi_ketqua1": 1,
+      "co_khi_ketqua2": 4,
+      "co_khi_co_anh": 2,
+      "co_khi_khong_anh": 3
+    },
+    {
+      "dau_hieu": "vtno",
+      "vung": 6,
+      "co": 3,
+      "khong": 7,
+      "thieu": 8020,
+      "ty_le_co_tren_8030": 0.00037359900373599005,
+      "ty_le_co_tren_khong_thieu": 0.3,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 3,
+      "co_khi_co_anh": 2,
+      "co_khi_khong_anh": 1
+    },
+    {
+      "dau_hieu": "vtrit",
+      "vung": 1,
+      "co": 4,
+      "khong": 8,
+      "thieu": 8018,
+      "ty_le_co_tren_8030": 0.00049813200498132,
+      "ty_le_co_tren_khong_thieu": 0.3333333333333333,
+      "co_khi_ketqua1": 2,
+      "co_khi_ketqua2": 2,
+      "co_khi_co_anh": 3,
+      "co_khi_khong_anh": 1
+    },
+    {
+      "dau_hieu": "vtrit",
+      "vung": 2,
+      "co": 5,
+      "khong": 7,
+      "thieu": 8018,
+      "ty_le_co_tren_8030": 0.0006226650062266501,
+      "ty_le_co_tren_khong_thieu": 0.4166666666666667,
+      "co_khi_ketqua1": 2,
+      "co_khi_ketqua2": 3,
+      "co_khi_co_anh": 3,
+      "co_khi_khong_anh": 2
+    },
+    {
+      "dau_hieu": "vtrit",
+      "vung": 3,
+      "co": 3,
+      "khong": 9,
+      "thieu": 8018,
+      "ty_le_co_tren_8030": 0.00037359900373599005,
+      "ty_le_co_tren_khong_thieu": 0.25,
+      "co_khi_ketqua1": 1,
+      "co_khi_ketqua2": 2,
+      "co_khi_co_anh": 1,
+      "co_khi_khong_anh": 2
+    },
+    {
+      "dau_hieu": "vtrit",
+      "vung": 4,
+      "co": 5,
+      "khong": 7,
+      "thieu": 8018,
+      "ty_le_co_tren_8030": 0.0006226650062266501,
+      "ty_le_co_tren_khong_thieu": 0.4166666666666667,
+      "co_khi_ketqua1": 2,
+      "co_khi_ketqua2": 3,
+      "co_khi_co_anh": 2,
+      "co_khi_khong_anh": 3
+    },
+    {
+      "dau_hieu": "vtrit",
+      "vung": 5,
+      "co": 8,
+      "khong": 4,
+      "thieu": 8018,
+      "ty_le_co_tren_8030": 0.00099626400996264,
+      "ty_le_co_tren_khong_thieu": 0.6666666666666666,
+      "co_khi_ketqua1": 2,
+      "co_khi_ketqua2": 6,
+      "co_khi_co_anh": 3,
+      "co_khi_khong_anh": 5
+    },
+    {
+      "dau_hieu": "vtrit",
+      "vung": 6,
+      "co": 6,
+      "khong": 6,
+      "thieu": 8018,
+      "ty_le_co_tren_8030": 0.0007471980074719801,
+      "ty_le_co_tren_khong_thieu": 0.5,
+      "co_khi_ketqua1": 3,
+      "co_khi_ketqua2": 3,
+      "co_khi_co_anh": 2,
+      "co_khi_khong_anh": 4
+    },
+    {
+      "dau_hieu": "vtngay",
+      "vung": 1,
+      "co": 6,
+      "khong": 5,
+      "thieu": 8019,
+      "ty_le_co_tren_8030": 0.0007471980074719801,
+      "ty_le_co_tren_khong_thieu": 0.5454545454545454,
+      "co_khi_ketqua1": 2,
+      "co_khi_ketqua2": 4,
+      "co_khi_co_anh": 6,
+      "co_khi_khong_anh": 0
+    },
+    {
+      "dau_hieu": "vtngay",
+      "vung": 2,
+      "co": 8,
+      "khong": 3,
+      "thieu": 8019,
+      "ty_le_co_tren_8030": 0.00099626400996264,
+      "ty_le_co_tren_khong_thieu": 0.7272727272727273,
+      "co_khi_ketqua1": 2,
+      "co_khi_ketqua2": 6,
+      "co_khi_co_anh": 6,
+      "co_khi_khong_anh": 2
+    },
+    {
+      "dau_hieu": "vtngay",
+      "vung": 3,
+      "co": 2,
+      "khong": 9,
+      "thieu": 8019,
+      "ty_le_co_tren_8030": 0.00024906600249066,
+      "ty_le_co_tren_khong_thieu": 0.18181818181818182,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 2,
+      "co_khi_co_anh": 0,
+      "co_khi_khong_anh": 2
+    },
+    {
+      "dau_hieu": "vtngay",
+      "vung": 4,
+      "co": 4,
+      "khong": 7,
+      "thieu": 8019,
+      "ty_le_co_tren_8030": 0.00049813200498132,
+      "ty_le_co_tren_khong_thieu": 0.36363636363636365,
+      "co_khi_ketqua1": 1,
+      "co_khi_ketqua2": 3,
+      "co_khi_co_anh": 3,
+      "co_khi_khong_anh": 1
+    },
+    {
+      "dau_hieu": "vtngay",
+      "vung": 5,
+      "co": 3,
+      "khong": 8,
+      "thieu": 8019,
+      "ty_le_co_tren_8030": 0.00037359900373599005,
+      "ty_le_co_tren_khong_thieu": 0.2727272727272727,
+      "co_khi_ketqua1": 1,
+      "co_khi_ketqua2": 2,
+      "co_khi_co_anh": 3,
+      "co_khi_khong_anh": 0
+    },
+    {
+      "dau_hieu": "vtngay",
+      "vung": 6,
+      "co": 0,
+      "khong": 11,
+      "thieu": 8019,
+      "ty_le_co_tren_8030": 0.0,
+      "ty_le_co_tren_khong_thieu": 0.0,
+      "co_khi_ketqua1": 0,
+      "co_khi_ketqua2": 0,
+      "co_khi_co_anh": 0,
+      "co_khi_khong_anh": 0
+    }
+  ],
+  "tom_tat": {
+    "o_khong_thieu": 570,
+    "tong_o": 337260,
+    "o_co": 222,
+    "ty_le_co_cao_nhat_8030": 0.0027397260273972603,
+    "o_cao_nhat": "vtam3"
+  },
+  "quy_tac_thay": {
+    "dieu_kien": "ty le duong < 1% o MOI dau hieu x vung (mau so: tat ca 8030 luot kham)",
+    "so_o_>=1%": 0,
+    "kich_hoat": true,
+    "hanh_dong_neu_kich_hoat": "gop 6 node kham thanh 1 node, bo canh E6, thiet ke quay ve ban 1",
+    "bien_the_mau_so_khong_thieu": {
+      "so_o_>=1%": 40,
+      "ghi_chu": "tren o khong thieu thi ty le cao hon nhung chi dua tren it quan sat; khong dung de quyet dinh"
+    }
+  },
+  "cot_tong_hop_theo_luot": {
+    "rungthan": {
+      "binh thuong": 8008,
+      "giam": 14,
+      "tang": 8
+    },
+    "go": {
+      "binh thuong": 8025,
+      "go duc": 5
+    },
+    "ran": {
+      "khong": 7968,
+      "co": 62
+    },
+    "ranam": {
+      "co": 35,
+      "khong": 27
+    },
+    "ranno": {
+      "khong": 52,
+      "co": 10
+    },
+    "ranrit": {
+      "khong": 50,
+      "co": 12
+    },
+    "ranngay": {
+      "khong": 51,
+      "co": 11
+    },
+    "riraopn": {
+      "binh thuong": 7819,
+      "giam": 209,
+      "khac": 2
+    },
+    "khoangls": {
+      "binh thuong": 7862,
+      "gian rong": 167,
+      "hep": 1
+    }
+  },
+  "nhat_quan_ran_tong_hop_va_vung": {
+    "ran_tong_hop_co": 62,
+    "co_it_nhat_mot_o_ran_theo_vung_co": 62,
+    "ran_tong_hop_co_nhung_khong_o_vung_nao": 0,
+    "o_vung_co_nhung_ran_tong_hop_khong": 0
+  },
+  "doc_lap_voi_doc_phim": {
+    "co_it_nhat_mot_o_khong_thieu": {
+      "so_luot": 79,
+      "n_x1": 79,
+      "ty_so_chenh_MH_phan_tang_theo_tinh": 2.0314970388411457,
+      "ci": [
+        1.157582478202811,
+        3.2903167710499575
+      ],
+      "ghi_chu": "OR>1: co ghi/duong thi ketqua=1 nhieu hon; KTC cat 1 la chua phan biet duoc"
+    },
+    "co_it_nhat_mot_o_Co": {
+      "so_luot": 79,
+      "n_x1": 79,
+      "ty_so_chenh_MH_phan_tang_theo_tinh": 2.0314970388411457,
+      "ci": [
+        1.157582478202811,
+        3.2903167710499575
+      ],
+      "ghi_chu": "OR>1: co ghi/duong thi ketqua=1 nhieu hon; KTC cat 1 la chua phan biet duoc"
+    },
+    "ghi_chu": "Khong co cot thu tu trong phieu hay nguoi ghi, nen khong kiem tra truc tiep duoc. Day chi la lien he gian tiep sau khi khong che tinh."
+  },
+  "luot_co_o_khong_thieu_theo_anh": {
+    "co_anh": 38,
+    "khong_anh": 41
+  },
+  "ban_do_vung": "CHUA XAC NHAN: vung 1-6 ung voi vi tri nao (RU/RM/RL/LU/LM/LL) khong co tai lieu trong repo. Can hoi thay hoac khoa."
+}

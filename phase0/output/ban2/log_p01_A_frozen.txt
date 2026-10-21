@@ -1,0 +1,30 @@
+==============================================================================
+P0.1 — A_goc | nguon frozen | config 774c692d84e7fd34
+==============================================================================
+dev co anh: 1571 dong, 393 duong, 1493 benh nhan, 18 lo (gom 'unknown' neu co)
+[kiem tra] L1 tai hien so voi phase3_oof_frozen.npz: max|diff| = 0.00e+00
+L1 AUC gop = 0.759 [0.732; 0.785]
+
+[1] Probe lo (du doan lo tu embedding)
+  accuracy 0.468 [0.443; 0.491] | lop da so 0.108 | hoan vi: tb 0.08230426479949078 toi da 0.08975175047740293
+  accuracy can bang 0.399 | AUC OvR macro 0.899
+  [kham pha] trong cung tinh: acc 0.532 so voi lop da so 0.299
+
+[2] AUC trong lo cua L1
+  chinh: 0.716 [0.682; 0.748] | loai 2 lo (20190827, unknown)
+  nhay cam (>=10 duong, >=10 am): 0.698 [0.661; 0.733] | loai 4 lo
+  (so voi AUC gop 0.759)
+
+[3] Gia tri gia tang cua anh: LR(lo) vs LR(lo + anh)
+  AUC gop: LR(lo) 0.705 | LR(lo+anh) 0.783
+  delta AUC gop      = +0.0778 [+0.0512; +0.1048] P(delta>0)=100%
+  AUC trong lo cua LR(lo+anh) so voi moc 0,5: +0.2028 [+0.1677; +0.2370] P(delta>0)=100%  (OOF LR(lo) tu no cho 0.365 trong lo: nhieu do fold, khong phai moc)
+
+[4] Leave-batch-out (bo han tung lo)
+  AUC trong lo (leave-batch-out) = 0.738 [0.706; 0.767]
+  chenh so voi in-fold = +0.0217 [+0.0067; +0.0378] P(delta>0)=100%
+  dong bi loai khoi train (theo lo): toi da 34
+
+[doi chieu bang quyet dinh] AUC trong lo = 0.716; can duoi KTC cua delta AUC gop = +0.0512 -> tiep_tuc
+
+xong sau 1796s -> D:\DoAn\DO-AN-TOT-NGHIEP-E22-T02\phase0\output\p01_A_goc_frozen.json|md

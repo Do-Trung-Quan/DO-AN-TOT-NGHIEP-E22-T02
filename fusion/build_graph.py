@@ -143,32 +143,40 @@ def bridge_edges(Xn: np.ndarray, has_image: np.ndarray) -> np.ndarray:
 # ==============================================================================
 # Chan doan — 6 chi so
 # ==============================================================================
-def diagnose(edge_index: np.ndarray, y: np.ndarray, has_image: np.ndarray) -> dict:
-    src, dst = edge_index
-    n = len(y)
-    p = float(y.mean())
-
 def diagnose(edge_index: np.ndarray, y: np.ndarray, has_image: np.ndarray,
-             fold_id: np.ndarray | None = None) -> dict:
-    """Tinh 7 chi so chan doan do thi."""
+             fold_id: np.ndarray | None = None,
+             label_mask: np.ndarray | None = None) -> dict:
+    """Tinh 7 chi so chan doan do thi.
+
+    label_mask: node nao duoc phep dung NHAN. Cac chi so phu thuoc nhan (homophily, homophily lop
+    duong, ty le nen) chi tinh tren canh co CA HAI dau thuoc mask. PAG_V2 muc 2 va 11.9: chon k chi
+    bang nhan dev, khong bang nhan test. None = dung moi node (chi de tai hien so cu).
+    """
     n = len(y)
     src, dst = edge_index
-    p = float(y.mean())
+    if label_mask is None:
+        label_mask = np.ones(n, bool)
+    em = label_mask[src] & label_mask[dst]
+    ls, ld = src[em], dst[em]
+    p = float(y[label_mask].mean())
 
     # 1. Label homophily so voi moc ngau nhien
-    homophily = float((y[src] == y[dst]).mean())
+    homophily = float((y[ls] == y[ld]).mean())
     baseline = p ** 2 + (1 - p) ** 2
 
     # 2. Homophily RIENG LOP DUONG — chi so that su quyet dinh voi du lieu lech 1:37.
     n_pos_nb = np.zeros(n)
-    np.add.at(n_pos_nb, dst, y[src])
-    np.add.at(n_pos_nb, src, y[dst])
-    degree = np.zeros(n)
+    np.add.at(n_pos_nb, ld, y[ls])
+    np.add.at(n_pos_nb, ls, y[ld])
+    degree_l = np.zeros(n)
+    np.add.at(degree_l, ld, 1)
+    np.add.at(degree_l, ls, 1)
+    pos = (y == 1) & label_mask
+    pos_homophily = float(n_pos_nb[pos].sum() / max(degree_l[pos].sum(), 1))
+    pos_reach = float((n_pos_nb[pos] > 0).mean())
+    degree = np.zeros(n)           # bac tren TOAN do thi (khong dung nhan)
     np.add.at(degree, dst, 1)
     np.add.at(degree, src, 1)
-    pos = y == 1
-    pos_homophily = float(n_pos_nb[pos].sum() / max(degree[pos].sum(), 1))
-    pos_reach = float((n_pos_nb[pos] > 0).mean())
 
     # 3. Cross-modality edge ratio
     cross_mod = float((has_image[src] != has_image[dst]).mean())
@@ -196,6 +204,7 @@ def diagnose(edge_index: np.ndarray, y: np.ndarray, has_image: np.ndarray,
         n_comp, largest = -1, -1
 
     out_d = {
+        "n_nodes": int(n),
         "n_edges": int(edge_index.shape[1]),
         "homophily": round(homophily, 4),
         "homophily_baseline": round(baseline, 4),
@@ -224,7 +233,7 @@ def print_diagnosis(d: dict, y: np.ndarray) -> None:
     print(f"    Bac trung binh              : {d['mean_degree']}  "
           f"(p10/p50/p90 = {'/'.join(map(str, d['degree_p10_p50_p90']))})")
     print(f"    Thanh phan lien thong       : {d['n_components']}  "
-          f"(lon nhat {d['largest_component']:,}/{len(y):,} node)")
+          f"(lon nhat {d['largest_component']:,}/{d['n_nodes']:,} node)")
     if "same_fold_edge_ratio" in d:
         print(f"    Canh noi CUNG FOLD          : {d['same_fold_edge_ratio']:.1%}  "
               f"(moc ngau nhien ~16.7% | {'<- SACH (KHONG RO RI)' if d['same_fold_edge_ratio'] < 0.3 else '<- BI PHAN MANH FOLD'})")
@@ -263,6 +272,9 @@ def main() -> None:
     parser.add_argument("--bridge", action="store_true",
                         help="Moi node khong-anh noi them toi node co anh gan nhat")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--diag-scope", choices=["dev", "all"], default="dev",
+                        help="Node nao duoc dung NHAN de tinh homophily/gate. Mac dinh dev (PAG_V2 muc 2); "
+                             "'all' dung 8030 node kem test, chi de tai hien so cu")
     parser.add_argument("--output-dir", type=Path, default=here / "output")
     args = parser.parse_args()
 
@@ -328,8 +340,11 @@ def main() -> None:
     n_dup = all_edges.shape[1] - edge_index.shape[1]
     print(f"    Sau khi gop + khu trung lap  : {edge_index.shape[1]:,}  (bo {n_dup:,} trung)")
 
-    d = diagnose(edge_index, y, has_image, fold_id)
-    print_diagnosis(d, y)
+    # Chi so phu thuoc nhan chi tinh tren node dev (khong dung nhan test). --diag-scope all chi de tai hien so cu.
+    label_mask = dev_mask if args.diag_scope == "dev" else None
+    d = diagnose(edge_index, y, has_image, fold_id, label_mask)
+    d["diag_scope"] = args.diag_scope
+    print_diagnosis(d, y[label_mask] if label_mask is not None else y)
 
     if d["homophily_margin"] <= 0:
         raise SystemExit(
@@ -352,7 +367,7 @@ def main() -> None:
         "attr_max_per_node": args.attr_max if args.attr_edges else None,
         "bridge": args.bridge,
         "seed": args.seed,
-        "similarity_space": "ts 32-D chuan hoa (fit tren node dev) + cosine",
+        "similarity_space": f"{space_desc} chuan hoa (fit tren node dev) + cosine",
         "edge_source": "CHI tu dac trung + thuoc tinh — KHONG BAO GIO tu nhan",
         "shared_across_sources": True,
         "edge_type_map": EDGE_TYPE_NAME,

@@ -1,0 +1,43 @@
+{
+  "created_utc": "2026-10-10T10:26:19.028716+00:00",
+  "script": "fusion/build_graph.py",
+  "tag": "ketqua_k20_bridge",
+  "k": 20,
+  "attr_edges": false,
+  "attr_max_per_node": null,
+  "bridge": true,
+  "seed": 42,
+  "similarity_space": "bang lam sang tho 139-D (sach, 1 khong gian) chuan hoa (fit tren node dev) + cosine",
+  "edge_source": "CHI tu dac trung + thuoc tinh — KHONG BAO GIO tu nhan",
+  "shared_across_sources": true,
+  "edge_type_map": {
+    "0": "knn",
+    "1": "attr",
+    "2": "bridge"
+  },
+  "edge_type_counts": {
+    "knn": 111902,
+    "bridge": 448
+  },
+  "n_nodes": 8030,
+  "n_edges": 112350,
+  "homophily": 0.8006,
+  "homophily_baseline": 0.7894,
+  "homophily_margin": 0.0112,
+  "positive_homophily": 0.1403,
+  "positive_homophily_lift": 1.17,
+  "positive_reach": 0.938,
+  "cross_modality_edge_ratio": 0.3265,
+  "isolated_node_coverage": 1.0,
+  "mean_degree": 27.98,
+  "degree_p10_p50_p90": [
+    21,
+    25,
+    39
+  ],
+  "n_components": 1,
+  "largest_component": 8030,
+  "imaged_neighbours_of_plain_nodes_mean": 5.92,
+  "same_fold_edge_ratio": 0.1683,
+  "diag_scope": "dev"
+}
