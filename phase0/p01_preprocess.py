@@ -3,8 +3,8 @@
 CHAY TREN COLAB GPU (can: torchxrayvision, opencv-python-headless, easyocr). Chay --limit 30 truoc.
 
 Moi anh goc (data/train, data/test; KHONG dung ban 224/512 da luu):
-  1. Dua ve anh xam; kiem tra dao am: chay mask phoi tren anh va anh lat (255 - x), chon chieu co
-     tong xac suat phoi lon hon. Neu phai lat -> lat anh va gan co dao_am.
+  1. Dua ve anh xam; kiem tra dao am bang cuc tinh anh (phoi phai toi hon bung; xem cuc_tinh()).
+     Neu dao am -> lat anh (255 - x) va gan co dao_am.
   2. Phan doan phoi bang torchxrayvision PSPNet (chestx_det, kenh Left/Right Lung); giu 2 thanh phan
      lien thong lon nhat. KHONG dung mask Set B cua Silicodata.
   3. Cat theo hop bao hai phoi (le 5%), dem vuong roi resize 448. Khong CenterCrop.
@@ -89,6 +89,16 @@ def keep_largest(mask: np.ndarray, k: int):
     return keep, [int(areas[i]) for i in order], [float(cent[i + 1][0]) for i in order], int(n - 1)
 
 
+def cuc_tinh(full: np.ndarray) -> float:
+    """Do cuc tinh: trung binh vung bung (88-98% chieu cao, giua anh) tru trung binh hai vung phoi
+    (30-50% chieu cao, 22-38% va 62-78% chieu ngang). > 0: phoi toi hon bung (phim chuan)."""
+    import cv2
+    a = cv2.resize(full, (256, 256), interpolation=cv2.INTER_AREA).astype(np.float64)
+    lung = np.r_[a[76:128, 56:97].ravel(), a[76:128, 159:200].ravel()]
+    belly = a[225:251, 90:166].ravel()
+    return float(belly.mean() - lung.mean())
+
+
 # ------------------------------------------------------------------ buoc 4: OCR chi phat hien
 def text_boxes(img: np.ndarray, reader, margin: int):
     """Phat hien hop chu (KHONG doc chu). img: anh xam bat ky co. Tra ve list (x0,y0,x1,y1) tren toa do img."""
@@ -141,7 +151,15 @@ def process_one(full: np.ndarray, model, reader, device, P: dict):
     s512 = resize(sq, SEG_SIZE)
     pL, pR = lung_prob(model, s512, device)
     qL, qR = lung_prob(model, 255 - s512, device)
-    inv = (qL + qR).sum() > (pL + pR).sum()
+    sp, sq_ = float((pL + pR).sum()), float((qL + qR).sum())
+    qa["p_phoi_goc"], qa["p_phoi_lat"] = sp, sq_      # chi de ghi lai, KHONG dung de quyet dinh lat
+    # Quyet dinh lat dua vao CUC TINH cua anh: phim chuan co phoi TOI hon vung bung/trung that o duoi.
+    # d = trung binh(bung) - trung binh(phoi); d <= nguong (mac dinh 0) -> anh dao am -> lat.
+    # (Cach cu "chon ban co tong xac suat phoi lon hon" lat nham 3/30 phim chuan o lan thu dau tien;
+    #  tren 1835 anh, d nho nhat = 37,7 nen khong anh nao dao am.)
+    d = cuc_tinh(full)
+    qa["cuc_tinh_d"] = d
+    inv = d <= P["dao_am_nguong"]
     if inv:
         full, sq, pL, pR = 255 - full, 255 - sq, qL, qR
         sq[:oy, :] = 0; sq[oy + H:, :] = 0; sq[:, :ox] = 0; sq[:, ox + W:] = 0   # vien dem van den
