@@ -1,0 +1,40 @@
+{
+  "config_hash": "2a4ad58122d08e57",
+  "qa_tu_dong": {
+    "so_anh": 1835,
+    "so_anh_theo_co": {
+      "co_dao_am": 0,
+      "co_khong_du_2_phoi": 0,
+      "co_ty_le_trai_phai": 0,
+      "co_cham_mep": 15,
+      "co_con_chu": 5,
+      "co_dien_tich_bat_thuong": 97,
+      "co_bat_ky": 111
+    },
+    "anh_co_hop_chu": 696,
+    "dien_tich_che_trung_vi": 0.0,
+    "dien_tich_phoi_trung_vi": 0.2962908878504673,
+    "ty_le_trai_phai_trung_vi": 1.0118168389955686
+  },
+  "qa_truc_quan": {
+    "ngau_nhien": {
+      "n": 50,
+      "dat": 48,
+      "mot_phan": 2,
+      "hong": 0,
+      "ty_le_dat": 0.96,
+      "nguong": 0.9,
+      "dat_cong": true
+    },
+    "anh_bi_co": {
+      "n": 111,
+      "dat": 95,
+      "mot_phan": 16,
+      "hong": 0
+    }
+  },
+  "zone_missing": {
+    "n": 0,
+    "img_id": []
+  }
+}

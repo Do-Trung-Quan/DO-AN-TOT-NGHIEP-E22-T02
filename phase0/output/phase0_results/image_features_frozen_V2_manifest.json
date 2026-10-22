@@ -1,0 +1,13 @@
+{
+  "mode": "frozen",
+  "variant": "V2",
+  "samples": 1835,
+  "transform": "V1 + xoa pixel ngoai mask phoi; ToTensor, ExpandChannels",
+  "processed_config_hash": "2a4ad58122d08e57",
+  "checkpoint_sha256": null,
+  "backbone_sha256": "b2399d73dc2a68b9f3a1950e864ae0ecd24093fb07aa459d7e65807ebdc0fb77",
+  "feature_dim_kept": 256,
+  "dead_dims_in_kept": 0,
+  "precision": "float32",
+  "torch": "2.11.0+cu130"
+}
