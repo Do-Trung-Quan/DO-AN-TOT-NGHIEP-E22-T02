@@ -1,0 +1,27 @@
+{
+  "ngay_chay": "2026-10-27T13:43:45",
+  "script": "v3_p05.py",
+  "hash_script": {
+    "v3_p05.py": "7149135a7d339ae7",
+    "v3_lib.py": "80f07cc24a1f240e",
+    "v2_lib.py": "4d42ac0f30881fc4"
+  },
+  "hash_du_lieu": {
+    "fusion_dataset_ketqua_frozen.npz": "83594348acf28acc",
+    "Main_data_Merged_1835_Images.xlsx": "efdea2bcd044002a"
+  },
+  "SEED": 42,
+  "NBOOT": 1000,
+  "phien_ban": {
+    "python": "3.13.2",
+    "numpy": "2.2.2",
+    "pandas": "2.2.3",
+    "sklearn": "1.7.2"
+  },
+  "tham_so": {
+    "khoa_long": "ho ten chuan hoa + namsinh + gioitinh + tinh",
+    "khoa_chat": "khoa long + pxuong",
+    "phuong_an": "(a) giu test, bo luot dev trung nguoi test, chia lai 5 fold dev",
+    "chia_fold": "StratifiedGroupKFold(5, shuffle=True, random_state=SEED), strat = y*2 + has_img, group = uid2"
+  }
+}

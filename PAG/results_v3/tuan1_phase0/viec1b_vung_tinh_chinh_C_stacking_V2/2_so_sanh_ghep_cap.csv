@@ -1,0 +1,9 @@
+﻿so_sanh,y_nghia,hieu_auc_trong_lo,ktc,P_hieu_duong
+C − A,"Chỉ lấy vùng phổi, gộp trung bình",0.009599481070655669,[-0.003; +0.023],0.95
+S − C,Stacking 6 vùng so với trung bình 6 vùng (so sánh thầy yêu cầu),0.00043538655470021226,[-0.024; +0.024],0.508
+D − C,6 vùng nối lại so với trung bình 6 vùng,-0.022670276483939933,[-0.044; -0.002],0.014
+E − C,PCA 32 so với trung bình 6 vùng,-0.049532909608329456,[-0.084; -0.016],0.003
+F − C,PCA 64 so với trung bình 6 vùng,-0.03446780575913555,[-0.072; +0.000],0.027
+E − D,PCA 32 so với 6 vùng nối lại,-0.026862633124389523,[-0.058; +0.005],0.066
+F − D,PCA 64 so với 6 vùng nối lại,-0.011797529275195617,[-0.043; +0.018],0.222
+S − A,Stacking so với toàn ảnh,0.010034867625355881,[-0.015; +0.035],0.787

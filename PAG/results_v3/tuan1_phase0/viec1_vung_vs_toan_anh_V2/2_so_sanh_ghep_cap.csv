@@ -1,0 +1,8 @@
+﻿so_sanh,y_nghia,hieu_auc_trong_lo,ktc,P_hieu_duong
+C − A,"Chỉ lấy vùng phổi, gộp trung bình (cùng không gian, cùng số chiều)",0.0023088566482892814,[-0.007; +0.013],0.703
+D − C,Giữ riêng 6 vùng thay vì gộp (C là phép chiếu tuyến tính của D → D chứa đủ thông tin của C),-0.0785529230423041,[-0.108; -0.044],0.0
+E − D,Giảm chiều PCA 32 so với 6 vùng nối lại,0.031105598923886424,[+0.003; +0.058],0.989
+F − D,Giảm chiều PCA 64 so với 6 vùng nối lại,-0.016689127674523796,[-0.044; +0.008],0.083
+E − C,PCA 32 so với trung bình 6 vùng,-0.04744732411841768,[-0.077; -0.017],0.0
+F − C,PCA 64 so với trung bình 6 vùng,-0.0952420507168279,[-0.128; -0.060],0.0
+D − A,6 vùng nối lại so với toàn ảnh (khoảng cách cần giải thích),-0.07624406639401482,[-0.108; -0.040],0.0

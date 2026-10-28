@@ -1,0 +1,22 @@
+﻿bo_ma_hoa,phan,trung_vi,p5,nho_nhat
+BioViL-T đóng băng (a),RU,0.9639,0.911,0.7806
+BioViL-T đóng băng (a),RM,0.9922,0.9787,0.9302
+BioViL-T đóng băng (a),RL,0.991,0.9724,0.8981
+BioViL-T đóng băng (a),LU,0.9707,0.9322,0.7404
+BioViL-T đóng băng (a),LM,0.9954,0.9865,0.9594
+BioViL-T đóng băng (a),LL,0.9902,0.9504,0.7296
+BioViL-T đóng băng (a),toàn ảnh,0.9921,0.9857,0.9687
+ResNet50-xrv (b),RU,0.9075,0.8025,0.5256
+ResNet50-xrv (b),RM,0.9589,0.8898,0.6745
+ResNet50-xrv (b),RL,0.9591,0.8622,0.6894
+ResNet50-xrv (b),LU,0.9408,0.8703,0.6534
+ResNet50-xrv (b),LM,0.9911,0.9743,0.8658
+ResNet50-xrv (b),LL,0.9893,0.9636,0.891
+ResNet50-xrv (b),toàn ảnh,0.9502,0.9143,0.8393
+BioViL-T control (c),RU,0.9917,0.976,0.8712
+BioViL-T control (c),RM,0.9982,0.9881,0.8255
+BioViL-T control (c),RL,0.9918,0.9285,0.6579
+BioViL-T control (c),LU,0.9914,0.9693,0.7368
+BioViL-T control (c),LM,0.9976,0.9891,0.9405
+BioViL-T control (c),LL,0.9961,0.983,0.736
+BioViL-T control (c),toàn ảnh,0.9946,0.9788,0.9327

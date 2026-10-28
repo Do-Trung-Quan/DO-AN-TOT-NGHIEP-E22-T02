@@ -1,0 +1,10 @@
+﻿dac_trung,auc_trong_lo,can_duoi_KTC_delta,quyet_dinh
+"Cũ — BioViL-T đóng băng, toàn ảnh (CenterCrop, chưa che chữ)",0.7161683059736085,0.052024001176353404,TIẾP TỤC — AUC trong lô là chỉ số chính
+"V1 — BioViL-T đóng băng, toàn ảnh",0.7066155894876739,0.04317041798182367,TIẾP TỤC — AUC trong lô là chỉ số chính
+"V1 — BioViL-T đóng băng, 6 vùng",0.6978321634225778,0.029696427786924925,BÁO CÁO PGS trước khi làm tiếp
+"V2 — BioViL-T đóng băng, toàn ảnh",0.7479260873224849,0.07286541558126426,TIẾP TỤC — AUC trong lô là chỉ số chính
+"V2 — BioViL-T đóng băng, 6 vùng",0.68512093804247,0.008196238460609155,BÁO CÁO PGS trước khi làm tiếp
+"V1 — CheXFound, toàn ảnh",0.6966484054251949,0.026212939484648243,BÁO CÁO PGS trước khi làm tiếp
+"V1 — CheXFound, 6 vùng",0.6957745634478512,0.006243894678792889,BÁO CÁO PGS trước khi làm tiếp
+"V2 — CheXFound, toàn ảnh",0.725176548789614,0.05734193652893316,TIẾP TỤC — AUC trong lô là chỉ số chính
+"V2 — CheXFound, 6 vùng",0.7166597142778623,0.02487029166366348,TIẾP TỤC — AUC trong lô là chỉ số chính

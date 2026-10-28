@@ -1,0 +1,4 @@
+﻿dac_trung,auc_trong_lo,delta_ci_duoi,quyet_dinh
+BioViL-T frozen (toàn ảnh),0.7220337803854422,0.05,ĐI TIẾP — AUC trong lô thành chỉ số chính
+BioViL-T control (toàn ảnh),0.7293681554002903,0.064,ĐI TIẾP — AUC trong lô thành chỉ số chính
+"ResNet50-xrv (toàn ảnh, bản 1)",0.7011354117980981,0.032,ĐI TIẾP — AUC trong lô thành chỉ số chính

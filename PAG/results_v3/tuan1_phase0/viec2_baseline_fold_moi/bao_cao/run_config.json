@@ -1,0 +1,35 @@
+{
+  "ngay_chay": "2026-10-28T03:11:27",
+  "script": "v3_report2.py",
+  "hash_script": {
+    "v3_report2.py": "c33b94c23dd05fc3",
+    "v3_lib.py": "80f07cc24a1f240e",
+    "v2_lib.py": "4d42ac0f30881fc4"
+  },
+  "hash_du_lieu": {
+    "p05_folds.npz": "8d1f4e38ea43c5a4",
+    "img_v3.npz": "10d490ce413a9d80",
+    "run_baselines_v3.npz": "3968be8891283eca"
+  },
+  "SEED": 42,
+  "NBOOT": 1000,
+  "phien_ban": {
+    "python": "3.13.2",
+    "numpy": "2.2.2",
+    "pandas": "2.2.3",
+    "sklearn": "1.7.2"
+  },
+  "tham_so": {
+    "mo_hinh_co": [
+      "L0",
+      "C",
+      "L2",
+      "X0",
+      "X2",
+      "B3b",
+      "GAT",
+      "T0",
+      "T2"
+    ]
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "ngay_chay": "2026-10-27T20:20:39",
+  "script": "v3_baselines.py",
+  "hash_script": {
+    "v3_baselines.py": "56aafcb2ba992a9c",
+    "v3_lib.py": "80f07cc24a1f240e",
+    "v2_lib.py": "4d42ac0f30881fc4"
+  },
+  "hash_du_lieu": {
+    "p05_folds.npz": "8d1f4e38ea43c5a4",
+    "img_v3.npz": "10d490ce413a9d80"
+  },
+  "SEED": 42,
+  "NBOOT": 1000,
+  "phien_ban": {
+    "python": "3.13.2",
+    "numpy": "2.2.2",
+    "pandas": "2.2.3",
+    "sklearn": "1.7.2"
+  },
+  "tham_so": {
+    "phan": "v3_baselines",
+    "SEEDS": [
+      0,
+      1,
+      2
+    ],
+    "KS": [
+      5,
+      10,
+      20
+    ],
+    "luoi_C": [
+      1e-06,
+      3.162277660168379e-06,
+      1e-05,
+      3.1622776601683795e-05,
+      0.0001,
+      0.00031622776601683794,
+      0.001,
+      0.0031622776601683794,
+      0.01,
+      0.03162277660168379,
+      0.1,
+      0.31622776601683794,
+      1.0,
+      3.1622776601683795,
+      10.0
+    ],
+    "inner_cv": "StratifiedGroupKFold(5, shuffle=True, random_state=SEED) theo uid2, ROC-AUC",
+    "xgb": {
+      "n_estimators": 400,
+      "max_depth": 4,
+      "learning_rate": 0.05,
+      "subsample": 0.8,
+      "colsample_bytree": 0.8,
+      "min_child_weight": 2
+    },
+    "gnet": {
+      "hid": 64,
+      "heads": 4,
+      "drop": 0.3,
+      "lr": 0.003,
+      "weight_decay": 0.001,
+      "epochs": 300,
+      "patience": 30
+    }
+  }
+}

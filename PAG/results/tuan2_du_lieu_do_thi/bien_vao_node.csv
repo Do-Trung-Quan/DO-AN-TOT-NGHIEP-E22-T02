@@ -1,0 +1,8 @@
+﻿node,so_bien,so_cot_ma_hoa,pct_thieu_toan_bo_nhom,pct_thieu_tb_moi_bien,bien
+Nhân khẩu & thể trạng,10,15,0.0,0.0,"gioitinh, namsinh, cao, can, bmi, A6, hatd, hatt, mach, theluc"
+Phơi nhiễm/nghề,21,96,0.0,19.000591408192786,"cviec, pxuong, tuoinghe, nampx, cv5nam, cviec1, tgian1, cviec2, tgian2, A7, A9a, A9b, A10, A11, A12, F4mu, F4ung, F4KhauTrang, F4gang, F4BHLD, F4Kinh"
+Hút thuốc,2,4,0.0,28.55005237168936,"hutthuoc, slthuoc"
+Triệu chứng & tiền sử,32,101,0.0,53.01791859943139,"tiensuhh, benhhh, tsnoi, tsngoai, ho, tdho, tsho, n1, khacdom, loaidom, tdkhacdo, khotho, mdkhotho, tdkhotho, daunguc, vitridau, daulan, tcdau, n2, tgdau, ytodau, n3, ytotang, chaymui, khan, khokhe, dhkhac, metmoi, sutcan, socansut, tgsut, bnn"
+Hô hấp ký,3,3,0.0,0.0,"fvctt, fev1tt, fev1_fvc"
+Khám thực thể,52,63,0.0,88.28025184451937,"longnguc, khoangls, rungthan, rungt1, rungt2, rungt3, rungt4, rungt5, rungt6, rungg1, rungg2, rungg3, rungg4, rungg5, rungg6, go, goduc1, goduc2, goduc3, goduc4, goduc5, goduc6, riraopn, ran, ranam, ranno, ranrit, ranngay, vtam1, vtam2, vtam3, vtam4, vtam5, vtam6, vtno1, vtno2, vtno3, vtno4, vtno5, vtno6, vtrit1, vtrit2, vtrit3, vtrit4, vtrit5, vtrit6, vtngay1, vtngay2, vtngay3, vtngay4, vtngay5, vtngay6"
+Bối cảnh,1,5,0.0,0.0,tinh

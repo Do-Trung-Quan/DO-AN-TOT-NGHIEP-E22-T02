@@ -1,0 +1,54 @@
+﻿mo_hinh,theo,gia_tri,nhom,n,duong,roc_auc
+PG,tỉnh,Hai Duong,có ảnh,352,76,0.7056636155606407
+PG,tỉnh,Hai Duong,không ảnh,943,49,0.6193672099712368
+PG,tỉnh,Binh Dinh,có ảnh,512,131,0.8454849632345575
+PG,tỉnh,Binh Dinh,không ảnh,538,3,0.7059190031152648
+PG,tỉnh,Thai Nguyen,có ảnh,633,159,0.6769100124724676
+PG,tỉnh,Thai Nguyen,không ảnh,1957,177,0.6438964006855837
+PG,tỉnh,Phu Yen,không ảnh,540,88,0.643327634754626
+PG,tỉnh,Dong Nai,không ảnh,1205,110,0.6182067247820673
+PG,giới,Nam,có ảnh,1177,313,0.7490163885930659
+PG,giới,Nam,không ảnh,4306,381,0.6706554992727819
+PG,giới,Nu,có ảnh,323,54,0.7507228418009088
+PG,giới,Nu,không ảnh,877,46,0.7060116151310626
+L0,tỉnh,Hai Duong,có ảnh,352,76,0.5921052631578948
+L0,tỉnh,Hai Duong,không ảnh,943,49,0.6611879651189335
+L0,tỉnh,Binh Dinh,có ảnh,512,131,0.7050950692232173
+L0,tỉnh,Binh Dinh,không ảnh,538,3,0.6666666666666666
+L0,tỉnh,Thai Nguyen,có ảnh,633,159,0.5776477456678077
+L0,tỉnh,Thai Nguyen,không ảnh,1957,177,0.6742969593093379
+L0,tỉnh,Phu Yen,không ảnh,540,88,0.6597194288012872
+L0,tỉnh,Dong Nai,không ảnh,1205,110,0.6214694894146949
+L0,giới,Nam,có ảnh,1177,313,0.6155669447402674
+L0,giới,Nam,không ảnh,4306,381,0.6993563702626344
+L0,giới,Nu,có ảnh,323,54,0.641263940520446
+L0,giới,Nu,không ảnh,877,46,0.7289279547951656
+L1,tỉnh,Hai Duong,có ảnh,352,76,0.7012299771167048
+L1,tỉnh,Binh Dinh,có ảnh,512,131,0.8357476307827933
+L1,tỉnh,Thai Nguyen,có ảnh,633,159,0.6675423931215667
+L1,giới,Nam,có ảnh,1177,313,0.735782008046385
+L1,giới,Nu,có ảnh,323,54,0.7464546330717334
+X2,tỉnh,Hai Duong,có ảnh,352,76,0.6832570556826849
+X2,tỉnh,Hai Duong,không ảnh,943,49,0.6292745286033876
+X2,tỉnh,Binh Dinh,có ảnh,512,131,0.8126264751257238
+X2,tỉnh,Binh Dinh,không ảnh,538,3,0.5221183800623052
+X2,tỉnh,Thai Nguyen,có ảnh,633,159,0.6313589682350131
+X2,tỉnh,Thai Nguyen,không ảnh,1957,177,0.6941979305529106
+X2,tỉnh,Phu Yen,không ảnh,540,88,0.7025593322606597
+X2,tỉnh,Dong Nai,không ảnh,1205,110,0.6072561228725613
+X2,giới,Nam,có ảnh,1177,313,0.7017438764643237
+X2,giới,Nam,không ảnh,4306,381,0.7088272564655532
+X2,giới,Nu,có ảnh,323,54,0.7344761117995319
+X2,giới,Nu,không ảnh,877,46,0.7222047820854915
+T2,tỉnh,Hai Duong,có ảnh,352,76,0.7312643020594966
+T2,tỉnh,Hai Duong,không ảnh,943,49,0.6400493083139296
+T2,tỉnh,Binh Dinh,có ảnh,512,131,0.8155516819939492
+T2,tỉnh,Binh Dinh,không ảnh,538,3,0.660436137071651
+T2,tỉnh,Thai Nguyen,có ảnh,633,159,0.7174189953029217
+T2,tỉnh,Thai Nguyen,không ảnh,1957,177,0.6194502634418841
+T2,tỉnh,Phu Yen,không ảnh,540,88,0.6303549879324215
+T2,tỉnh,Dong Nai,không ảnh,1205,110,0.6225985886259859
+T2,giới,Nam,có ảnh,1177,313,0.7657266891492132
+T2,giới,Nam,không ảnh,4306,381,0.6575575505291138
+T2,giới,Nu,có ảnh,323,54,0.7076277020514938
+T2,giới,Nu,không ảnh,877,46,0.6776539528069899

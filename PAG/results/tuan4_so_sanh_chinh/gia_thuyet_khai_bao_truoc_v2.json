@@ -1,0 +1,19 @@
+{
+ "khai_bao_luc": "2026-10-06T21:15 (trước khi có bất kỳ kết quả PG bản 2 nào)",
+ "co_so": "PAG_V2 (04/10) + quyết định P0.6: khám thực thể theo vùng quá thưa → dạng dự phòng (1 node khám, không cạnh E6)",
+ "du_lieu": "dev2 (6683 lượt, 5 fold theo người đã gộp uid2); test giữ nguyên, chỉ mở MỘT lần ở cuối",
+ "bien_khong_kem": -0.02,
+ "chi_so": "ROC-AUC trên xác suất đã hiệu chỉnh trong fold; nhóm có ảnh báo thêm AUC trong lô; Δ ghép cặp, KTC 95% bootstrap theo người (1000 lần), P(Δ>0) — không gọi là p-value",
+ "hieu_chinh_Holm": "Holm trên 4 so sánh chính, dùng tỉ lệ bootstrap Δ ≤ biên (một phía) làm đại lượng sắp thứ tự",
+ "so_sanh_chinh": [
+  {"ma": "H1a", "so_sanh": "PG vs L1 (có ảnh)", "dat_khi": "cận dưới KTC Δ > -0,02"},
+  {"ma": "H1b", "so_sanh": "PG vs L0 (không ảnh)", "dat_khi": "cận dưới KTC Δ > -0,02"},
+  {"ma": "H3a", "so_sanh": "PG vs T2 (có ảnh)", "dat_khi": "cận dưới KTC Δ > -0,02"},
+  {"ma": "H3b", "so_sanh": "PG vs T2 (không ảnh)", "dat_khi": "cận dưới KTC Δ > -0,02"}
+ ],
+ "khong_danh_gia_duoc": {
+  "H2 (PG vs PG-E6shuffle)": "dạng dự phòng không có cạnh E6 → PG-E6shuffle, PG-noE6 trùng PG; PG-1exam = PG",
+  "H4 (attention vs vungtonthuong)": "không có cột vungtonthuong trong dữ liệu hiện có"
+ },
+ "kham_pha": ["PG vs PG-shuffle (có ảnh) — thay cho H2 cũ, chỉ ghi là khám phá", "toàn bộ ablation còn lại", "Đồng Nai vs tỉnh khác ở nhóm không ảnh"]
+}

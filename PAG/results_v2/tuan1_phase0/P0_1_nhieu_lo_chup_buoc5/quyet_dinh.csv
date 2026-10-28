@@ -1,0 +1,9 @@
+﻿dac_trung,auc_trong_lo,delta_ci_duoi,quyet_dinh
+BioViL-T đóng băng — 6 vùng,0.6954941829491449,0.02433561987653426,ĐI TIẾP CÓ ĐIỀU KIỆN — che chữ + cắt bắt buộc
+BioViL-T đóng băng — toàn ảnh,0.7293725065341113,0.058491698428968494,ĐI TIẾP — AUC trong lô thành chỉ số chính
+BioViL-T control — 6 vùng,0.6941839406284005,0.018995229982491882,ĐI TIẾP CÓ ĐIỀU KIỆN — che chữ + cắt bắt buộc
+BioViL-T control — toàn ảnh,0.7246381093608679,0.059627014238580404,ĐI TIẾP — AUC trong lô thành chỉ số chính
+ResNet50-xrv — 6 vùng,0.6757305175315974,-0.011487478411310436,ĐI TIẾP CÓ ĐIỀU KIỆN — che chữ + cắt bắt buộc
+ResNet50-xrv — toàn ảnh,0.731552783740194,0.046277074608846364,ĐI TIẾP — AUC trong lô thành chỉ số chính
+CheXFound — 6 vùng,0.7258987883234138,0.04065518212245589,ĐI TIẾP — AUC trong lô thành chỉ số chính
+CheXFound — toàn ảnh,0.7100336063984782,0.03846690685507857,ĐI TIẾP — AUC trong lô thành chỉ số chính

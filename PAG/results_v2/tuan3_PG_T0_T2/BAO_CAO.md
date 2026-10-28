@@ -1,0 +1,143 @@
+# Tuần 3 — PG (đồ thị trong từng bệnh nhân) và hai mô hình Transformer bảng
+
+PG: 14 node / bệnh nhân, Graph Transformer có thiên lệch theo loại cạnh, modality dropout. T0 = FT-Transformer chỉ lâm sàng; T2 = FT-Transformer trên đúng các node của PG nhưng KHÔNG có cấu trúc cạnh (mọi token nhìn nhau). Mỗi mô hình dò 30 cấu hình (cùng không gian với bản 1) trên validation nội bộ, 3 seed ở vòng ngoài, hiệu chỉnh Platt trong fold.
+
+### PG / T0 / T2 — dev OOF đã hiệu chỉnh
+
+| mo_hinh | nhom | n | duong | roc_auc | roc_auc_ci | pr_auc | brier | brier_nen | ece | do_doc_hc | chan_hc | nhay_tai_dh80 | nhay_tai_dh90 | auc_trong_lo |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| PG | toàn bộ | 6683 | 794 | 0.744 | [0.726–0.764] | 0.330 | 0.093 | 0.105 | 0.009 | 0.962 | -0.052 | 0.547 | 0.385 | nan |
+| PG | có ảnh | 1500 | 367 | 0.756 | [0.728–0.785] | 0.508 | 0.156 | 0.185 | 0.031 | 1.006 | 0.108 | 0.569 | 0.390 | 0.704 |
+| PG | không ảnh | 5183 | 427 | 0.674 | [0.646–0.699] | 0.145 | 0.075 | 0.076 | 0.009 | 0.761 | -0.569 | 0.417 | 0.262 | nan |
+| PG | không ảnh — Đồng Nai | 1205 | 110 | 0.612 | [0.554–0.669] | 0.139 | 0.083 | 0.083 | 0.028 | 0.479 | -1.113 | 0.336 | 0.200 | nan |
+| PG | không ảnh — tỉnh khác | 3978 | 317 | 0.694 | [0.668–0.723] | 0.150 | 0.072 | 0.073 | 0.014 | 0.838 | -0.434 | 0.454 | 0.274 | nan |
+| T0 | toàn bộ | 6683 | 794 | 0.707 | [0.686–0.726] | 0.276 | 0.097 | 0.105 | 0.012 | 0.936 | -0.103 | 0.467 | 0.336 | nan |
+| T0 | có ảnh | 1500 | 367 | 0.652 | [0.617–0.683] | 0.387 | 0.175 | 0.185 | 0.038 | 0.882 | -0.116 | 0.401 | 0.226 | 0.589 |
+| T0 | không ảnh | 5183 | 427 | 0.639 | [0.611–0.666] | 0.126 | 0.074 | 0.076 | 0.010 | 0.853 | -0.326 | 0.344 | 0.183 | nan |
+| T0 | không ảnh — Đồng Nai | 1205 | 110 | 0.641 | [0.588–0.693] | 0.162 | 0.081 | 0.083 | 0.021 | 0.971 | 0.145 | 0.345 | 0.218 | nan |
+| T0 | không ảnh — tỉnh khác | 3978 | 317 | 0.640 | [0.612–0.672] | 0.120 | 0.072 | 0.073 | 0.011 | 0.837 | -0.422 | 0.331 | 0.180 | nan |
+| T2 | toàn bộ | 6683 | 794 | 0.730 | [0.712–0.750] | 0.334 | 0.093 | 0.105 | 0.013 | 0.929 | -0.133 | 0.529 | 0.393 | nan |
+| T2 | có ảnh | 1500 | 367 | 0.748 | [0.721–0.777] | 0.489 | 0.158 | 0.185 | 0.033 | 0.795 | -0.044 | 0.553 | 0.373 | 0.689 |
+| T2 | không ảnh | 5183 | 427 | 0.658 | [0.632–0.682] | 0.147 | 0.074 | 0.076 | 0.016 | 0.788 | -0.564 | 0.391 | 0.239 | nan |
+| T2 | không ảnh — Đồng Nai | 1205 | 110 | 0.589 | [0.534–0.645] | 0.129 | 0.083 | 0.083 | 0.022 | 0.447 | -1.204 | 0.291 | 0.182 | nan |
+| T2 | không ảnh — tỉnh khác | 3978 | 317 | 0.682 | [0.651–0.709] | 0.154 | 0.071 | 0.073 | 0.019 | 0.894 | -0.384 | 0.420 | 0.243 | nan |
+
+_Tệp: `chi_so.csv`_
+
+*Giải thích chỉ số: `roc_auc` = ROC-AUC (xác suất mô hình xếp một ca dương cao hơn một ca âm; 0.5 = đoán bừa, 1 = hoàn hảo), kèm KTC 95% (khoảng tin cậy, bootstrap theo người 1000 lần). `pr_auc` = PR-AUC (diện tích dưới đường precision–recall; mốc đoán bừa = tỉ lệ dương). `brier` = sai số bình phương trung bình của xác suất (càng thấp càng tốt), so với `brier_nen` = Brier của việc luôn đoán tỉ lệ nền. `ece` = sai lệch hiệu chỉnh trung bình (xác suất dự đoán lệch tần suất thật bao nhiêu, 10 khoảng). `do_doc_hc` = độ dốc hiệu chỉnh (1 là lý tưởng; <1 là dự đoán quá cực đoan), `chan_hc` = chặn hiệu chỉnh (0 là lý tưởng). `auc_trong_lo` = AUC tính riêng trong từng lô chụp rồi lấy trung bình theo cỡ lô (loại phần mô hình chỉ “nhận ra lô”). `nhay_tai_dh80/90` = độ nhạy (tỉ lệ ca bệnh bắt được) khi chọn ngưỡng sao cho độ đặc hiệu = 0,80 / 0,90 (chỉ 20% / 10% người âm bị báo nhầm) — chỉ số cho sàng lọc.*
+
+### Phân tầng theo tỉnh và giới (ROC-AUC; chỉ ô có ≥30 lượt và đủ hai nhãn)
+
+| mo_hinh | theo | gia_tri | nhom | n | duong | roc_auc |
+|---|---|---|---|---|---|---|
+| PG | tỉnh | Hai Duong | có ảnh | 352 | 76 | 0.707 |
+| PG | tỉnh | Hai Duong | không ảnh | 943 | 49 | 0.623 |
+| PG | tỉnh | Binh Dinh | có ảnh | 512 | 131 | 0.842 |
+| PG | tỉnh | Binh Dinh | không ảnh | 538 | 3 | 0.706 |
+| PG | tỉnh | Thai Nguyen | có ảnh | 633 | 159 | 0.689 |
+| PG | tỉnh | Thai Nguyen | không ảnh | 1957 | 177 | 0.642 |
+| PG | tỉnh | Phu Yen | không ảnh | 540 | 88 | 0.668 |
+| PG | tỉnh | Dong Nai | không ảnh | 1205 | 110 | 0.612 |
+| PG | giới | Nam | có ảnh | 1177 | 313 | 0.748 |
+| PG | giới | Nam | không ảnh | 4306 | 381 | 0.668 |
+| PG | giới | Nu | có ảnh | 323 | 54 | 0.770 |
+| PG | giới | Nu | không ảnh | 877 | 46 | 0.668 |
+| L0 | tỉnh | Hai Duong | có ảnh | 352 | 76 | 0.592 |
+| L0 | tỉnh | Hai Duong | không ảnh | 943 | 49 | 0.661 |
+| L0 | tỉnh | Binh Dinh | có ảnh | 512 | 131 | 0.705 |
+| L0 | tỉnh | Binh Dinh | không ảnh | 538 | 3 | 0.667 |
+| L0 | tỉnh | Thai Nguyen | có ảnh | 633 | 159 | 0.578 |
+| L0 | tỉnh | Thai Nguyen | không ảnh | 1957 | 177 | 0.674 |
+| L0 | tỉnh | Phu Yen | không ảnh | 540 | 88 | 0.660 |
+| L0 | tỉnh | Dong Nai | không ảnh | 1205 | 110 | 0.621 |
+| L0 | giới | Nam | có ảnh | 1177 | 313 | 0.616 |
+| L0 | giới | Nam | không ảnh | 4306 | 381 | 0.699 |
+| L0 | giới | Nu | có ảnh | 323 | 54 | 0.641 |
+| L0 | giới | Nu | không ảnh | 877 | 46 | 0.729 |
+| L1 | tỉnh | Hai Duong | có ảnh | 352 | 76 | 0.719 |
+| L1 | tỉnh | Binh Dinh | có ảnh | 512 | 131 | 0.850 |
+| L1 | tỉnh | Thai Nguyen | có ảnh | 633 | 159 | 0.676 |
+| L1 | giới | Nam | có ảnh | 1177 | 313 | 0.747 |
+| L1 | giới | Nu | có ảnh | 323 | 54 | 0.778 |
+| X2 | tỉnh | Hai Duong | có ảnh | 352 | 76 | 0.705 |
+| X2 | tỉnh | Hai Duong | không ảnh | 943 | 49 | 0.628 |
+| X2 | tỉnh | Binh Dinh | có ảnh | 512 | 131 | 0.825 |
+| X2 | tỉnh | Binh Dinh | không ảnh | 538 | 3 | 0.521 |
+| X2 | tỉnh | Thai Nguyen | có ảnh | 633 | 159 | 0.640 |
+| X2 | tỉnh | Thai Nguyen | không ảnh | 1957 | 177 | 0.692 |
+| X2 | tỉnh | Phu Yen | không ảnh | 540 | 88 | 0.698 |
+| X2 | tỉnh | Dong Nai | không ảnh | 1205 | 110 | 0.611 |
+| X2 | giới | Nam | có ảnh | 1177 | 313 | 0.714 |
+| X2 | giới | Nam | không ảnh | 4306 | 381 | 0.707 |
+| X2 | giới | Nu | có ảnh | 323 | 54 | 0.750 |
+| X2 | giới | Nu | không ảnh | 877 | 46 | 0.727 |
+| T2 | tỉnh | Hai Duong | có ảnh | 352 | 76 | 0.709 |
+| T2 | tỉnh | Hai Duong | không ảnh | 943 | 49 | 0.629 |
+| T2 | tỉnh | Binh Dinh | có ảnh | 512 | 131 | 0.807 |
+| T2 | tỉnh | Binh Dinh | không ảnh | 538 | 3 | 0.507 |
+| T2 | tỉnh | Thai Nguyen | có ảnh | 633 | 159 | 0.705 |
+| T2 | tỉnh | Thai Nguyen | không ảnh | 1957 | 177 | 0.621 |
+| T2 | tỉnh | Phu Yen | không ảnh | 540 | 88 | 0.652 |
+| T2 | tỉnh | Dong Nai | không ảnh | 1205 | 110 | 0.589 |
+| T2 | giới | Nam | có ảnh | 1177 | 313 | 0.745 |
+| T2 | giới | Nam | không ảnh | 4306 | 381 | 0.653 |
+| T2 | giới | Nu | có ảnh | 323 | 54 | 0.734 |
+| T2 | giới | Nu | không ảnh | 877 | 46 | 0.640 |
+
+_Tệp: `phan_tang.csv`_
+
+### Cấu hình chọn theo fold — PG
+
+| fold | cau_hinh | dim | so_lop | dropout | lr | weight_decay | p_modality_dropout | epoch |
+|---|---|---|---|---|---|---|---|---|
+| 0 | 6 | 64 | 3 | 0.100 | 0.001 | 0.000 | 0.200 | 5 |
+| 1 | 21 | 128 | 2 | 0.300 | 0.001 | 0.010 | 0.300 | 11 |
+| 2 | 1 | 64 | 2 | 0.100 | 0.001 | 0.000 | 0.200 | 13 |
+| 3 | 6 | 64 | 3 | 0.100 | 0.001 | 0.000 | 0.200 | 7 |
+| 4 | 1 | 64 | 2 | 0.100 | 0.001 | 0.000 | 0.200 | 4 |
+
+_Tệp: `cau_hinh_chon_PG.csv`_
+
+### Cấu hình chọn theo fold — T0
+
+| fold | cau_hinh | dim | so_lop | dropout | lr | weight_decay | p_modality_dropout | epoch |
+|---|---|---|---|---|---|---|---|---|
+| 0 | 27 | 128 | 3 | 0.300 | 0.001 | 0.000 | 0.200 | 28 |
+| 1 | 27 | 128 | 3 | 0.300 | 0.001 | 0.000 | 0.200 | 25 |
+| 2 | 11 | 64 | 3 | 0.300 | 0.001 | 0.000 | 0.200 | 32 |
+| 3 | 26 | 128 | 3 | 0.100 | 0.001 | 0.010 | 0.500 | 13 |
+| 4 | 8 | 64 | 3 | 0.300 | 0.000 | 0.000 | 0.300 | 27 |
+
+_Tệp: `cau_hinh_chon_T0.csv`_
+
+### Cấu hình chọn theo fold — T2
+
+| fold | cau_hinh | dim | so_lop | dropout | lr | weight_decay | p_modality_dropout | epoch |
+|---|---|---|---|---|---|---|---|---|
+| 0 | 23 | 128 | 3 | 0.100 | 0.000 | 0.010 | 0.300 | 21 |
+| 1 | 10 | 64 | 3 | 0.300 | 0.000 | 0.010 | 0.300 | 32 |
+| 2 | 20 | 128 | 2 | 0.300 | 0.000 | 0.010 | 0.300 | 31 |
+| 3 | 11 | 64 | 3 | 0.300 | 0.001 | 0.000 | 0.200 | 15 |
+| 4 | 9 | 64 | 3 | 0.300 | 0.000 | 0.000 | 0.500 | 28 |
+
+_Tệp: `cau_hinh_chon_T2.csv`_
+
+### PG khi che toàn bộ node ảnh ở lúc dự đoán (người có phim)
+
+| nhom | AUC_day_du | AUC_khi_bo_anh |
+|---|---|---|
+| có ảnh | 0.756 | 0.658 |
+
+_Tệp: `bo_anh.csv`_
+
+*Chênh lệch = phần đóng góp của ảnh trong PG đã huấn luyện.*
+
+### Chú ý trung bình CLS → 6 vùng (người có phim)
+
+| RU | RM | RL | LU | LM | LL |
+|---|---|---|---|---|---|
+| 0.068 | 0.098 | 0.098 | 0.084 | 0.103 | 0.093 |
+
+_Tệp: `chu_y_vung.csv`_
+
+*Không đánh giá được H4 (chú ý có trúng vùng tổn thương không) vì dữ liệu không có cột `vungtonthuong`.*

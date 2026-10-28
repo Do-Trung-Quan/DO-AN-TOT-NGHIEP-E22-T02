@@ -1,0 +1,114 @@
+{
+  "ngay_chay": "2026-10-27T22:54:06",
+  "script": "v3_ftt.py",
+  "hash_script": {
+    "v3_ftt.py": "705f6aa2a9604330",
+    "v3_lib.py": "80f07cc24a1f240e",
+    "v2_lib.py": "4d42ac0f30881fc4"
+  },
+  "hash_du_lieu": {
+    "p05_folds.npz": "8d1f4e38ea43c5a4",
+    "img_v3.npz": "10d490ce413a9d80"
+  },
+  "SEED": 42,
+  "NBOOT": 1000,
+  "phien_ban": {
+    "python": "3.13.2",
+    "numpy": "2.2.2",
+    "pandas": "2.2.3",
+    "sklearn": "1.7.2"
+  },
+  "tham_so": {
+    "mo_hinh": "T0",
+    "SEEDS": [
+      0,
+      1,
+      2
+    ],
+    "khong_gian_do": {
+      "dim": [
+        64,
+        128
+      ],
+      "so_lop": [
+        2,
+        3
+      ],
+      "dropout": [
+        0.1,
+        0.3
+      ],
+      "lr": [
+        0.0003,
+        0.001
+      ],
+      "weight_decay": [
+        0.0001,
+        0.01
+      ],
+      "p_modality_dropout": [
+        0.2,
+        0.3,
+        0.5
+      ]
+    },
+    "so_cau_hinh": 30,
+    "cau_hinh_chon": [
+      {
+        "fold": 0,
+        "cau_hinh": 6,
+        "dim": 64,
+        "so_lop": 3,
+        "dropout": 0.1,
+        "lr": 0.001,
+        "weight_decay": 0.0001,
+        "p_modality_dropout": 0.2,
+        "epoch": 9
+      },
+      {
+        "fold": 1,
+        "cau_hinh": 27,
+        "dim": 128,
+        "so_lop": 3,
+        "dropout": 0.3,
+        "lr": 0.001,
+        "weight_decay": 0.0001,
+        "p_modality_dropout": 0.2,
+        "epoch": 25
+      },
+      {
+        "fold": 2,
+        "cau_hinh": 11,
+        "dim": 64,
+        "so_lop": 3,
+        "dropout": 0.3,
+        "lr": 0.001,
+        "weight_decay": 0.0001,
+        "p_modality_dropout": 0.2,
+        "epoch": 32
+      },
+      {
+        "fold": 3,
+        "cau_hinh": 26,
+        "dim": 128,
+        "so_lop": 3,
+        "dropout": 0.1,
+        "lr": 0.001,
+        "weight_decay": 0.01,
+        "p_modality_dropout": 0.5,
+        "epoch": 13
+      },
+      {
+        "fold": 4,
+        "cau_hinh": 8,
+        "dim": 64,
+        "so_lop": 3,
+        "dropout": 0.3,
+        "lr": 0.0003,
+        "weight_decay": 0.0001,
+        "p_modality_dropout": 0.3,
+        "epoch": 27
+      }
+    ]
+  }
+}

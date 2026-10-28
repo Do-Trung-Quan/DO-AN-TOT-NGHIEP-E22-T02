@@ -1,0 +1,4 @@
+﻿"dac_trung_truoc_che (toàn ảnh, CenterCrop)",auc_trong_lo_truoc,delta_truoc
+BioViL-T frozen (toàn ảnh),0.7220337803854422,0.0766586261546713
+BioViL-T control (toàn ảnh),0.7293681554002903,0.0884019422285606
+"ResNet50-xrv (toàn ảnh, bản 1)",0.7011354117980981,0.0607186919056975

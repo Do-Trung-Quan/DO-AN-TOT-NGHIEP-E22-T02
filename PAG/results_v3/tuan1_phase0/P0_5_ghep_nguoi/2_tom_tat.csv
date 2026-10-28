@@ -1,0 +1,9 @@
+﻿muc,gia_tri
+Lượt khám (dev / test),8030 (6882 / 1148)
+Người theo patient_uid gốc,7024
+Người sau ghép khóa lỏng (uid2) / khóa chặt,6210 / 6689
+Nhóm gộp ≥ 2 patient_uid — khóa lỏng / khóa chặt,801 / 334
+Lượt dev bị bỏ (người đã có trong test),199 (có ảnh: 71; dương: 29)
+Tập test,"giữ nguyên, không mở (chỉ đếm)"
+dev mới (dev2),"6683 lượt, 794 dương, 5214 người"
+dev mới có ảnh (tập dùng cho P0.1 / việc (1)),"1500 lượt, 367 dương, 1345 người, 18 lô"

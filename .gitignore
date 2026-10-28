@@ -275,3 +275,12 @@ imagefeat/output/LOCAL_ONLY_*
 # Zip data local
 kiemchung_data.zip
 *.zip
+
+# PAG: cache chua id luot kham + ma nguoi (PII) -> KHONG commit, gui rieng
+cache_pg/
+PAG/cache*/
+PAG/chexfound/
+PAG/qa_*KHONG_CHIA_SE*/
+PAG/**/*.pt
+PAG/**/*.pkl
+PAG/**/*.npz

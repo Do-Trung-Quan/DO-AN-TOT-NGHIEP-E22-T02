@@ -1,0 +1,396 @@
+{
+ "khong_gian_do": {
+  "dim": [
+   64,
+   128
+  ],
+  "so_lop": [
+   2,
+   3
+  ],
+  "dropout": [
+   0.1,
+   0.3
+  ],
+  "lr": [
+   0.0003,
+   0.001
+  ],
+  "weight_decay": [
+   0.0001,
+   0.01
+  ],
+  "p_modality_dropout": [
+   0.2,
+   0.3,
+   0.5
+  ]
+ },
+ "bien_the": {
+  "PG": {
+   "image": "a",
+   "region": true,
+   "edges": "anat",
+   "use_ctx": true,
+   "md": true,
+   "arch": "gt",
+   "rows": "all",
+   "drop": [],
+   "only": null
+  },
+  "PG-noedge": {
+   "image": "a",
+   "region": true,
+   "edges": "noedge",
+   "use_ctx": true,
+   "md": true,
+   "arch": "gt",
+   "rows": "all",
+   "drop": [],
+   "only": null
+  },
+  "PG-complete": {
+   "image": "a",
+   "region": true,
+   "edges": "complete",
+   "use_ctx": true,
+   "md": true,
+   "arch": "gt",
+   "rows": "all",
+   "drop": [],
+   "only": null
+  },
+  "PG-shuffle": {
+   "image": "a",
+   "region": true,
+   "edges": "shuffle",
+   "use_ctx": true,
+   "md": true,
+   "arch": "gt",
+   "rows": "all",
+   "drop": [],
+   "only": null
+  },
+  "PG-global": {
+   "image": "a",
+   "region": false,
+   "edges": "anat",
+   "use_ctx": true,
+   "md": true,
+   "arch": "gt",
+   "rows": "all",
+   "drop": [],
+   "only": null
+  },
+  "PG-noMD": {
+   "image": "a",
+   "region": true,
+   "edges": "anat",
+   "use_ctx": true,
+   "md": false,
+   "arch": "gt",
+   "rows": "all",
+   "drop": [],
+   "only": null
+  },
+  "PG-noclin": {
+   "image": "a",
+   "region": true,
+   "edges": "anat",
+   "use_ctx": false,
+   "md": true,
+   "arch": "gt",
+   "rows": "imaged",
+   "drop": [],
+   "only": [
+    "Khám thực thể"
+   ]
+  },
+  "PG-noctx": {
+   "image": "a",
+   "region": true,
+   "edges": "anat",
+   "use_ctx": false,
+   "md": true,
+   "arch": "gt",
+   "rows": "all",
+   "drop": [],
+   "only": null
+  },
+  "PG-RGCN": {
+   "image": "a",
+   "region": true,
+   "edges": "anat",
+   "use_ctx": true,
+   "md": true,
+   "arch": "rgcn",
+   "rows": "all",
+   "drop": [],
+   "only": null
+  },
+  "PG-nobnn1": {
+   "image": "a",
+   "region": true,
+   "edges": "anat",
+   "use_ctx": true,
+   "md": true,
+   "arch": "gt",
+   "rows": "all",
+   "drop": [
+    "bnn"
+   ],
+   "only": null
+  },
+  "PG-nobnn": {
+   "image": "a",
+   "region": true,
+   "edges": "anat",
+   "use_ctx": true,
+   "md": true,
+   "arch": "gt",
+   "rows": "all",
+   "drop": [
+    "bnn",
+    "tiensuhh",
+    "benhhh",
+    "tsnoi",
+    "tsngoai"
+   ],
+   "only": null
+  },
+  "PG-enc-b": {
+   "image": "b",
+   "region": true,
+   "edges": "anat",
+   "use_ctx": true,
+   "md": true,
+   "arch": "gt",
+   "rows": "all",
+   "drop": [],
+   "only": null
+  },
+  "PG-enc-c": {
+   "image": "c",
+   "region": true,
+   "edges": "anat",
+   "use_ctx": true,
+   "md": true,
+   "arch": "gt",
+   "rows": "all",
+   "drop": [],
+   "only": null
+  },
+  "T0": {
+   "image": null,
+   "region": true,
+   "edges": "anat",
+   "use_ctx": true,
+   "md": true,
+   "arch": "ftt",
+   "rows": "all",
+   "drop": [],
+   "only": null
+  },
+  "T2": {
+   "image": "a",
+   "region": true,
+   "edges": "anat",
+   "use_ctx": true,
+   "md": true,
+   "arch": "ftt",
+   "rows": "all",
+   "drop": [],
+   "only": null
+  }
+ },
+ "bien_tien_su_bo_o_PG-nobnn": [
+  "bnn",
+  "tiensuhh",
+  "benhhh",
+  "tsnoi",
+  "tsngoai"
+ ],
+ "cau_hinh_chon": {
+  "PG": [
+   {
+    "fold": 0,
+    "cau_hinh": 22,
+    "dim": 128,
+    "so_lop": 2,
+    "dropout": 0.3,
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "p_modality_dropout": 0.5,
+    "epoch": 17
+   },
+   {
+    "fold": 1,
+    "cau_hinh": 27,
+    "dim": 128,
+    "so_lop": 3,
+    "dropout": 0.3,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "p_modality_dropout": 0.2,
+    "epoch": 14
+   },
+   {
+    "fold": 2,
+    "cau_hinh": 6,
+    "dim": 64,
+    "so_lop": 3,
+    "dropout": 0.1,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "p_modality_dropout": 0.2,
+    "epoch": 13
+   },
+   {
+    "fold": 3,
+    "cau_hinh": 4,
+    "dim": 64,
+    "so_lop": 2,
+    "dropout": 0.3,
+    "lr": 0.0003,
+    "weight_decay": 0.01,
+    "p_modality_dropout": 0.2,
+    "epoch": 17
+   },
+   {
+    "fold": 4,
+    "cau_hinh": 1,
+    "dim": 64,
+    "so_lop": 2,
+    "dropout": 0.1,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "p_modality_dropout": 0.2,
+    "epoch": 8
+   }
+  ],
+  "T0": [
+   {
+    "fold": 0,
+    "cau_hinh": 27,
+    "dim": 128,
+    "so_lop": 3,
+    "dropout": 0.3,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "p_modality_dropout": 0.2,
+    "epoch": 28
+   },
+   {
+    "fold": 1,
+    "cau_hinh": 27,
+    "dim": 128,
+    "so_lop": 3,
+    "dropout": 0.3,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "p_modality_dropout": 0.2,
+    "epoch": 25
+   },
+   {
+    "fold": 2,
+    "cau_hinh": 11,
+    "dim": 64,
+    "so_lop": 3,
+    "dropout": 0.3,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "p_modality_dropout": 0.2,
+    "epoch": 32
+   },
+   {
+    "fold": 3,
+    "cau_hinh": 26,
+    "dim": 128,
+    "so_lop": 3,
+    "dropout": 0.1,
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "p_modality_dropout": 0.5,
+    "epoch": 13
+   },
+   {
+    "fold": 4,
+    "cau_hinh": 8,
+    "dim": 64,
+    "so_lop": 3,
+    "dropout": 0.3,
+    "lr": 0.0003,
+    "weight_decay": 0.0001,
+    "p_modality_dropout": 0.3,
+    "epoch": 27
+   }
+  ],
+  "T2": [
+   {
+    "fold": 0,
+    "cau_hinh": 14,
+    "dim": 128,
+    "so_lop": 2,
+    "dropout": 0.1,
+    "lr": 0.0003,
+    "weight_decay": 0.01,
+    "p_modality_dropout": 0.2,
+    "epoch": 12
+   },
+   {
+    "fold": 1,
+    "cau_hinh": 11,
+    "dim": 64,
+    "so_lop": 3,
+    "dropout": 0.3,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "p_modality_dropout": 0.2,
+    "epoch": 18
+   },
+   {
+    "fold": 2,
+    "cau_hinh": 6,
+    "dim": 64,
+    "so_lop": 3,
+    "dropout": 0.1,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "p_modality_dropout": 0.2,
+    "epoch": 10
+   },
+   {
+    "fold": 3,
+    "cau_hinh": 1,
+    "dim": 64,
+    "so_lop": 2,
+    "dropout": 0.1,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "p_modality_dropout": 0.2,
+    "epoch": 11
+   },
+   {
+    "fold": 4,
+    "cau_hinh": 10,
+    "dim": 64,
+    "so_lop": 3,
+    "dropout": 0.3,
+    "lr": 0.0003,
+    "weight_decay": 0.01,
+    "p_modality_dropout": 0.3,
+    "epoch": 36
+   }
+  ]
+ },
+ "anh": {
+  "thu_tu": "pad vuong 1024 -> che chu (top-hat + nguong, ngoai phoi, inpaint Telea) -> PSPNet tren anh da che -> cat khung bao phoi + le 6% -> pad vuong 512 -> 6 vung 1/3, 2/3",
+  "encoder_chinh": "BioViL-T dong bang (patch_embeddings 512 x 16 x 16)",
+  "encoder_b": "torchxrayvision ResNet50-res512-all (thay EVA-X/CheXFound — khong co offline)",
+  "encoder_phu": "BioViL-T control (Finetune CrossEntropy/best_model_ce.pth, SetA)",
+  "dac_trung_vung": "trung binh co trong so ban do 16x16 trong mask vung",
+  "input": 512,
+  "torch": "2.6.0+cu124",
+  "torchxrayvision": "1.5.5"
+ }
+}

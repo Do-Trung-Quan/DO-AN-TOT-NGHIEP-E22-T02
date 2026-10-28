@@ -1,0 +1,8 @@
+﻿muc,gia_tri
+Ảnh trong gói QA trực quan,315
+"  trong đó mẫu ngẫu nhiên (dev, phân tầng lô × nhãn)",50
+  trong đó bị đánh cờ,272
+Đã chấm,315
+Mẫu ngẫu nhiên đạt,48/50 (96%)
+Cổng QA (≥ 90% mẫu ngẫu nhiên đạt),ĐẠT
+zone_missing (không đủ 2 phổi hoặc chấm hỏng),0

@@ -1,0 +1,5 @@
+﻿khoa,thoi_diem,luot_xet,luot_vat_fold,pct,nhom_vat,luot_vat_dev_test,luot_co_anh_vat,pct_co_anh
+Khóa lỏng (họ tên + năm sinh + giới + tỉnh) — DÙNG ĐỂ CHIA,Trước (fold gốc),8030,1372,17.09,670,392,190,10.35
+Khóa lỏng (họ tên + năm sinh + giới + tỉnh) — DÙNG ĐỂ CHIA,"Sau (fold mới, đã bỏ lượt dev trùng test)",7831,0,0.0,0,0,0,0.0
+Khóa chặt (khóa lỏng + phân xưởng) — chỉ để so,Trước (fold gốc),8030,567,7.06,282,136,80,4.36
+Khóa chặt (khóa lỏng + phân xưởng) — chỉ để so,"Sau (fold mới, đã bỏ lượt dev trùng test)",7831,0,0.0,0,0,0,0.0

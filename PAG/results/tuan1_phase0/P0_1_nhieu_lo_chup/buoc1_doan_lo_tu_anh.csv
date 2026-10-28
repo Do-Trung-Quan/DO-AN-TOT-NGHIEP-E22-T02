@@ -1,0 +1,4 @@
+﻿dac_trung,so_lo,do_chinh_xac,muc_doan_bua
+BioViL-T frozen (toàn ảnh),18,0.4775444700710402,0.11066666666666666
+BioViL-T control (toàn ảnh),18,0.44067819544302245,0.11066666666666666
+"ResNet50-xrv (toàn ảnh, bản 1)",18,0.4841479815708121,0.11066666666666666
