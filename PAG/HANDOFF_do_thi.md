@@ -4,6 +4,19 @@ Cập nhật: 28/10/2026. Đặc tả gốc: `PG_update.pdf` (mục 4 — cấu 
 
 > **Việc của bạn: chỉ DỰNG đồ thị + kiểm tra chất lượng (QA). Chưa huấn luyện mô hình PG.**
 
+> **CHỈ DÙNG BẢN 3** (`scripts_v3/`, `results_v3/`, `cache_v3/`).
+> - Bản 1 (`scripts/`, `results/`) bị rò dữ liệu (fold chia sai theo người, có dùng biến `nam`) → **không dùng, không trích dẫn**.
+> - Bản 2 (`scripts_v2/`, `results_v2/`) chỉ để tham khảo code (`pag_lib.py`, `v2_lib.py` — bản 3 vẫn import) và để so sánh số. Không lấy fold, ảnh hay kết quả bản 2 làm chuẩn.
+
+**Vị trí trong kế hoạch 6 tuần (PG_update mục 10):**
+
+| Tuần | Nội dung | Trạng thái |
+|---|---|---|
+| 1 | Phase 0 | Xong |
+| 2 | Dữ liệu đồ thị: đặc trưng 6 vùng, bảng "biến → node" nộp duyệt, sinh 8.030 đồ thị; baseline | Baseline xong (việc 2). **Còn lại: bảng biến → node + dựng đồ thị — việc của bạn** |
+| 3 | Huấn luyện PG + T0/T2 | T0/T2 xong; PG chưa làm |
+| 4–6 | So sánh H1–H3, ablation, attention, báo cáo | Chưa làm |
+
 ---
 
 ## 1. Chuẩn bị
@@ -131,7 +144,7 @@ Ghi vào `PAG/results_v3/tuan2_do_thi_PG/` (hoặc tên tương tự):
 
 1. **`patient_graphs_fold{k}.pt`**, một file cho mỗi fold vì mã hoá fit theo fold. Mỗi đồ thị gồm: đặc trưng node, danh sách cạnh + loại cạnh, mặt nạ node có mặt, nhãn, cờ has_img, chỉ số hàng. **Không lưu id.** File `.pt` có dữ liệu thật → để trong `cache_v3/`, không commit.
 2. **Bảng QA**, chỉ số gộp:
-   - Số đồ thị theo nhóm: dev có ảnh 1500 / không ảnh 5183. Test chỉ đếm.
+   - Số đồ thị: dev 6.683 (có ảnh 1500 / không ảnh 5183) + test 1.148 (chỉ dựng và đếm, không chấm) = 7.831. Con số 8.030 trong PG_update là trước P0.5; 199 lượt dev của người đã có trong test bị loại → không dựng (hoặc dựng nhưng đánh dấu loại, không dùng).
    - Phân bố số node / số cạnh: phải đúng 14/71 và 8/22 khi cờ bật; 14/64 và 8/22 khi tắt.
    - % thiếu theo node.
    - Kiểm tra không có id / không có biến cấm trong đặc trưng.
