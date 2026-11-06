@@ -1,0 +1,52 @@
+{
+  "_ghi_chu": "KHAI BAO TRUOC cho buoc 5 (PG_update muc 9). Viet ngay 06/11/2026, TRUOC khi co bat ky ket qua PG ban 3 nao (chi co chay thu --smoke 1 fold, 2 epoch). Commit len git truoc khi chay that. KHONG sua file nay sau khi da xem ket qua; neu buoc phai sua thi ghi ly do + ngay o muc 'lich_su_sua' va bao cao.",
+  "can_cu": "PAG/PG_update.pdf muc 9 (gia thuyet H1-H4, bien -0,02, Holm), chot cua thay 01/11 (khong dung nam, giu E1/E2, PG-global truoc roi PG 6 vung), hop 04/11 (dung Main_data_Merged_1835_Images.xlsx, 10 cap nghe)",
+  "du_lieu": {
+    "fold": "PAG/cache_v3/p05_folds.npz (dev2/fold2/uid2) — chuan duy nhat",
+    "nhom": {"co_anh": "dev & has_img (1500 luot)", "khong_anh": "dev & ~has_img (5183 luot)"},
+    "test": "KHONG mo o buoc 5; chi mo mot lan o cuoi sau khi PGS duyet cau hinh cuoi"
+  },
+  "du_doan_dung": "OOF da hieu chinh Platt trong fold (khoa 'oof_cal'), giong cach Minh bao cao viec (2)",
+  "mo_hinh": {
+    "PG": "PG 6 vung (v3_run_pg.py PG --search) — mo hinh chinh cua de cuong",
+    "PG_global": "1 nut anh = C (v3_run_pg.py PG-global --search) — chi dung cho so sanh kham pha",
+    "PG_shuffle": "PG 6 vung, canh E1/E2 xao tron giua cac vung, giu so canh; DUNG LAI cau hinh PG da chon o tung fold (khong do lai). Ghi nhan: cach nay hoi thien loi PG vi sieu tham so duoc chon cho PG",
+    "C": "LR chi anh C (run_baselines_v3_nghe10.npz)",
+    "L0": "LR chi lam sang, 10 cap nghe (run_baselines_v3_nghe10.npz)",
+    "T2": "FT-Transformer lam sang + 6 token vung, 10 cap nghe (run_T2_nghe10.npz)"
+  },
+  "chi_so": {
+    "co_anh": "AUC trong lo (trung binh co trong so theo co lo cua AUC tung lo co du hai nhan) — chi so chinh cho mo hinh dung anh theo bang quyet dinh P0.1; AUC gop bao kem",
+    "khong_anh": "ROC-AUC gop"
+  },
+  "thong_ke": {
+    "so_sanh": "ghep cap tren cung luot kham, delta = chi so(PG) - chi so(doi chung)",
+    "bootstrap": "1000 lan, lay mau lai theo nguoi (uid2), seed 42",
+    "ktc": "95% phan vi",
+    "p_mot_phia": "ti le lan bootstrap co delta <= bien (bien = -0,02 voi 'khong kem', 0 voi 'hon')",
+    "holm": "Holm mot phia, alpha = 0,025, tren ho 5 phep so sanh chinh duoi day",
+    "luu_y": "P(delta>0) chi la ti le lan bootstrap PG hon, KHONG phai p-value"
+  },
+  "so_sanh_chinh": [
+    {"ma": "H1a", "gia_thuyet": "H1", "so_sanh": "PG vs C", "nhom": "co_anh", "chi_so": "AUC trong lo", "loai": "khong_kem", "bien": -0.02, "dat_khi": "can duoi KTC cua delta > -0,02"},
+    {"ma": "H1b", "gia_thuyet": "H1", "so_sanh": "PG vs L0", "nhom": "khong_anh", "chi_so": "ROC-AUC gop", "loai": "khong_kem", "bien": -0.02, "dat_khi": "can duoi KTC cua delta > -0,02"},
+    {"ma": "H2", "gia_thuyet": "H2", "so_sanh": "PG vs PG-shuffle", "nhom": "co_anh", "chi_so": "AUC trong lo", "loai": "hon", "bien": 0.0, "dat_khi": "KTC cua delta nam tron tren 0"},
+    {"ma": "H3a", "gia_thuyet": "H3", "so_sanh": "PG vs T2", "nhom": "co_anh", "chi_so": "AUC trong lo", "loai": "khong_kem", "bien": -0.02, "dat_khi": "can duoi KTC cua delta > -0,02"},
+    {"ma": "H3b", "gia_thuyet": "H3", "so_sanh": "PG vs T2", "nhom": "khong_anh", "chi_so": "ROC-AUC gop", "loai": "khong_kem", "bien": -0.02, "dat_khi": "can duoi KTC cua delta > -0,02"}
+  ],
+  "ket_luan_gia_thuyet": {
+    "H1": "DAT khi ca H1a va H1b deu dat sau Holm",
+    "H2": "DAT khi H2 dat sau Holm",
+    "H3": "DAT khi ca H3a va H3b deu dat sau Holm",
+    "H4": "phan tich attention vung (tuan 6), khong thuoc buoc 5"
+  },
+  "diem_duyet_2": "Neu H1 va H2 deu KHONG DAT -> dung phat trien mo hinh, bao PGS va ban lai huong truoc khi lam ablation / attention",
+  "so_sanh_kham_pha": [
+    "PG-global vs C (co anh, AUC trong lo), PG-global vs L0 (khong anh), PG-global vs T2 (ca hai nhom)",
+    "PG vs PG-global (co anh, AUC trong lo; khong anh, AUC gop)",
+    "PG vs L2, X2, GAT, B3b (ca hai nhom)",
+    "PG-drop (bo moi nut anh khi danh gia) vs L0 o nhom co anh",
+    "nhom khong anh tach Dong Nai va cac tinh con lai"
+  ],
+  "lich_su_sua": []
+}

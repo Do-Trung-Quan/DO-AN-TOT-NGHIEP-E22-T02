@@ -11,7 +11,7 @@ GAT     GATv2 2 lop tren do thi kNN benh nhan (patient-as-node)
         -> k trong {5, 10, 20} chon tren validation noi bo (fold (k+1)%5 trong 4 fold train), chi dev.
 Do thi kNN: cosin tren lam sang da ma hoa (fit trong fold) + canh cau noi moi nguoi khong phim -> nguoi co phim gan nhat.
 Hieu chinh Platt trong fold (rieng nhom co / khong anh), nhu ban 2.
-Test: chi luu du doan, KHONG cham diem. Dau ra cache_v3/run_baselines_v3.npz + chon_baselines_v3.csv. Chi in so lieu gop.
+Test: chi luu du doan, KHONG cham diem. Dau ra cache_v3/run_baselines_v3{TAG}.npz + chon_baselines_v3{TAG}.csv (TAG = "_nghe10" khi dung 10 cap nghe, xem v3_base). Chi in so lieu gop.
 """
 import time
 import numpy as np, torch, torch.nn as nn, torch.nn.functional as F
@@ -19,7 +19,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedGroupKFold, GridSearchCV
 from xgboost import XGBClassifier
 from v3_base import *
-from v3_base import load_base_v3, CACHE3, IMG3, FOLDS, run_config
+from v3_base import load_base_v3, CACHE3, IMG3, FOLDS, run_config, TAG
 
 B = load_base_v3(); y, fold, hi, dev, test, uid = B["y"], B["fold"], B["has_img"], B["dev"], B["test"], B["uid"]
 N = len(y); SEEDS = [0, 1, 2]; KS = [5, 10, 20]; GRID = np.logspace(-6, 1, 15)
@@ -185,9 +185,9 @@ for k in range(5):
 for m, (_, _, io) in list(SK.items()) + [(m, (None, None, False)) for m in ("B3b", "GAT")]:
     sub = hi if io else np.ones(N, bool)
     for t in ("test", "test_cal"): OUT[f"{t}_{m}"] = np.where(test & sub, OUT[f"{t}_{m}"], np.nan)
-np.savez_compressed(CACHE3 / "run_baselines_v3.npz", **OUT)
-S = pd.DataFrame(SEL); S.to_csv(CACHE3 / "chon_baselines_v3.csv", index=False)
-run_config("tuan1_phase0/viec2_baseline_fold_moi", __file__, data=[FOLDS, IMG3], phan="v3_baselines", SEEDS=SEEDS, KS=KS,
+np.savez_compressed(CACHE3 / f"run_baselines_v3{TAG}.npz", **OUT)
+S = pd.DataFrame(SEL); S.to_csv(CACHE3 / f"chon_baselines_v3{TAG}.csv", index=False)
+run_config(f"tuan1_phase0/viec2_baseline_fold_moi{TAG}", __file__, data=[FOLDS, IMG3], phan="v3_baselines", SEEDS=SEEDS, KS=KS,
            luoi_C=GRID.tolist(), inner_cv="StratifiedGroupKFold(5, shuffle=True, random_state=SEED) theo uid2, ROC-AUC",
            xgb=dict(n_estimators=400, max_depth=4, learning_rate=0.05, subsample=0.8, colsample_bytree=0.8, min_child_weight=2),
            gnet=dict(hid=64, heads=4, drop=0.3, lr=3e-3, weight_decay=1e-3, epochs=300, patience=30))

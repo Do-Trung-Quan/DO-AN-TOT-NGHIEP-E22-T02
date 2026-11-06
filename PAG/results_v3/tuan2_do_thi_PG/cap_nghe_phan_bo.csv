@@ -1,0 +1,40 @@
+﻿cot,cap,y_nghia,so_luot_dev
+cviec,lv1,"bụi nặng (khai thác, đá, nghiền, luyện...)",1883
+cviec,lv9,không đi làm,703
+cviec,lv3,"sửa chữa, cơ khí, hàn, điện",702
+cviec,lv6,"vận hành máy, lái xe",653
+cviec,lv5,công nhân sản xuất chung,644
+cviec,lv4,"cân, đóng gói, phân loại",578
+cviec,lv10,không xác định,574
+cviec,lv2,"gia công, khoan, mài, xây",527
+cviec,lv8,"văn phòng, quản lý, dịch vụ",279
+cviec,lv7,"kiểm nghiệm, xét nghiệm",140
+pxuong,lv1,"bụi nặng (khai thác, đá, nghiền, luyện...)",1715
+pxuong,lv10,không xác định,1296
+pxuong,lv9,không đi làm,861
+pxuong,lv4,"cân, đóng gói, phân loại",833
+pxuong,lv3,"sửa chữa, cơ khí, hàn, điện",681
+pxuong,lv5,công nhân sản xuất chung,646
+pxuong,lv2,"gia công, khoan, mài, xây",238
+pxuong,lv8,"văn phòng, quản lý, dịch vụ",155
+pxuong,lv6,"vận hành máy, lái xe",145
+pxuong,lv7,"kiểm nghiệm, xét nghiệm",113
+cviec1,trống,ô trống,5908
+cviec1,lv5,công nhân sản xuất chung,163
+cviec1,lv10,không xác định,131
+cviec1,lv1,"bụi nặng (khai thác, đá, nghiền, luyện...)",129
+cviec1,lv3,"sửa chữa, cơ khí, hàn, điện",104
+cviec1,lv8,"văn phòng, quản lý, dịch vụ",72
+cviec1,lv2,"gia công, khoan, mài, xây",71
+cviec1,lv6,"vận hành máy, lái xe",47
+cviec1,lv9,không đi làm,37
+cviec1,lv4,"cân, đóng gói, phân loại",21
+cviec2,trống,ô trống,6643
+cviec2,lv1,"bụi nặng (khai thác, đá, nghiền, luyện...)",13
+cviec2,lv5,công nhân sản xuất chung,10
+cviec2,lv10,không xác định,6
+cviec2,lv3,"sửa chữa, cơ khí, hàn, điện",4
+cviec2,lv2,"gia công, khoan, mài, xây",3
+cviec2,lv6,"vận hành máy, lái xe",2
+cviec2,lv8,"văn phòng, quản lý, dịch vụ",1
+cviec2,lv4,"cân, đóng gói, phân loại",1

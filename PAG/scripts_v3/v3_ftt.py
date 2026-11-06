@@ -7,7 +7,7 @@ Dau ra cache_v3/run_<ten>.npz (OOF tho + da hieu chinh, du doan test CHUA cham),
 import sys, json, time
 import numpy as np, pandas as pd, torch
 from v3_base import *
-from v3_base import load_base_v3, CACHE3, IMG3, FOLDS, run_config
+from v3_base import load_base_v3, CACHE3, IMG3, FOLDS, run_config, TAG
 
 SEEDS = [0, 1, 2]
 name = sys.argv[1]; assert name in ("T0", "T2")
@@ -48,11 +48,11 @@ for k in range(5):
     del T; torch.cuda.empty_cache()
     print(f"[{name}] fold {k}: cau hinh {j} epoch {ep} | {time.time()-t0:.0f}s", flush=True)
 
-(CACHE3 / f"selected_{name}.json").write_text(json.dumps(chosen, indent=1))
-pd.DataFrame(log).to_csv(CACHE3 / f"log_{name}.csv", index=False)
+(CACHE3 / f"selected_{name}{TAG}.json").write_text(json.dumps(chosen, indent=1))
+pd.DataFrame(log).to_csv(CACHE3 / f"log_{name}{TAG}.csv", index=False)
 for t in ("test", "test_cal"): K[t] = np.where(te_rows, K[t], np.nan)
-np.savez_compressed(CACHE3 / f"run_{name}.npz", **K, chosen=json.dumps(chosen))
-run_config(f"tuan1_phase0/viec2_baseline_fold_moi/{name}", __file__, data=[FOLDS, IMG3], mo_hinh=name, SEEDS=SEEDS,
+np.savez_compressed(CACHE3 / f"run_{name}{TAG}.npz", **K, chosen=json.dumps(chosen))
+run_config(f"tuan1_phase0/viec2_baseline_fold_moi{TAG}/{name}", __file__, data=[FOLDS, IMG3], mo_hinh=name, SEEDS=SEEDS,
            khong_gian_do=SPACE, so_cau_hinh=len(SP), cau_hinh_chon=chosen)
 msg = []
 for g, mm in (("co anh", rows & hi), ("khong anh", rows & ~hi)):

@@ -1,0 +1,4 @@
+﻿tap,co_phim,khong_phim,tong
+dev,1500,5183,6683
+test (chỉ dựng + đếm),264,884,1148
+không dựng (dev của người đã có trong test),71,128,199
