@@ -1,6 +1,6 @@
 ﻿cot,cap,y_nghia,so_luot_dev
 cviec,lv1,"bụi nặng (khai thác, đá, nghiền, luyện...)",1883
-cviec,lv9,không đi làm,703
+cviec,trống,ô trống,703
 cviec,lv3,"sửa chữa, cơ khí, hàn, điện",702
 cviec,lv6,"vận hành máy, lái xe",653
 cviec,lv5,công nhân sản xuất chung,644
@@ -11,7 +11,7 @@ cviec,lv8,"văn phòng, quản lý, dịch vụ",279
 cviec,lv7,"kiểm nghiệm, xét nghiệm",140
 pxuong,lv1,"bụi nặng (khai thác, đá, nghiền, luyện...)",1715
 pxuong,lv10,không xác định,1296
-pxuong,lv9,không đi làm,861
+pxuong,trống,ô trống,861
 pxuong,lv4,"cân, đóng gói, phân loại",833
 pxuong,lv3,"sửa chữa, cơ khí, hàn, điện",681
 pxuong,lv5,công nhân sản xuất chung,646
@@ -27,7 +27,7 @@ cviec1,lv3,"sửa chữa, cơ khí, hàn, điện",104
 cviec1,lv8,"văn phòng, quản lý, dịch vụ",72
 cviec1,lv2,"gia công, khoan, mài, xây",71
 cviec1,lv6,"vận hành máy, lái xe",47
-cviec1,lv9,không đi làm,37
+cviec1,lv9,"ghi ""không / ở nhà / tự do""",37
 cviec1,lv4,"cân, đóng gói, phân loại",21
 cviec2,trống,ô trống,6643
 cviec2,lv1,"bụi nặng (khai thác, đá, nghiền, luyện...)",13

@@ -1,9 +1,9 @@
 {
-  "ngay_chay": "2026-11-06T12:15:35",
+  "ngay_chay": "2026-11-06T15:16:04",
   "script": "v3_build_graphs.py",
   "hash_script": {
-    "v3_build_graphs.py": "abfcdbcca39c1298",
-    "v3_lib.py": "b7dabca99cbe1158",
+    "v3_build_graphs.py": "aa94e7ee40f36792",
+    "v3_lib.py": "80f07cc24a1f240e",
     "v2_lib.py": "4d42ac0f30881fc4"
   },
   "hash_du_lieu": {
@@ -15,10 +15,10 @@
   "SEED": 42,
   "NBOOT": 1000,
   "phien_ban": {
-    "python": "3.13.3",
-    "numpy": "2.5.1",
-    "pandas": "3.0.3",
-    "sklearn": "1.9.0"
+    "python": "3.13.2",
+    "numpy": "2.2.2",
+    "pandas": "2.2.3",
+    "sklearn": "1.7.2"
   },
   "tham_so": {
     "bo_cuc": [

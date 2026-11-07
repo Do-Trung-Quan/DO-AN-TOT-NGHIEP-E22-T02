@@ -4,7 +4,7 @@ Khac pag_lib (ban 2):
   - Nut "Phoi nhiem/nghe": cviec, pxuong, cviec1, cviec2 KHONG dua chu tho (one-hot toi da 15 ten, bo gan het
     1038 gia tri cviec) ma dua 10 cap nghe theo muc bui `classify_job_10_levels` (scripts/patient_identity.py),
     dung bo gom da dung o nhanh timeseries (DO_AN.ipynb cell 7). Gia tri giu dang chu "lv1".."lv10" de
-    ClinEncoder ma hoa one-hot, khong coi la bien lien tuc. cviec1/cviec2 trong -> NA (khong gop vao lv9).
+    ClinEncoder ma hoa one-hot, khong coi la bien lien tuc. Ca 4 cot: o trong -> NA (khong gop vao lv9; sua 06/11).
     Phep gom chi dung quy tac tu khoa, khong dung nhan -> tinh tren toan bo du lieu khong ro ri.
   - Hai bo cuc do thi: "global" (1 nut anh = C, trung binh 6 vector vung) va "vung" (6 nut vung).
   - Ma hoa fit trong fold, moi fold hai ban: "ngoai" (fit tren 4 fold train) va "noi" (fit tren 3 fold,
@@ -25,7 +25,7 @@ from pag_lib import (GROUPS, GNAMES, CLIN_SLOTS, E1_PAIRS, E2_PAIRS, NONE, SELF,
 LEVEL_NAME = {"lv1": "bụi nặng (khai thác, đá, nghiền, luyện...)", "lv2": "gia công, khoan, mài, xây",
               "lv3": "sửa chữa, cơ khí, hàn, điện", "lv4": "cân, đóng gói, phân loại", "lv5": "công nhân sản xuất chung",
               "lv6": "vận hành máy, lái xe", "lv7": "kiểm nghiệm, xét nghiệm", "lv8": "văn phòng, quản lý, dịch vụ",
-              "lv9": "không đi làm", "lv10": "không xác định"}
+              "lv9": "ghi \"không / ở nhà / tự do\"", "lv10": "không xác định"}
 EDGE_NAME = {E1: "E1", E2: "E2", E3: "E3", E4: "E4", E5: "E5"}
 LAYOUTS = ("global", "vung")
 SLOT_NAME = ["RU", "RM", "RL", "LU", "LM", "LL"] + list(GNAMES) + ["Bối cảnh", "Bệnh nhân"]

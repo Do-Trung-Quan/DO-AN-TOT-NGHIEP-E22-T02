@@ -7,7 +7,7 @@ Chốt: không dùng `nam`; giữ cạnh E1/E2; dựng PG-global (1 nút ảnh =
 | nut | so_bien | so_cot_ma_hoa | pct_luot_trong_ca_nut | pct_thieu_tb_moi_bien | bien_thieu_nhieu_nhat | bien |
 |---|---|---|---|---|---|---|
 | Nhân khẩu & thể trạng | 10 | 15 | 0.000 | 0.000 | gioitinh 0%, namsinh 0%, cao 0% | gioitinh, namsinh, cao, can, bmi, A6, hatd, hatt, mach, theluc |
-| Phơi nhiễm/nghề | 21 | 89 | 0.000 | 17.890 | tgian2 99%, cviec2_lv 99%, tgian1 88% | tuoinghe, nampx, cv5nam, tgian1, tgian2, A7, A9a, A9b, A10, A11, A12, F4mu, F4ung, F4KhauTrang, F4gang, F4BHLD, F4Kinh, cviec_lv, pxuong_lv, cviec1_lv, cviec2_lv |
+| Phơi nhiễm/nghề | 21 | 89 | 0.000 | 19.000 | tgian2 99%, cviec2_lv 99%, tgian1 88% | tuoinghe, nampx, cv5nam, tgian1, tgian2, A7, A9a, A9b, A10, A11, A12, F4mu, F4ung, F4KhauTrang, F4gang, F4BHLD, F4Kinh, cviec_lv, pxuong_lv, cviec1_lv, cviec2_lv |
 | Hút thuốc | 2 | 4 | 0.000 | 28.550 | slthuoc 57%, hutthuoc 0% | hutthuoc, slthuoc |
 | Triệu chứng & tiền sử | 32 | 101 | 0.000 | 53.020 | dhkhac 99%, n2 98%, n3 97% | tiensuhh, benhhh, tsnoi, tsngoai, ho, tdho, tsho, n1, khacdom, loaidom, tdkhacdo, khotho, mdkhotho, tdkhotho, daunguc, vitridau, daulan, tcdau, n2, tgdau, ytodau, n3, ytotang, chaymui, khan, khokhe, dhkhac, metmoi, sutcan, socansut, tgsut, bnn |
 | Hô hấp ký | 3 | 3 | 0.000 | 0.000 | fvctt 0%, fev1tt 0%, fev1_fvc 0% | fvctt, fev1tt, fev1_fvc |
@@ -25,7 +25,7 @@ _Tệp: `bien_vao_nut.csv`_
 | cot | cap | y_nghia | so_luot_dev |
 |---|---|---|---|
 | cviec | lv1 | bụi nặng (khai thác, đá, nghiền, luyện...) | 1883 |
-| cviec | lv9 | không đi làm | 703 |
+| cviec | trống | ô trống | 703 |
 | cviec | lv3 | sửa chữa, cơ khí, hàn, điện | 702 |
 | cviec | lv6 | vận hành máy, lái xe | 653 |
 | cviec | lv5 | công nhân sản xuất chung | 644 |
@@ -36,7 +36,7 @@ _Tệp: `bien_vao_nut.csv`_
 | cviec | lv7 | kiểm nghiệm, xét nghiệm | 140 |
 | pxuong | lv1 | bụi nặng (khai thác, đá, nghiền, luyện...) | 1715 |
 | pxuong | lv10 | không xác định | 1296 |
-| pxuong | lv9 | không đi làm | 861 |
+| pxuong | trống | ô trống | 861 |
 | pxuong | lv4 | cân, đóng gói, phân loại | 833 |
 | pxuong | lv3 | sửa chữa, cơ khí, hàn, điện | 681 |
 | pxuong | lv5 | công nhân sản xuất chung | 646 |
@@ -52,7 +52,7 @@ _Tệp: `bien_vao_nut.csv`_
 | cviec1 | lv8 | văn phòng, quản lý, dịch vụ | 72 |
 | cviec1 | lv2 | gia công, khoan, mài, xây | 71 |
 | cviec1 | lv6 | vận hành máy, lái xe | 47 |
-| cviec1 | lv9 | không đi làm | 37 |
+| cviec1 | lv9 | ghi "không / ở nhà / tự do" | 37 |
 | cviec1 | lv4 | cân, đóng gói, phân loại | 21 |
 | cviec2 | trống | ô trống | 6643 |
 | cviec2 | lv1 | bụi nặng (khai thác, đá, nghiền, luyện...) | 13 |
@@ -66,7 +66,7 @@ _Tệp: `bien_vao_nut.csv`_
 
 _Tệp: `cap_nghe_phan_bo.csv`_
 
-*Với `cviec`/`pxuong`, cấp lv9 chính là ô trống (hàm gom quy ô trống về lv9); với `cviec1`/`cviec2` ô trống giữ là "trống". Một số nghề có bụi rơi vào lv10 (vd "đánh bóng", "vận hành băng tải") — giới hạn của bộ gom theo từ khóa.*
+*Cả 4 cột: ô trống giữ là "trống" (thiếu), không gom vào lv9 (sửa 06/11; bản trước gom ô trống `cviec`/`pxuong` vào lv9 "không đi làm" là sai nghĩa). lv9 chỉ còn các ô ghi "không", "ở nhà", "tự do". Một số nghề có bụi rơi vào lv10 (vd "đánh bóng", "vận hành băng tải") — giới hạn của bộ gom theo từ khóa.*
 
 _15 tên công việc phổ biến nhất mỗi cấp (để soát bằng mắt): `cap_nghe_ten_pho_bien.csv`._
 
@@ -123,32 +123,32 @@ _Tệp: `vang_mat_theo_nut.csv`_
 
 | bo_cuc | fold | ban | so_do_thi | so_dac_trung_lam_sang | dac_trung_bi_cam | ten_bi_cam | nhan_test_da_an | ma_hoa_lam_sang_chi_tu_train | ma_hoa_anh_chi_tu_train | dung_luong_MB |
 |---|---|---|---|---|---|---|---|---|---|---|
-| global | 0 | ngoai | 7831 | 266 | 0 |  | True | True | True | 20.300 |
-| vung | 0 | ngoai | 7831 | 266 | 0 |  | True | True | True | 40.900 |
-| global | 0 | noi | 7831 | 260 | 0 |  | True | True | True | 19.800 |
-| vung | 0 | noi | 7831 | 260 | 0 |  | True | True | True | 40.700 |
-| global | 1 | ngoai | 7831 | 270 | 0 |  | True | None | None | 20.500 |
-| vung | 1 | ngoai | 7831 | 270 | 0 |  | True | None | None | 41.100 |
-| global | 1 | noi | 7831 | 260 | 0 |  | True | None | None | 19.800 |
-| vung | 1 | noi | 7831 | 260 | 0 |  | True | None | None | 40.700 |
-| global | 2 | ngoai | 7831 | 267 | 0 |  | True | None | None | 20.400 |
-| vung | 2 | ngoai | 7831 | 267 | 0 |  | True | None | None | 41.000 |
-| global | 2 | noi | 7831 | 258 | 0 |  | True | None | None | 19.700 |
-| vung | 2 | noi | 7831 | 258 | 0 |  | True | None | None | 40.700 |
-| global | 3 | ngoai | 7831 | 269 | 0 |  | True | None | None | 20.400 |
-| vung | 3 | ngoai | 7831 | 269 | 0 |  | True | None | None | 41.000 |
-| global | 3 | noi | 7831 | 258 | 0 |  | True | None | None | 19.700 |
-| vung | 3 | noi | 7831 | 258 | 0 |  | True | None | None | 40.700 |
-| global | 4 | ngoai | 7831 | 266 | 0 |  | True | None | None | 20.300 |
-| vung | 4 | ngoai | 7831 | 266 | 0 |  | True | None | None | 40.900 |
-| global | 4 | noi | 7831 | 257 | 0 |  | True | None | None | 19.700 |
-| vung | 4 | noi | 7831 | 257 | 0 |  | True | None | None | 40.600 |
+| global | 0 | ngoai | 7831 | 266 | 0 |  | True | True | True | 19.800 |
+| vung | 0 | ngoai | 7831 | 266 | 0 |  | True | True | True | 40.700 |
+| global | 0 | noi | 7831 | 260 | 0 |  | True | True | True | 19.600 |
+| vung | 0 | noi | 7831 | 260 | 0 |  | True | True | True | 40.500 |
+| global | 1 | ngoai | 7831 | 270 | 0 |  | True | None | None | 19.900 |
+| vung | 1 | ngoai | 7831 | 270 | 0 |  | True | None | None | 40.800 |
+| global | 1 | noi | 7831 | 260 | 0 |  | True | None | None | 19.600 |
+| vung | 1 | noi | 7831 | 260 | 0 |  | True | None | None | 40.500 |
+| global | 2 | ngoai | 7831 | 267 | 0 |  | True | None | None | 19.800 |
+| vung | 2 | ngoai | 7831 | 267 | 0 |  | True | None | None | 40.700 |
+| global | 2 | noi | 7831 | 258 | 0 |  | True | None | None | 19.500 |
+| vung | 2 | noi | 7831 | 258 | 0 |  | True | None | None | 40.400 |
+| global | 3 | ngoai | 7831 | 269 | 0 |  | True | None | None | 19.900 |
+| vung | 3 | ngoai | 7831 | 269 | 0 |  | True | None | None | 40.700 |
+| global | 3 | noi | 7831 | 258 | 0 |  | True | None | None | 19.500 |
+| vung | 3 | noi | 7831 | 258 | 0 |  | True | None | None | 40.400 |
+| global | 4 | ngoai | 7831 | 266 | 0 |  | True | None | None | 19.800 |
+| vung | 4 | ngoai | 7831 | 266 | 0 |  | True | None | None | 40.700 |
+| global | 4 | noi | 7831 | 257 | 0 |  | True | None | None | 19.500 |
+| vung | 4 | noi | 7831 | 257 | 0 |  | True | None | None | 40.400 |
 
 _Tệp: `kiem_tra.csv`_
 
-*`dac_trung_bi_cam` = số đặc trưng có tên khớp danh sách cấm (đọc phim/nhãn, PII, mã lô, `nam`, hô hấp ký % dự đoán). `ma_hoa_*_chi_tu_train` (fold 0): xáo trộn mọi hàng không thuộc train rồi fit lại — tham số mã hoá và đặc trưng hàng train phải giống hệt. `nhan_test_da_an`: nhãn test lưu là −1.*
+*`dac_trung_bi_cam` = số đặc trưng có tên khớp danh sách cấm (đọc phim/nhãn, PII, mã lô, `nam`, hô hấp ký % dự đoán). `ma_hoa_*_chi_tu_train` (fold 0): xoá trắng mọi hàng không thuộc train (lâm sàng → trống, ảnh → nhiễu) rồi fit lại — tham số mã hoá và đặc trưng hàng train phải giống hệt. `nhan_test_da_an`: nhãn test lưu là −1.*
 
 ## Kết luận QA: ĐẠT
 
 
-File đồ thị (dữ liệu thật, trong `cache_v3/graphs/`, không commit): 20 file, tổng 609 MB.
+File đồ thị (dữ liệu thật, trong `cache_v3/graphs/`, không commit): 20 file, tổng 602 MB.

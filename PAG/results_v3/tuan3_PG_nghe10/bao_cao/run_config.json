@@ -1,0 +1,23 @@
+{
+  "ngay_chay": "2026-11-07T04:20:30",
+  "script": "v3_report_pg.py",
+  "hash_script": {
+    "v3_report_pg.py": "985db137df78e286",
+    "v3_lib.py": "80f07cc24a1f240e",
+    "v2_lib.py": "4d42ac0f30881fc4"
+  },
+  "hash_du_lieu": {
+    "run_baselines_v3_nghe10.npz": "e270917d4d446f42"
+  },
+  "SEED": 42,
+  "NBOOT": 1000,
+  "phien_ban": {
+    "python": "3.13.2",
+    "numpy": "2.2.2",
+    "pandas": "2.2.3",
+    "sklearn": "1.7.2"
+  },
+  "tham_so": {
+    "buoc": 4
+  }
+}

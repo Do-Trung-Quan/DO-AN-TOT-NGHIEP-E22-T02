@@ -1,0 +1,117 @@
+{
+  "ngay_chay": "2026-11-07T04:18:34",
+  "script": "v3_run_pg.py",
+  "hash_script": {
+    "v3_run_pg.py": "28634e84191c572b",
+    "v3_lib.py": "80f07cc24a1f240e",
+    "v2_lib.py": "4d42ac0f30881fc4"
+  },
+  "hash_du_lieu": {
+    "p05_folds.npz": "8d1f4e38ea43c5a4",
+    "img_v3.npz": "10d490ce413a9d80",
+    "clin_raw.pkl": "761a88d1af7db37b"
+  },
+  "SEED": 42,
+  "NBOOT": 1000,
+  "phien_ban": {
+    "python": "3.13.2",
+    "numpy": "2.2.2",
+    "pandas": "2.2.3",
+    "sklearn": "1.7.2"
+  },
+  "tham_so": {
+    "mo_hinh": "PG-shuffle",
+    "SEEDS": [
+      0,
+      1,
+      2
+    ],
+    "khong_gian_do": {
+      "dim": [
+        64,
+        128
+      ],
+      "so_lop": [
+        2,
+        3
+      ],
+      "dropout": [
+        0.1,
+        0.3
+      ],
+      "lr": [
+        0.0003,
+        0.001
+      ],
+      "weight_decay": [
+        0.0001,
+        0.01
+      ],
+      "p_modality_dropout": [
+        0.2,
+        0.3,
+        0.5
+      ]
+    },
+    "so_cau_hinh": "dung lai cau hinh PG",
+    "cau_hinh_chon": [
+      {
+        "fold": 0,
+        "cau_hinh": 1,
+        "dim": 64,
+        "so_lop": 2,
+        "dropout": 0.1,
+        "lr": 0.001,
+        "weight_decay": 0.0001,
+        "p_modality_dropout": 0.2,
+        "epoch": 5
+      },
+      {
+        "fold": 1,
+        "cau_hinh": 21,
+        "dim": 128,
+        "so_lop": 2,
+        "dropout": 0.3,
+        "lr": 0.001,
+        "weight_decay": 0.01,
+        "p_modality_dropout": 0.3,
+        "epoch": 7
+      },
+      {
+        "fold": 2,
+        "cau_hinh": 13,
+        "dim": 64,
+        "so_lop": 3,
+        "dropout": 0.3,
+        "lr": 0.001,
+        "weight_decay": 0.01,
+        "p_modality_dropout": 0.2,
+        "epoch": 10
+      },
+      {
+        "fold": 3,
+        "cau_hinh": 23,
+        "dim": 128,
+        "so_lop": 3,
+        "dropout": 0.1,
+        "lr": 0.0003,
+        "weight_decay": 0.01,
+        "p_modality_dropout": 0.3,
+        "epoch": 6
+      },
+      {
+        "fold": 4,
+        "cau_hinh": 14,
+        "dim": 128,
+        "so_lop": 2,
+        "dropout": 0.1,
+        "lr": 0.0003,
+        "weight_decay": 0.01,
+        "p_modality_dropout": 0.2,
+        "epoch": 9
+      }
+    ],
+    "thiet_bi": "cuda",
+    "nghe": "10 cap (v3_base.add_job_levels)"
+  }
+}

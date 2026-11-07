@@ -1,6 +1,6 @@
 ﻿nut,so_bien,so_cot_ma_hoa,pct_luot_trong_ca_nut,pct_thieu_tb_moi_bien,bien_thieu_nhieu_nhat,bien
 Nhân khẩu & thể trạng,10,15,0.0,0.0,"gioitinh 0%, namsinh 0%, cao 0%","gioitinh, namsinh, cao, can, bmi, A6, hatd, hatt, mach, theluc"
-Phơi nhiễm/nghề,21,89,0.0,17.89,"tgian2 99%, cviec2_lv 99%, tgian1 88%","tuoinghe, nampx, cv5nam, tgian1, tgian2, A7, A9a, A9b, A10, A11, A12, F4mu, F4ung, F4KhauTrang, F4gang, F4BHLD, F4Kinh, cviec_lv, pxuong_lv, cviec1_lv, cviec2_lv"
+Phơi nhiễm/nghề,21,89,0.0,19.0,"tgian2 99%, cviec2_lv 99%, tgian1 88%","tuoinghe, nampx, cv5nam, tgian1, tgian2, A7, A9a, A9b, A10, A11, A12, F4mu, F4ung, F4KhauTrang, F4gang, F4BHLD, F4Kinh, cviec_lv, pxuong_lv, cviec1_lv, cviec2_lv"
 Hút thuốc,2,4,0.0,28.55,"slthuoc 57%, hutthuoc 0%","hutthuoc, slthuoc"
 Triệu chứng & tiền sử,32,101,0.0,53.02,"dhkhac 99%, n2 98%, n3 97%","tiensuhh, benhhh, tsnoi, tsngoai, ho, tdho, tsho, n1, khacdom, loaidom, tdkhacdo, khotho, mdkhotho, tdkhotho, daunguc, vitridau, daulan, tcdau, n2, tgdau, ytodau, n3, ytotang, chaymui, khan, khokhe, dhkhac, metmoi, sutcan, socansut, tgsut, bnn"
 Hô hấp ký,3,3,0.0,0.0,"fvctt 0%, fev1tt 0%, fev1_fvc 0%","fvctt, fev1tt, fev1_fvc"

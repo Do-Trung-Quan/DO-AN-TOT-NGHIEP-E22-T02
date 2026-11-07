@@ -11,27 +11,27 @@ lv1,nghien men,30
 lv1,van hanh lo,28
 lv1,nghien xi,27
 lv1,dap da,26
-lv1,nau an,25
 lv1,can thep,25
+lv1,nau an,25
 lv1,sua chua thiet bi luyen kim,24
 lv2,boc xep,133
 lv2,trang men,46
 lv2,tho han,22
-lv2,gia cong,21
 lv2,may mai,21
+lv2,gia cong,21
 lv2,tho dien,19
 lv2,trang men in lua,18
 lv2,pha tron,14
 lv2,xay dung,12
 lv2,van hanh may xay,12
 lv2,lam gach,10
-lv2,boc vac,9
 lv2,van hanh may ep gach,9
 lv2,van hanh may mai,9
-lv2,gia cong mau,8
+lv2,boc vac,9
+lv2,pha men,8
 lv3,co khi,113
-lv3,sua chua dien,74
 lv3,sua chua,74
+lv3,sua chua dien,74
 lv3,bao tri,72
 lv3,co dien,45
 lv3,han dien,24
@@ -54,26 +54,26 @@ lv4,phan loai,12
 lv4,van hanh can truc,10
 lv4,tao soi,7
 lv4,van hanh may dong bao,6
-lv4,van hanh may det,5
 lv4,in bao,5
+lv4,van hanh may det,5
 lv4,can,5
 lv4,lai can truc,4
-lv4,det may bao,3
+lv4,dong goi phan loai,3
 lv5,cn,195
 lv5,bao ve,43
-lv5,ve sinh,43
 lv5,van hanh cau truc,43
+lv5,ve sinh,43
 lv5,say phun,36
 lv5,nap lieu,34
 lv5,lai cau truc,32
 lv5,cn van hanh,12
+lv5,nguyen lieu,11
 lv5,cong nhan,11
 lv5,nhap lieu,11
-lv5,nguyen lieu,11
 lv5,ve sinh cong nghiep,10
-lv5,cong nhan van hanh,6
 lv5,quan ly san xuat,6
 lv5,truc bang tai,6
+lv5,sx tam lop,6
 lv6,van hanh may,150
 lv6,lai xe,148
 lv6,van hanh may moc,29
@@ -85,8 +85,8 @@ lv6,ky su,14
 lv6,in lua,14
 lv6,lai cau,13
 lv6,lai xe xuc,13
-lv6,ky thuat,11
 lv6,lai xe dao,11
+lv6,ky thuat,11
 lv6,dieu nhiet,10
 lv6,lai xe betong,10
 lv7,kcs,50
@@ -99,11 +99,11 @@ lv7,nhan vien lay mau,3
 lv7,kiem nghiem,3
 lv7,lay mau xi,2
 lv7,nv thi nghiem,2
-lv7,nhan vien thi nghiem,2
-lv7,thi nghiem men mau,2
 lv7,kcs ngoai troi,2
 lv7,thi nghiem,2
-lv7,lay mau vat lieu,1
+lv7,thi nghiem men mau,2
+lv7,nhan vien thi nghiem,2
+lv7,kiem tra mau,1
 lv8,quan ly,76
 lv8,ke toan,33
 lv8,tap vu,24
@@ -111,14 +111,14 @@ lv8,thong ke,17
 lv8,truong ca,16
 lv8,quan doc,11
 lv8,quan li,9
-lv8,giam sat,8
 lv8,van hanh quat gio,8
+lv8,giam sat,8
 lv8,van phong,7
 lv8,pho giam doc,6
-lv8,kinh doanh,5
 lv8,tiep thi,5
-lv8,to truong,4
+lv8,kinh doanh,5
 lv8,quan ly chat luong,4
+lv8,thong nieu,4
 lv10,van hanh bang tai,89
 lv10,van hanh,70
 lv10,cua bo,52
@@ -132,5 +132,5 @@ lv10,cap duong,11
 lv10,thieu ket,9
 lv10,coi nuoc,9
 lv10,van hanh trung tam,8
-lv10,hanh chinh,7
 lv10,bv,7
+lv10,hanh chinh,7

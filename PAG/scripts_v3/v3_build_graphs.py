@@ -13,6 +13,7 @@ Nhan cua test KHONG luu (y = -1). Khong luu id.
 
   python PAG/scripts_v3/v3_build_graphs.py
 """
+import json
 import sys
 import time
 from pathlib import Path
@@ -65,15 +66,17 @@ def build_one(B, layout, trm, rows, T):
 
 
 def fit_only_on_train(B, trm, layout):
-    """Kiem tra ma hoa chi hoc tu hang train: xao tron moi hang KHONG thuoc train (lam sang + anh) roi fit lai;
-    tham so ma hoa va dac trung cua hang train phai giong het."""
+    """Kiem tra ma hoa chi hoc tu hang train: XOA TRANG moi hang KHONG thuoc train (lam sang -> NaN, anh -> nhieu)
+    roi fit lai; tham so ma hoa va dac trung cua hang train phai giong het.
+    06/11: truoc do lam sang chi hoan vi cac hang ngoai train voi nhau -> khong doi trung vi/tan suat gop, nen
+    encoder lo fit tren toan bang van qua. Xoa trang thi lam doi thong ke gop -> bat duoc ro ri."""
     rng = np.random.default_rng(0)
-    raw = B["raw"]; other = np.flatnonzero(~trm)
-    idx = np.arange(len(raw)); idx[other] = rng.permutation(other)
-    raw2 = raw.iloc[idx].reset_index(drop=True)
-    assert (raw2.iloc[np.flatnonzero(trm)].index == np.flatnonzero(trm)).all()
+    raw = B["raw"]; other = ~trm
+    raw2 = raw.copy().astype(object); raw2.loc[other] = np.nan
     a, b = ClinEncoder().fit(raw, trm), ClinEncoder().fit(raw2, trm)
-    ok_clin = a.spec == b.spec
+    ok_spec = json.dumps(a.spec, default=str) == json.dumps(b.spec, default=str)
+    za, _, _ = a.transform(raw.loc[trm]); zb, _, _ = b.transform(raw.loc[trm])
+    ok_clin = ok_spec and all(np.array_equal(za[g], zb[g]) for g in za)
     key = "reg_a" if layout == "vung" else "glob_a"
     X = B[key]; X2 = X.copy(); X2[other] = rng.normal(size=X2[other].shape).astype(np.float32)
     tri = trm & B["has_img"]
@@ -120,8 +123,8 @@ def main():
         for k, v in vc.items():
             lv.append(dict(cot=c, cap=k, y_nghia=LEVEL_NAME.get(k, "ô trống"), so_luot_dev=int(v)))
     R.table(pd.DataFrame(lv), "cap_nghe_phan_bo", "Phân bố 10 cấp nghề (dev)",
-            note="*Với `cviec`/`pxuong`, cấp lv9 chính là ô trống (hàm gom quy ô trống về lv9); với `cviec1`/`cviec2` ô trống giữ là "
-                 "\"trống\". Một số nghề có bụi rơi vào lv10 (vd \"đánh bóng\", \"vận hành băng tải\") — giới hạn của bộ gom theo từ khóa.*")
+            note="*Cả 4 cột: ô trống giữ là \"trống\" (thiếu), không gom vào lv9 (sửa 06/11; bản trước gom ô trống `cviec`/`pxuong` "
+                 "vào lv9 \"không đi làm\" là sai nghĩa). lv9 chỉ còn các ô ghi \"không\", \"ở nhà\", \"tự do\". Một số nghề có bụi rơi vào lv10 (vd \"đánh bóng\", \"vận hành băng tải\") — giới hạn của bộ gom theo từ khóa.*")
     top = []
     for k in LEVEL_NAME:
         s = B["raw"].loc[B["raw"].cviec_lv == k, "cviec"].astype(str).str.strip().str.lower().value_counts().head(15)
@@ -189,7 +192,7 @@ def main():
     chk = pd.DataFrame(qa_chk)
     R.table(chk, "kiem_tra", "Kiểm tra từng file đồ thị",
             note="*`dac_trung_bi_cam` = số đặc trưng có tên khớp danh sách cấm (đọc phim/nhãn, PII, mã lô, `nam`, hô hấp ký % dự đoán). "
-                 "`ma_hoa_*_chi_tu_train` (fold 0): xáo trộn mọi hàng không thuộc train rồi fit lại — tham số mã hoá và đặc trưng "
+                 "`ma_hoa_*_chi_tu_train` (fold 0): xoá trắng mọi hàng không thuộc train (lâm sàng → trống, ảnh → nhiễu) rồi fit lại — tham số mã hoá và đặc trưng "
                  "hàng train phải giống hệt. `nhan_test_da_an`: nhãn test lưu là −1.*")
 
     ok = (not lech and (chk.dac_trung_bi_cam == 0).all() and chk.nhan_test_da_an.all()

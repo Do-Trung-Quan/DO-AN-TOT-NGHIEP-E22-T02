@@ -28,7 +28,9 @@ from patient_identity import classify_job_10_levels, clean_job_text, level_to_id
 
 
 def job_level(v, keep_na: bool):
-    """Cap nghe 'lv1'..'lv10' (dang chu -> ClinEncoder ma hoa one-hot). keep_na: o trong giu NA (cviec1/cviec2)."""
+    """Cap nghe 'lv1'..'lv10' (dang chu -> ClinEncoder ma hoa one-hot). keep_na: o trong giu NA.
+    06/11: ca 4 cot deu keep_na=True. Truoc do cviec/pxuong trong bi gom vao lv9 "khong di lam", nhung tren dev
+    100% lv9 cua cviec (703) va pxuong (861) la o trong, 0 o ghi that "khong/o nha/tu do" -> sai nghia."""
     if keep_na and (v is None or (isinstance(v, float) and np.isnan(v)) or str(v).strip() in ("", "nan")):
         return np.nan
     return classify_job_10_levels(clean_job_text(v))
@@ -39,7 +41,7 @@ def add_job_levels(B):
     Chi dung quy tac tu khoa, khong dung nhan -> tinh tren toan bo du lieu khong ro ri."""
     raw = B["raw"]
     for c in JOB_COLS:
-        raw[f"{c}_lv"] = raw[c].map(lambda v, k=c in ("cviec1", "cviec2"): job_level(v, k))
+        raw[f"{c}_lv"] = raw[c].map(lambda v: job_level(v, True))
     g = GROUPS["Phơi nhiễm/nghề"]
     if JOB_LV[0] not in g:
         GROUPS["Phơi nhiễm/nghề"] = [c for c in g if c not in JOB_COLS] + JOB_LV

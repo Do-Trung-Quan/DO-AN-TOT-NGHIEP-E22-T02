@@ -1,0 +1,6 @@
+﻿ma,so_sanh,nhom,chi_so,loai,bien,n,chi_so_a,chi_so_b,delta,ktc,P_delta_duong,p_mot_phia,dat_theo_KTC,dat_sau_Holm
+H1a,PG vs C,có ảnh,AUC trong lo,khong_kem,-0.02,1500,0.7162683438651092,0.7285287739915709,-0.012260430126461719,[-0.047; +0.022],0.239,0.302,False,False
+H1b,PG vs L0,không ảnh,ROC-AUC gop,khong_kem,-0.02,5183,0.6550798399851883,0.6790210024364638,-0.023941162451275533,[-0.043; -0.005],0.002,0.655,False,False
+H2,PG vs PG-shuffle,có ảnh,AUC trong lo,hon,0.0,1500,0.7162683438651092,0.7176293510114022,-0.0013610071462930584,[-0.005; +0.002],0.211,0.789,False,False
+H3a,PG vs T2,có ảnh,AUC trong lo,khong_kem,-0.02,1500,0.7162683438651092,0.6447674748352269,0.07150086902988229,[+0.035; +0.106],1.0,0.0,True,True
+H3b,PG vs T2,không ảnh,ROC-AUC gop,khong_kem,-0.02,5183,0.6550798399851883,0.6268354727074686,0.028244367277719618,[+0.007; +0.050],0.997,0.0,True,True
