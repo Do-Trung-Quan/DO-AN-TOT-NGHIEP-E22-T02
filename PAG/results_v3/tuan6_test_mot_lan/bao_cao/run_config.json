@@ -1,0 +1,26 @@
+{
+  "ngay_chay": "2026-11-11T16:07:22",
+  "script": "v3_test_mot_lan.py",
+  "hash_script": {
+    "v3_test_mot_lan.py": "0611680bd414ddbe",
+    "v3_lib.py": "80f07cc24a1f240e",
+    "v2_lib.py": "4d42ac0f30881fc4"
+  },
+  "hash_du_lieu": {
+    "khoa_cau_hinh.json": "14b1a566b7ab907c",
+    "run_baselines_v3_nghe10.npz": "e270917d4d446f42",
+    "run_T2_nghe10.npz": "f0479807f3c3c3f7",
+    "run_PG_nghe10.npz": "a197b9740a5a9fb2"
+  },
+  "SEED": 42,
+  "NBOOT": 1000,
+  "phien_ban": {
+    "python": "3.13.2",
+    "numpy": "2.2.2",
+    "pandas": "2.2.3",
+    "sklearn": "1.7.2"
+  },
+  "tham_so": {
+    "che_do": "test"
+  }
+}

@@ -1,0 +1,116 @@
+{
+ "ngay_khoa": "2026-11-11T15:52:34",
+ "can_cu": "Lenh PGS 11/11/2026: khoa cau hinh 9 mo hinh bao cao 07/11, cham test mot lan, khong chay them mo hinh/ablation",
+ "mo_hinh": [
+  "C",
+  "L0",
+  "L2",
+  "X0",
+  "X2",
+  "GAT",
+  "B3b",
+  "T2",
+  "PG"
+ ],
+ "du_doan": "test_cal (baselines: test_cal_<m>) = trung binh 5 mo hinh fold, Platt trong fold, sinh ngay 07/11, chua cham",
+ "ma_bam_file": {
+  "run_baselines_v3_nghe10.npz": "e270917d4d446f42",
+  "run_T2_nghe10.npz": "f0479807f3c3c3f7",
+  "run_PG_nghe10.npz": "a197b9740a5a9fb2",
+  "selected_T2_nghe10.json": "47ccb91b82f25549",
+  "selected_PG_nghe10.json": "9c629bd793b99a06",
+  "chon_baselines_v3_nghe10.csv": "144cee318ba1e953",
+  "p05_folds.npz": "8d1f4e38ea43c5a4",
+  "img_v3.npz": "10d490ce413a9d80"
+ },
+ "ma_bam_script": "0611680bd414ddbe",
+ "nhom": {
+  "có ảnh": "test & has_img",
+  "không ảnh": "test & ~has_img",
+  "toàn bộ": "test (mo hinh co du doan ca hai nhom)"
+ },
+ "chi_so": [
+  "ROC-AUC gộp",
+  "AUC trong lô (chỉ nhóm có ảnh; trung bình theo cỡ lô, bỏ lô một nhãn)",
+  "PR-AUC",
+  "Brier"
+ ],
+ "ktc": "95% phân vị, bootstrap 1000 lần theo người (uid2), seed 42",
+ "so_sanh_ghep_cap": [
+  {
+   "a": "PG",
+   "b": "C",
+   "nhom": "có ảnh",
+   "chi_so": "AUC trong lô"
+  },
+  {
+   "a": "PG",
+   "b": "L0",
+   "nhom": "không ảnh",
+   "chi_so": "ROC-AUC gộp"
+  },
+  {
+   "a": "PG",
+   "b": "T2",
+   "nhom": "có ảnh",
+   "chi_so": "AUC trong lô"
+  },
+  {
+   "a": "PG",
+   "b": "T2",
+   "nhom": "không ảnh",
+   "chi_so": "ROC-AUC gộp"
+  },
+  {
+   "a": "L2",
+   "b": "L0",
+   "nhom": "có ảnh",
+   "chi_so": "ROC-AUC gộp"
+  },
+  {
+   "a": "L2",
+   "b": "L0",
+   "nhom": "có ảnh",
+   "chi_so": "AUC trong lô"
+  },
+  {
+   "a": "X2",
+   "b": "X0",
+   "nhom": "có ảnh",
+   "chi_so": "ROC-AUC gộp"
+  },
+  {
+   "a": "X2",
+   "b": "X0",
+   "nhom": "có ảnh",
+   "chi_so": "AUC trong lô"
+  },
+  {
+   "a": "PG",
+   "b": "L0",
+   "nhom": "có ảnh",
+   "chi_so": "ROC-AUC gộp"
+  },
+  {
+   "a": "PG",
+   "b": "L0",
+   "nhom": "có ảnh",
+   "chi_so": "AUC trong lô"
+  },
+  {
+   "a": "C",
+   "b": "L0",
+   "nhom": "có ảnh",
+   "chi_so": "ROC-AUC gộp"
+  },
+  {
+   "a": "C",
+   "b": "L0",
+   "nhom": "có ảnh",
+   "chi_so": "AUC trong lô"
+  }
+ ],
+ "do_nhay": "bỏ các lượt bnn=Có & ketqua=2 & có ảnh (định nghĩa g57 trong v3_p045.py), tính lại nhóm có ảnh",
+ "quy_tac": "Cham mot lan; khong sua mo hinh, nguong hay script sau khi xem test. Lech nao phai ghi vao lich_su_sua.",
+ "lich_su_sua": []
+}
