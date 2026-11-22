@@ -1,0 +1,11 @@
+# Phien ban tren may hoc PG (Python 3.13). torch: ban CUDA hoac CPU deu duoc.
+torch==2.6.0
+numpy==2.2.2
+pandas==2.2.3
+scipy==1.16.3
+pillow==11.1.0
+# chi can khi nhan anh:
+opencv-python==4.13.0.92
+torchxrayvision==1.5.5
+hi-ml-multimodal==0.2.2
+rapidocr-onnxruntime==1.2.3
