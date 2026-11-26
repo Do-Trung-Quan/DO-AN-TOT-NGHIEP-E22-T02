@@ -1,0 +1,27 @@
+{
+  "ngay_chay": "2026-11-26T17:56:00",
+  "script": "v3_chon_nguong.py",
+  "hash_script": {
+    "v3_chon_nguong.py": "a233476f157b65a0",
+    "v3_lib.py": "80f07cc24a1f240e",
+    "v2_lib.py": "4d42ac0f30881fc4"
+  },
+  "hash_du_lieu": {
+    "run_PG-noctx_nghe10.npz": "a9379284e305afc0",
+    "p05_folds.npz": "8d1f4e38ea43c5a4"
+  },
+  "SEED": 42,
+  "NBOOT": 1000,
+  "phien_ban": {
+    "python": "3.13.2",
+    "numpy": "2.2.2",
+    "pandas": "2.2.3",
+    "sklearn": "1.7.2"
+  },
+  "tham_so": {
+    "mo_hinh": "PG-noctx",
+    "muc_tieu": 0.8,
+    "n_boot": 1000,
+    "khong_dung_test": true
+  }
+}

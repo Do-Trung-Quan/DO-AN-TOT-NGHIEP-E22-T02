@@ -1,0 +1,124 @@
+{
+ "mo_hinh": "PG-noctx",
+ "nguon": "dev out-of-fold (oof_cal); KHONG dung test",
+ "ma_bam_npz": "a9379284e305afc0",
+ "quy_tac_bao": "bao nguy co neu xac_suat >= nguong",
+ "quy_tac_chinh": "youden",
+ "ghi_chu_quy_tac": "thay dong y can bang do nhay/do dac hieu (Youden) chon tren dev; do_nhay_0.80 chi de tham khao",
+ "luu_y": "oof_cal la diem cua mot mo hinh fold; app tra trung binh 5 fold nen phan bo hep hon mot chut",
+ "muc_tieu_do_nhay": 0.8,
+ "n_boot": 1000,
+ "seed": 42,
+ "co_phim": {
+  "n": 1500,
+  "ca_benh": 367,
+  "auc_oof": 0.7597514255274631,
+  "ti_le_benh": 0.24466666666666667,
+  "do_nhay_0.80": {
+   "nguong": 0.14936879306216827,
+   "muc_tieu_hieu_chinh": 0.835,
+   "dat_can_duoi_0_80": true,
+   "do_nhay_dev": 0.8365122615803815,
+   "do_dac_hieu_dev": 0.5454545454545454,
+   "ti_le_bao_dev": 0.548,
+   "do_nhay_long_nhau": [
+    0.8337874659400545,
+    0.794666051864624,
+    0.8732782602310181
+   ],
+   "can_duoi_5pct": 0.8009617328643799,
+   "do_dac_hieu_long_nhau": [
+    0.5330979699911739,
+    0.5004557371139526,
+    0.5612689256668091
+   ],
+   "ghi_chu_khong_hieu_chinh": {
+    "nguong": 0.16188584695011315,
+    "do_nhay_dev": 0.8010899182561307,
+    "do_dac_hieu_dev": 0.5851721094439541,
+    "ti_le_bao_dev": 0.5093333333333333,
+    "do_nhay_long_nhau": [
+     0.7929155313351499,
+     0.7507321238517761,
+     0.8358701467514038
+    ]
+   }
+  },
+  "youden": {
+   "nguong": 0.16268735859346917,
+   "khoang_dao_dong_nguong_95": [
+    0.14936879306216827,
+    0.266026292339086
+   ],
+   "do_nhay_dev": 0.7983651226158038,
+   "do_dac_hieu_dev": 0.5913503971756399,
+   "ti_le_bao_dev": 0.504,
+   "do_nhay_long_nhau": [
+    0.6784741144414169,
+    0.6288891434669495,
+    0.7305583357810974
+   ],
+   "do_dac_hieu_long_nhau": [
+    0.6840247131509267,
+    0.6536082029342651,
+    0.7126467227935791
+   ]
+  }
+ },
+ "khong_phim": {
+  "n": 5183,
+  "ca_benh": 427,
+  "auc_oof": 0.6302813849829527,
+  "ti_le_benh": 0.08238471927455142,
+  "do_nhay_0.80": {
+   "nguong": 0.05237196174147563,
+   "muc_tieu_hieu_chinh": 0.84,
+   "dat_can_duoi_0_80": true,
+   "do_nhay_dev": 0.8407494145199064,
+   "do_dac_hieu_dev": 0.3156013456686291,
+   "ti_le_bao_dev": 0.6972795678178662,
+   "do_nhay_long_nhau": [
+    0.8313817330210773,
+    0.7957093715667725,
+    0.8686180710792542
+   ],
+   "can_duoi_5pct": 0.8018509149551392,
+   "do_dac_hieu_long_nhau": [
+    0.32211942809083266,
+    0.30750977993011475,
+    0.337620347738266
+   ],
+   "ghi_chu_khong_hieu_chinh": {
+    "nguong": 0.05759574209622429,
+    "do_nhay_dev": 0.8009367681498829,
+    "do_dac_hieu_dev": 0.381623212783852,
+    "ti_le_bao_dev": 0.6334169399961412,
+    "do_nhay_long_nhau": [
+     0.7775175644028103,
+     0.7397865653038025,
+     0.8173573613166809
+    ]
+   }
+  },
+  "youden": {
+   "nguong": 0.06310006044826863,
+   "khoang_dao_dong_nguong_95": [
+    0.05932087572534954,
+    0.09644222439744657
+   ],
+   "do_nhay_dev": 0.7564402810304449,
+   "do_dac_hieu_dev": 0.4392346509671993,
+   "ti_le_bao_dev": 0.5768859733744935,
+   "do_nhay_long_nhau": [
+    0.5971896955503513,
+    0.5487229824066162,
+    0.6425400972366333
+   ],
+   "do_dac_hieu_long_nhau": [
+    0.5224978973927671,
+    0.5077225565910339,
+    0.5374669432640076
+   ]
+  }
+ }
+}
