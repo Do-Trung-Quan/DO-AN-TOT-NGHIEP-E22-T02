@@ -3,6 +3,7 @@
   python v3_run_pg.py PG-global --search   # 1 nut anh = C (lam truoc, thay chot 01/11)
   python v3_run_pg.py PG --search          # PG 6 vung (PG chinh cua de cuong)
   python v3_run_pg.py PG-shuffle           # H2: xao tron canh E1/E2, DUNG LAI cau hinh PG da chon o tung fold
+  python v3_run_pg.py PG-noctx --search    # PG khong dung nut tinh (thay dan bo tinh vi de hoc tat theo noi thu thap); do lai 30 cau hinh
   them --smoke de chay thu nhanh (1 fold, 2 cau hinh, 2 epoch, 1 seed; ket qua mang duoi _smoke, khong dung bao cao)
 
 Moi fold bao cao k (0..4):
@@ -31,13 +32,13 @@ from v2_lib import within_batch_auc
 from sklearn.metrics import roc_auc_score
 
 ap = argparse.ArgumentParser()
-ap.add_argument("name", choices=["PG-global", "PG", "PG-shuffle"])
+ap.add_argument("name", choices=["PG-global", "PG", "PG-shuffle", "PG-noctx"])
 ap.add_argument("--search", action="store_true", help="do cau hinh (bat buoc voi PG-global va PG)")
 ap.add_argument("--smoke", action="store_true", help="chay thu nhanh tren CPU")
 args = ap.parse_args()
 assert NGHE10, "PG ban 3 dung 10 cap nghe: khong dat PG_NGHE10=0"
 name = args.name
-if name in ("PG-global", "PG") and not args.search:
+if name in ("PG-global", "PG", "PG-noctx") and not args.search:
     raise SystemExit(f"{name} can --search (do cau hinh tren validation noi bo)")
 if name == "PG-shuffle" and args.search:
     raise SystemExit("PG-shuffle dung lai cau hinh cua PG (khai bao truoc), khong do lai")

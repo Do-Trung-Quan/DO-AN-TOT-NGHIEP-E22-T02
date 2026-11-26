@@ -3,7 +3,9 @@
 Moi luot kham = 1 do thi 14 node (6 vung anh, 6 nhom lam sang, tinh, CLS). Du doan = trung binh 5 mo hinh fold;
 moi fold: trung binh sigmoid 3 seed -> hieu chinh Platt rieng nhom co / khong phim (tham so fit trong fold, tren dev).
 Moi so lieu lay tu thu muc mo hinh (cau_hinh_chung.json + fold*/), do PAG/scripts_v3/v3_xuat_pg.py xuat.
-CHI ap dung cho 5 tinh trong du lieu hoc (tinh khac -> loi). Khong co nguong da khoa: tra xac suat.
+Ban co tinh (PG): CHI ap dung cho 5 tinh trong du lieu hoc (tinh khac -> loi).
+Ban PG-noctx (cau_hinh_chung.json: bien_the.use_ctx = false): KHONG dung tinh; cot tinh neu gui len bi bo qua.
+Nguong (neu co) nam trong cau_hinh_chung.json -> "nguong"; neu khong co thi chi tra xac suat.
 
     from du_doan_pg import MoHinhPG
     mh = MoHinhPG("duong/den/mo_hinh_PG_web")             # nap 1 lan; tu kiem sha256
@@ -87,7 +89,9 @@ class MoHinhPG:
         self.dev = torch.device(thiet_bi or ("cuda" if torch.cuda.is_available() else "cpu"))
         self.nhom = self.cfg["nhom_bien"]; self.gnames = list(self.nhom)
         self.boi_canh = self.cfg["boi_canh"]
+        self.dung_tinh = bool(self.cfg.get("bien_the", {}).get("use_ctx", True))   # PG-noctx: False -> nut tinh bi tat
         self.tinh_hop_le = list(self.cfg["tinh_hop_le"])
+        self.nguong = self.cfg.get("nguong")   # None neu chua khoa ngưỡng
         self.et = torch.as_tensor(base_types(6), device=self.dev)
         self.folds = []
         for fd in sorted(self.dir.glob("fold*")):
@@ -166,10 +170,11 @@ class MoHinhPG:
         if not da_chuan_bi:
             df = self.chuan_bi(df)
         N = len(df)
-        tinh = df["tinh"].astype(str) if "tinh" in df else pd.Series(["nan"] * N)
-        sai = sorted(set(tinh[~tinh.isin(self.tinh_hop_le)]))
-        if sai:
-            raise ValueError(f"tinh khong hop le {sai}; chi nhan {self.tinh_hop_le}")
+        if self.dung_tinh:
+            tinh = df["tinh"].astype(str) if "tinh" in df else pd.Series(["nan"] * N)
+            sai = sorted(set(tinh[~tinh.isin(self.tinh_hop_le)]))
+            if sai:
+                raise ValueError(f"tinh khong hop le {sai}; chi nhan {self.tinh_hop_le}")
         co_anh = np.zeros(N, bool) if co_anh is None else np.asarray(co_anh, bool)
         regf = np.zeros((N, 6, 512), np.float32) if regf is None else np.asarray(regf, np.float32)
         area = np.zeros((N, 6), np.float32) if area is None else np.asarray(area, np.float32) * co_anh[:, None]
@@ -179,7 +184,7 @@ class MoHinhPG:
         for F_ in folds:
             clin, pres_g = self._ma_hoa(df, F_["spec"])
             img = self._anh_fold(regf, co_anh, F_["anh"])
-            pres = np.zeros((N, 14), bool); pres[:, :6] = co_anh[:, None]; pres[:, 6:12] = pres_g; pres[:, 12] = True; pres[:, 13] = True
+            pres = np.zeros((N, 14), bool); pres[:, :6] = co_anh[:, None]; pres[:, 6:12] = pres_g; pres[:, 12] = self.dung_tinh; pres[:, 13] = True
             T = dict(img=t(img), area=t(area * 10), clin=[t(c) for c in clin], pres=t(pres, torch.bool))
             ps, ats = [], []
             for m in F_["nets"]:
@@ -211,8 +216,8 @@ class MoHinhPG:
         return self._xu_ly_anh(anh)
 
     def du_doan(self, lam_sang: dict, anh=None, duong_dan_biovil=None) -> dict:
-        tinh = lam_sang.get("tinh")
-        if tinh not in self.tinh_hop_le:
+        tinh = lam_sang.get("tinh") if self.dung_tinh else None
+        if self.dung_tinh and tinh not in self.tinh_hop_le:
             raise ValueError(f"tinh '{tinh}' khong hop le; chi nhan {self.tinh_hop_le}")
         df = pd.DataFrame([{k: v for k, v in lam_sang.items()}], dtype=object)
         canh_bao, qa = [], None
@@ -225,7 +230,7 @@ class MoHinhPG:
                 canh_bao.append("Ảnh có vẻ bị đảo âm bản; đã tự đảo lại.")
             if qa["vung_rong"]:
                 canh_bao.append("Không tách được vùng: " + ", ".join(TEN_VUNG[v] for v in qa["vung_rong"]) + ".")
-            if tinh in TINH_IT_PHIM:
+            if self.dung_tinh and tinh in TINH_IT_PHIM:
                 canh_bao.append(f"Dữ liệu học gần như không có ca có phim ở {TINH_CO_DAU[tinh]}; kết quả kèm ảnh ở tỉnh này kém tin cậy.")
         else:
             regf = area = None; co = np.array([False])
@@ -234,7 +239,13 @@ class MoHinhPG:
         if co[0]:
             a = k["chu_y"][0]; a = a / a.sum() if a.sum() > 0 else a
             cy = {v: float(x) for v, x in zip(REG, a)}
+        p0 = float(k["p"][0]); nhom = "co_phim" if co[0] else "khong_phim"
+        ng = (self.nguong or {}).get(nhom) if self.nguong else None
+        nguong = float(ng["nguong"]) if ng else None           # None = chua khoa nguong: chi tra xac suat
         return dict(
-            nhan="ketqua", xac_suat=float(k["p"][0]), xac_suat_theo_fold=[float(x) for x in k["p_fold"][:, 0]],
+            nhan="ketqua", xac_suat=p0, xac_suat_theo_fold=[float(x) for x in k["p_fold"][:, 0]],
+            nhom=nhom, nguong=nguong, bao_nguy_co=(None if nguong is None else bool(p0 >= nguong)),
             co_anh=bool(co[0]), tinh=tinh, chu_y_vung=cy, qa_anh=qa, canh_bao=canh_bao,
-            mo_hinh="PG (Graph Transformer ảnh 6 vùng + lâm sàng), khoá 07/11/2026", experimental=True, disclaimer=DISCLAIMER)
+            mo_hinh=("PG (Graph Transformer ảnh 6 vùng + lâm sàng), khoá 07/11/2026" if self.dung_tinh
+                     else "PG không dùng tỉnh (Graph Transformer ảnh 6 vùng + lâm sàng)"),
+            experimental=True, disclaimer=DISCLAIMER)

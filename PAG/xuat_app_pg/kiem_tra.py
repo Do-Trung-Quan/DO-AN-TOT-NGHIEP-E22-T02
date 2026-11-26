@@ -1,6 +1,6 @@
 """Kiem goi app PG (chay tren may hoc, can du lieu goc). Chi in so lieu gop, KHONG dung nhan test.
 
-  python kiem_tra.py [--n-anh 30] [--bo-anh]
+  python kiem_tra.py [--n-anh 30] [--bo-anh] [--ten PG|PG-noctx]
 
  a) lam sang tho (clin_raw, chuan_bi tinh lai bmi / fev1_fvc / cap nghe) + dac trung anh da luu -> diem app
     so voi diem da luu run_PG_nghe10.npz: test_cal (hang test) va oof_cal theo fold (hang dev fold k, chi_fold=k)
@@ -26,13 +26,14 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--n-anh", type=int, default=30)
 ap.add_argument("--bo-anh", action="store_true")
 ap.add_argument("--n-dict", type=int, default=200)
+ap.add_argument("--ten", default="PG", choices=["PG", "PG-noctx"], help="PG-noctx: ban khong dung tinh (mo_hinh_PG_noctx_web)")
 a = ap.parse_args()
 
 t0 = time.time()
 B = load_base_v3()
 hi, fold, dev, te = B["has_img"], B["fold"], B["dev"], B["test"]
-OLD = np.load(CACHE3 / "run_PG_nghe10.npz")
-mh = MoHinhPG(CACHE3 / "mo_hinh_PG_web")
+OLD = np.load(CACHE3 / f"run_{a.ten}_nghe10.npz")
+mh = MoHinhPG(CACHE3 / ("mo_hinh_PG_web" if a.ten == "PG" else "mo_hinh_PG_noctx_web"))
 print(f"[kiem] nap xong {time.time() - t0:.0f}s, thiet bi {mh.dev}")
 DERIVED = ["bmi", "fev1_fvc", "cviec_lv", "pxuong_lv", "cviec1_lv", "cviec2_lv"]
 
@@ -79,10 +80,17 @@ print(f"  dict vs lo  n={len(idx)}  (co phim {int(hi[idx].sum())})  lech max {ma
 M.append(max(d1))
 r = mh.du_doan({c: (None if pd.isna(v) else v) for c, v in raw.iloc[int(np.where(~hi)[0][0])][cols].items()})
 print(f"  du_doan() tra khoa: {sorted(r)}")
-try:
-    mh.du_doan({"tinh": "Ha Noi"}); print("  LOI: tinh la khong bi chan")
-except ValueError:
-    print("  tinh ngoai 5 tinh -> ValueError (dung)")
+if mh.dung_tinh:
+    try:
+        mh.du_doan({"tinh": "Ha Noi"}); print("  LOI: tinh la khong bi chan")
+    except ValueError:
+        print("  tinh ngoai 5 tinh -> ValueError (dung)")
+else:
+    r1 = mh.du_doan({"gioitinh": "Nam", "namsinh": 1975})
+    r2 = mh.du_doan({"gioitinh": "Nam", "namsinh": 1975, "tinh": "Ha Noi"})   # tinh bi bo qua
+    d = abs(r1["xac_suat"] - r2["xac_suat"])
+    print(f"  ban khong tinh: gui kem tinh la hay khong gui deu khong anh huong: lech {d:.2e} ({'DUNG' if d == 0 else 'LOI'})")
+    M.append(d)
 
 # --- c) xu ly anh
 if not a.bo_anh:

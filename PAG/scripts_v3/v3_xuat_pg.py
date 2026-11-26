@@ -2,6 +2,7 @@
 
   python v3_xuat_pg.py            # 5 fold: mo hinh noi bo (Platt) + 3 seed tren 4 fold, luu, so voi diem da luu
   python v3_xuat_pg.py --smoke    # chay thu fold 0, khong ghi mo hinh chinh
+  python v3_xuat_pg.py --ten PG-noctx   # xuat ban KHONG dung nut tinh (can run_PG-noctx_nghe10.npz + selected_PG-noctx_nghe10.json)
 
 Tai sao phai hoc lai: v3_run_pg.py chi luu diem du doan (cache_v3/run_PG_nghe10.npz), khong luu trong so.
 Script nay lap lai DUNG cac buoc cua v3_run_pg.py cho cau hinh da chon o tung fold (cache_v3/selected_PG_nghe10.json),
@@ -40,14 +41,16 @@ from v2_lib import within_batch_auc  # noqa: E402
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--smoke", action="store_true")
+ap.add_argument("--ten", default="PG", choices=["PG", "PG-noctx"], help="PG = ban da khoa 07/11 (co tinh); PG-noctx = bo nut tinh")
 args = ap.parse_args()
 assert NGHE10 and TAG == "_nghe10", "PG khoa dung 10 cap nghe"
 
-NAME = "PG"
+NAME = args.ten
 SEEDS = [0, 1, 2]
 FOLDS_RUN = [0] if args.smoke else range(5)
-OUT = CACHE3 / ("mo_hinh_PG_web_smoke" if args.smoke else "mo_hinh_PG_web")
-REP = "tuan7_xuat_web" + ("/smoke" if args.smoke else "")
+_THUMUC = "mo_hinh_PG_web" if NAME == "PG" else "mo_hinh_PG_noctx_web"
+OUT = CACHE3 / (_THUMUC + ("_smoke" if args.smoke else ""))
+REP = ("tuan7_xuat_web" if NAME == "PG" else "tuan8_xuat_web_noctx") + ("/smoke" if args.smoke else "")
 OUT.mkdir(parents=True, exist_ok=True)
 
 v = variant(NAME)
@@ -185,14 +188,15 @@ R.to_csv(rd / "tai_tao.csv", index=False, encoding="utf-8-sig")
 pd.DataFrame(log).to_csv(rd / "theo_fold.csv", index=False, encoding="utf-8-sig")
 
 # --- 4. cau hinh chung cho app
-tinh = sorted(B["raw"]["tinh"][rows].dropna().astype(str).unique().tolist())
+DUNG_TINH = bool(v["use_ctx"])
+tinh = sorted(B["raw"]["tinh"][rows].dropna().astype(str).unique().tolist()) if DUNG_TINH else []
 files = sorted(p for p in OUT.rglob("*") if p.is_file() and p.name != "cau_hinh_chung.json")
 chung = dict(
-    mo_hinh="PG (khoa 07/11/2026, cham test 1 lan)", bien_the=v, nghe="10 cap (v3_base.add_job_levels, cot " + ", ".join(JOB_COLS) + ")",
+    mo_hinh=("PG (khoa 07/11/2026, cham test 1 lan)" if DUNG_TINH else "PG-noctx: PG KHONG dung nut tinh (thay dan bo tinh)"), bien_the=v, nghe="10 cap (v3_base.add_job_levels, cot " + ", ".join(JOB_COLS) + ")",
     nhom_bien={g: list(pag_lib.GROUPS[g]) for g in GNAMES}, boi_canh=list(CTX), tinh_hop_le=tinh,
     anh="BioViL-T dong bang, V2, 6 vung x 512 (v3_image.py) -> chuan hoa + PCA whiten 128 theo fold; area*10",
     du_doan="trung binh 5 fold; moi fold: trung binh sigmoid 3 seed -> Platt rieng nhom co/khong phim -> trung binh 5 fold",
-    canh_bao="Dong Nai va Phu Yen gan nhu khong co ca co phim trong du lieu hoc",
+    canh_bao=("Dong Nai va Phu Yen gan nhu khong co ca co phim trong du lieu hoc" if DUNG_TINH else None),
     sha256={str(p.relative_to(OUT)).replace("\\", "/"): sha(p) for p in files},
     du_lieu={p.name: sha(p) for p in (FOLDS, IMG3, MERG / "cache_pg" / "clin_raw.pkl")})
 (OUT / "cau_hinh_chung.json").write_text(json.dumps(chung, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
@@ -207,10 +211,11 @@ def md(df):
                      + ["| " + " | ".join(f(x) for x in r) + " |" for r in df.itertuples(index=False)])
 
 
-L = ["# Tuần 7 — Xuất mô hình PG đã khoá cho web (học lại, lưu trọng số, kiểm tái tạo)", "",
-     f"- Script `scripts_v3/v3_xuat_pg.py`; cấu hình từng fold lấy từ `selected_PG_nghe10.json` (không dò lại).",
+L = [("# Tuần 7 — Xuất mô hình PG đã khoá cho web (học lại, lưu trọng số, kiểm tái tạo)" if DUNG_TINH else
+      "# Tuần 8 — Xuất mô hình PG-noctx (không dùng nút tỉnh) cho web"), "",
+     f"- Script `scripts_v3/v3_xuat_pg.py --ten {NAME}`; cấu hình từng fold lấy từ `selected_{NAME}{TAG}.json` (không dò lại).",
      f"- Mô hình lưu ở `cache_v3/{OUT.name}/` (riêng tư). Thiết bị {DEV}. Thời gian {time.time() - t0:.0f} s.",
-     "- Phần test chỉ so điểm mới với điểm đã lưu ngày 07/11, **không dùng nhãn test, không tính chỉ số test**.", "",
+     "- Phần test chỉ so điểm mới với điểm đã lưu, **không dùng nhãn test, không tính chỉ số test**.", "",
      "## Theo fold", "", md(pd.DataFrame(log)), "",
      "## So điểm mới với điểm đã lưu", "", md(R), "",
      f"AUC trong lô dev (có phim): mới {wb_new:.4f}, cũ {wb_old:.4f}.", ""]
